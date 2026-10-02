@@ -29,7 +29,7 @@ export default function ThemeSwitcher() {
   }, [open]);
 
   return (
-    <div ref={rootRef} className="sm:relative">
+    <div ref={rootRef} className="relative z-[200]">
       <button
         ref={buttonRef}
         type="button"
@@ -46,7 +46,7 @@ export default function ThemeSwitcher() {
         <div
           role="dialog"
           aria-label="تنظیمات ظاهر سایت"
-          className="absolute inset-x-0 top-full z-50 mt-3 max-h-[calc(100vh-7rem)] origin-top animate-pop-in overflow-y-auto rounded-2xl border border-border bg-surface p-4 shadow-2xl shadow-primary/10 sm:inset-x-auto sm:left-0 sm:w-72 sm:origin-top-left"
+          className="absolute left-0 top-full z-[9999] mt-3 w-72 max-w-[calc(100vw-2rem)] max-h-[calc(100vh-7rem)] origin-top animate-pop-in overflow-y-auto rounded-2xl border border-border bg-surface p-4 shadow-2xl shadow-primary/10 origin-top-left"
         >
           <p className="pb-3 text-xs font-bold text-muted">پالت رنگی</p>
           <div className="grid grid-cols-3 gap-2">

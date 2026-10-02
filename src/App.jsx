@@ -4,6 +4,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Toaster } from "react-hot-toast";
 import Home from "./pages/Home";
+import Login from "./pages/Login";
+import VerifyOtp from "./pages/VerifyOtp";
+import CompleteProfile from "./pages/CompleteProfile";
+import AuthPending from "./pages/AuthPending";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -24,6 +28,10 @@ function App() {
       />
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/auth/login" element={<Login />} />
+        <Route path="/auth/otp" element={<VerifyOtp />} />
+        <Route path="/auth/complete-profile" element={<CompleteProfile />} />
+        <Route path="/auth/pending" element={<AuthPending />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </QueryClientProvider>
