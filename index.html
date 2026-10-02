@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <meta
+      name="description"
+      content="آرا نو، تیم حرفه‌ای توسعه نرم‌افزار؛ طراحی و ساخت وب‌اپلیکیشن، API و محصولات دیجیتال."
+    />
+    <link rel="icon" type="image/svg+xml" href="/images/logo.svg" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="/images/favicon-32.png"
+    />
+    <link rel="apple-touch-icon" href="/images/apple-touch-icon.png" />
+    <title>آرا نو | تیم توسعه نرم‌افزار</title>
+    <script>
+      // اعمال Theme قبل از اولین Paint (جلوگیری از Flash)
+      (function () {
+        try {
+          var s = JSON.parse(localStorage.getItem("arano:appearance") || "{}");
+          var r = document.documentElement;
+          var m =
+            s.mode === "dark" || s.mode === "light"
+              ? s.mode
+              : matchMedia("(prefers-color-scheme: dark)").matches
+                ? "dark"
+                : "light";
+          r.dataset.mode = m;
+          r.style.colorScheme = m;
+          r.dataset.theme = /^[a-z]+$/.test(s.theme || "") ? s.theme : "arano";
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
