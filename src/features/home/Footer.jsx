@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+import { FiLock } from "react-icons/fi";
 import { site } from "../../config/site";
 import Icon from "../../ui/Icon";
 import Logo from "../../ui/Logo";
@@ -43,9 +45,18 @@ export default function Footer() {
           </ul>
         </div>
 
-        <p className="mt-10 border-t border-border py-6 text-xs text-muted">
-          {site.footer.copyright}
-        </p>
+        <div className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-border py-6 text-xs text-muted">
+          <p>{site.footer.copyright}</p>
+
+          {/* ورود مدیران: عمداً کم‌رنگ و در پایین‌ترین بخش سایت */}
+          <Link
+            to="/auth/admin"
+            className="inline-flex items-center gap-1.5 transition-colors duration-200 hover:text-foreground"
+          >
+            <FiLock size={13} aria-hidden="true" />
+            ورود مدیران
+          </Link>
+        </div>
       </div>
 
       <p

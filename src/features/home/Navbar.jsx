@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { FiLogIn, FiMenu, FiUserPlus, FiX } from "react-icons/fi";
+import { FiGrid, FiLogIn, FiMenu, FiUserPlus, FiX } from "react-icons/fi";
+import { Link } from "react-router-dom";
+import { dashboardPath, useSession } from "../auth/session";
 import { site } from "../../config/site";
 import Logo from "../../ui/Logo";
 import ThemeSwitcher from "./ThemeSwitcher";
@@ -9,6 +11,7 @@ const AUTH_REGISTER = "/auth/login";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const area = useSession(); // null = وارد نشده
   const headerRef = useRef(null);
 
   useEffect(() => {
@@ -62,30 +65,44 @@ export default function Navbar() {
           </nav>
 
           <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
-            <div className="flex items-center gap-1 sm:gap-1.5">
-              <a
-                href={AUTH_LOGIN}
-                className="inline-flex h-9 items-center justify-center gap-1.5 rounded-full border border-border bg-surface-2 px-3 text-xs font-bold text-foreground transition-[background-color,transform,border-color] duration-200 hover:border-primary hover:bg-primary/10 active:scale-[0.97] sm:h-10 sm:px-4 sm:text-sm"
-              >
-                <FiLogIn
-                  className="hidden sm:block"
-                  size={15}
-                  aria-hidden="true"
-                />
-                ورود
-              </a>
-              <a
-                href={AUTH_REGISTER}
+            {area ? (
+              <Link
+                to={dashboardPath(area)}
                 className="inline-flex h-9 items-center justify-center gap-1.5 rounded-full bg-primary px-3 text-xs font-bold text-primary-foreground transition-[opacity,transform] duration-200 hover:opacity-90 active:scale-[0.97] sm:h-10 sm:px-4 sm:text-sm"
               >
-                <FiUserPlus
+                <FiGrid
                   className="hidden sm:block"
                   size={15}
                   aria-hidden="true"
                 />
-                ثبت‌نام
-              </a>
-            </div>
+                ورود به داشبورد
+              </Link>
+            ) : (
+              <div className="flex items-center gap-1 sm:gap-1.5">
+                <a
+                  href={AUTH_LOGIN}
+                  className="inline-flex h-9 items-center justify-center gap-1.5 rounded-full border border-border bg-surface-2 px-3 text-xs font-bold text-foreground transition-[background-color,transform,border-color] duration-200 hover:border-primary hover:bg-primary/10 active:scale-[0.97] sm:h-10 sm:px-4 sm:text-sm"
+                >
+                  <FiLogIn
+                    className="hidden sm:block"
+                    size={15}
+                    aria-hidden="true"
+                  />
+                  ورود
+                </a>
+                <a
+                  href={AUTH_REGISTER}
+                  className="inline-flex h-9 items-center justify-center gap-1.5 rounded-full bg-primary px-3 text-xs font-bold text-primary-foreground transition-[opacity,transform] duration-200 hover:opacity-90 active:scale-[0.97] sm:h-10 sm:px-4 sm:text-sm"
+                >
+                  <FiUserPlus
+                    className="hidden sm:block"
+                    size={15}
+                    aria-hidden="true"
+                  />
+                  ثبت‌نام
+                </a>
+              </div>
+            )}
 
             <ThemeSwitcher />
 
@@ -123,24 +140,37 @@ export default function Navbar() {
                 </a>
               ))}
 
-              <div className="mt-2 grid grid-cols-2 gap-2 border-t border-border pt-3">
-                <a
-                  href={AUTH_LOGIN}
-                  onClick={closeMenu}
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-border bg-surface-2 px-4 py-3 text-sm font-bold text-foreground transition-colors hover:border-primary hover:bg-primary/10"
-                >
-                  <FiLogIn size={16} aria-hidden="true" />
-                  ورود
-                </a>
-                <a
-                  href={AUTH_REGISTER}
-                  onClick={closeMenu}
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90"
-                >
-                  <FiUserPlus size={16} aria-hidden="true" />
-                  ثبت‌نام
-                </a>
-              </div>
+              {area ? (
+                <div className="mt-2 border-t border-border pt-3">
+                  <Link
+                    to={dashboardPath(area)}
+                    onClick={closeMenu}
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90"
+                  >
+                    <FiGrid size={16} aria-hidden="true" />
+                    ورود به داشبورد
+                  </Link>
+                </div>
+              ) : (
+                <div className="mt-2 grid grid-cols-2 gap-2 border-t border-border pt-3">
+                  <a
+                    href={AUTH_LOGIN}
+                    onClick={closeMenu}
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-border bg-surface-2 px-4 py-3 text-sm font-bold text-foreground transition-colors hover:border-primary hover:bg-primary/10"
+                  >
+                    <FiLogIn size={16} aria-hidden="true" />
+                    ورود
+                  </a>
+                  <a
+                    href={AUTH_REGISTER}
+                    onClick={closeMenu}
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90"
+                  >
+                    <FiUserPlus size={16} aria-hidden="true" />
+                    ثبت‌نام
+                  </a>
+                </div>
+              )}
 
               <a
                 href={site.cta.href}

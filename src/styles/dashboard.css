@@ -1,0 +1,367 @@
+/* =========================================================
+   Design System داشبوردها
+   فقط از توکن‌های Theme سایت (palettes.js) استفاده می‌کند؛
+   پس پالت رنگی و حالت تاریک/روشن به‌صورت خودکار اعمال می‌شود.
+   ========================================================= */
+
+@layer base {
+  /* رنگ‌های وضعیت (در palettes.js وجود ندارند) — فرمت "R G B" */
+  :root {
+    --ok: 22 128 78;
+    --warn: 176 108 0;
+    --bad: 204 48 62;
+    --info: 34 108 200;
+  }
+  [data-mode="dark"] {
+    --ok: 80 220 150;
+    --warn: 245 185 60;
+    --bad: 250 110 120;
+    --info: 120 180 250;
+  }
+}
+
+@layer components {
+  /* ---------- Layout ---------- */
+  .dashboard-shell {
+    @apply min-h-screen bg-background text-foreground;
+  }
+
+  .dashboard-sidebar {
+    @apply fixed inset-y-0 start-0 z-40 flex w-72 max-w-[85vw] flex-col border-e border-border bg-surface;
+    transform: translateX(100%);
+    visibility: hidden;
+    transition:
+      transform 0.2s ease-out,
+      visibility 0.2s;
+  }
+  .dashboard-sidebar[data-open="true"] {
+    transform: none;
+    visibility: visible;
+  }
+
+  .dashboard-backdrop {
+    @apply fixed inset-0 z-30 bg-black/50;
+  }
+
+  .dashboard-main {
+    @apply flex min-h-screen min-w-0 flex-col;
+  }
+
+  .dashboard-topbar {
+    @apply sticky top-0 z-20 flex h-16 items-center justify-between gap-3 border-b border-border bg-background/90 px-4 backdrop-blur sm:px-6;
+  }
+
+  .dashboard-content {
+    @apply mx-auto w-full min-w-0 max-w-6xl flex-1 space-y-6 px-4 py-6 sm:px-6;
+  }
+
+  @media (min-width: 1024px) {
+    .dashboard-sidebar {
+      transform: none;
+      visibility: visible;
+    }
+    .dashboard-main {
+      padding-inline-start: 18rem;
+    }
+    .dashboard-backdrop,
+    .dashboard-menu-button {
+      display: none;
+    }
+  }
+
+  /* ---------- Sidebar ---------- */
+  .dashboard-brand {
+    @apply flex h-16 shrink-0 items-center gap-3 border-b border-border px-5 text-lg font-black;
+  }
+  .dashboard-brand img {
+    @apply h-9 w-9 object-contain;
+  }
+  .dashboard-nav {
+    @apply flex-1 space-y-1 overflow-y-auto p-3;
+  }
+  .dashboard-nav-label {
+    @apply px-3 pb-1 pt-4 text-xs font-bold text-muted;
+  }
+  .dashboard-nav-item {
+    @apply flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold text-muted transition-colors hover:bg-surface-2 hover:text-foreground;
+  }
+  .dashboard-nav-item.is-active {
+    @apply bg-primary/10 text-primary;
+  }
+  .dashboard-nav-badge {
+    @apply ms-auto rounded-full bg-primary px-2 text-xs font-black text-primary-foreground;
+  }
+  .dashboard-sidebar-foot {
+    @apply shrink-0 border-t border-border p-3;
+  }
+
+  /* ---------- Topbar ---------- */
+  .dashboard-user-chip {
+    @apply flex items-center gap-2 text-sm font-bold;
+  }
+  .dashboard-avatar {
+    @apply grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary/10 text-sm font-black text-primary;
+  }
+  .dashboard-user-name {
+    @apply hidden max-w-[10rem] truncate sm:block;
+  }
+
+  .dashboard-topbar-actions {
+    @apply ms-auto flex min-w-0 items-center gap-2;
+  }
+  .dashboard-topbar-actions > * {
+    @apply shrink-0;
+  }
+  /* دو کلاس پشت‌سرهم: specificity بالاتر از .dashboard-input (که w-full دارد) */
+  .dashboard-input.dashboard-role-select {
+    @apply w-auto min-w-0 max-w-[8.5rem] truncate py-1.5 pe-8 ps-3 text-xs sm:max-w-[12rem] sm:text-sm;
+  }
+  /* ---------- Page ---------- */
+  .dashboard-page-header {
+    @apply flex flex-wrap items-center justify-between gap-3;
+  }
+  .dashboard-title {
+    @apply text-2xl font-black;
+  }
+  .dashboard-subtitle {
+    @apply mt-1 text-sm leading-7 text-muted;
+  }
+  .dashboard-actions {
+    @apply flex flex-wrap items-center gap-2;
+  }
+
+  /* ---------- Card / Grid ---------- */
+  .dashboard-panel {
+    @apply min-w-0 rounded-2xl border border-border bg-surface p-4 sm:p-6;
+  }
+  .dashboard-panel-head {
+    @apply mb-4 flex flex-wrap items-center justify-between gap-2;
+  }
+  .dashboard-panel-title {
+    @apply text-lg font-black;
+  }
+  .dashboard-grid-stats {
+    @apply grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4;
+  }
+  .dashboard-grid-2 {
+    @apply grid grid-cols-1 gap-4 lg:grid-cols-2;
+  }
+  .dashboard-stack {
+    @apply space-y-4;
+  }
+
+  /* ---------- Stat ---------- */
+  .dashboard-stat {
+    @apply flex min-w-0 items-center gap-3 rounded-2xl border border-border bg-surface p-4;
+  }
+  .dashboard-stat-icon {
+    @apply grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary;
+  }
+  .dashboard-stat-value {
+    @apply text-2xl font-black leading-none;
+  }
+  .dashboard-stat-label {
+    @apply mt-1 truncate text-xs text-muted;
+  }
+
+  /* ---------- Table ---------- */
+  .dashboard-table-wrap {
+    @apply max-w-full overflow-x-auto rounded-xl border border-border;
+  }
+  .dashboard-data-table {
+    @apply w-full min-w-[640px] border-collapse text-sm;
+  }
+  .dashboard-data-table th {
+    @apply whitespace-nowrap bg-surface-2 px-4 py-3 text-start text-xs font-bold text-muted;
+  }
+  .dashboard-data-table td {
+    @apply whitespace-nowrap border-t border-border px-4 py-3 text-start;
+  }
+  .dashboard-data-table tbody tr {
+    @apply transition-colors hover:bg-surface-2/60;
+  }
+  .dashboard-cell-main {
+    @apply block max-w-[16rem] truncate font-bold;
+  }
+  .dashboard-cell-sub {
+    @apply block text-xs text-muted;
+  }
+  .dashboard-row-actions {
+    @apply flex items-center gap-1;
+  }
+
+  /* ---------- Badge ---------- */
+  .dashboard-badge {
+    @apply inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-bold;
+  }
+  .dashboard-badge--neutral {
+    @apply border-border bg-surface-2 text-muted;
+  }
+  .dashboard-badge--success {
+    color: rgb(var(--ok));
+    border-color: rgb(var(--ok) / 0.3);
+    background: rgb(var(--ok) / 0.1);
+  }
+  .dashboard-badge--warning {
+    color: rgb(var(--warn));
+    border-color: rgb(var(--warn) / 0.3);
+    background: rgb(var(--warn) / 0.1);
+  }
+  .dashboard-badge--danger {
+    color: rgb(var(--bad));
+    border-color: rgb(var(--bad) / 0.3);
+    background: rgb(var(--bad) / 0.1);
+  }
+  .dashboard-badge--info {
+    color: rgb(var(--info));
+    border-color: rgb(var(--info) / 0.3);
+    background: rgb(var(--info) / 0.1);
+  }
+
+  /* ---------- Buttons ---------- */
+  .primary-button,
+  .secondary-button,
+  .danger-button {
+    @apply inline-flex h-10 items-center justify-center gap-2 whitespace-nowrap rounded-xl px-4 text-sm font-black transition disabled:cursor-not-allowed disabled:opacity-60;
+  }
+  .primary-button {
+    @apply bg-primary text-primary-foreground hover:opacity-90;
+  }
+  .secondary-button {
+    @apply border border-border bg-surface text-foreground hover:bg-surface-2;
+  }
+  .danger-button {
+    color: #fff;
+    background: rgb(var(--bad));
+  }
+  .danger-button:hover {
+    opacity: 0.9;
+  }
+  .dashboard-icon-button {
+    @apply grid h-9 w-9 shrink-0 place-items-center rounded-lg text-muted transition hover:bg-surface-2 hover:text-foreground;
+  }
+  .dashboard-icon-button--ok:hover {
+    color: rgb(var(--ok));
+  }
+  .dashboard-icon-button--bad:hover {
+    color: rgb(var(--bad));
+  }
+
+  /* ---------- Form ---------- */
+  .dashboard-form {
+    @apply grid grid-cols-1 gap-4 sm:grid-cols-2;
+  }
+  .dashboard-field {
+    @apply min-w-0 space-y-2;
+  }
+  .dashboard-field--full {
+    @apply sm:col-span-2;
+  }
+  .dashboard-label {
+    @apply text-sm font-bold;
+  }
+  .dashboard-input {
+    @apply w-full rounded-xl border border-border bg-surface-2 px-4 py-2.5 text-sm text-foreground placeholder:text-muted/60 focus:border-primary/60 focus:ring-4 focus:ring-primary/10 disabled:opacity-60;
+  }
+  .dashboard-error {
+    color: rgb(var(--bad));
+    @apply text-xs font-bold;
+  }
+  .dashboard-hint {
+    @apply text-xs text-muted;
+  }
+  .dashboard-form-actions {
+    @apply flex flex-wrap items-center justify-end gap-2 sm:col-span-2;
+  }
+  .dashboard-chip {
+    @apply rounded-full border border-border px-3 py-1 text-xs font-bold text-muted transition hover:border-primary/50;
+  }
+  .dashboard-chip.is-on {
+    @apply border-primary bg-primary/10 text-primary;
+  }
+  .dashboard-tabs {
+    @apply flex max-w-full gap-2 overflow-x-auto pb-1;
+  }
+
+  /* ---------- Empty ---------- */
+  .dashboard-empty {
+    @apply flex flex-col items-center gap-3 px-4 py-12 text-center;
+  }
+  .dashboard-empty-icon {
+    @apply grid h-14 w-14 place-items-center rounded-full bg-primary/10 text-primary;
+  }
+
+  /* ---------- List (history / activity) ---------- */
+  .dashboard-list {
+    @apply divide-y divide-border;
+  }
+  .dashboard-list-item {
+    @apply flex items-start gap-3 py-3;
+  }
+  .dashboard-list-icon {
+    @apply grid h-9 w-9 shrink-0 place-items-center rounded-full bg-surface-2 text-primary;
+  }
+
+  /* ---------- Chat (پشتیبانی) ---------- */
+  .dashboard-chat {
+    @apply grid min-h-[28rem] grid-cols-1 overflow-hidden rounded-2xl border border-border bg-surface lg:h-[34rem] lg:grid-cols-[18rem_1fr];
+  }
+  .dashboard-chat-list {
+    @apply max-h-60 overflow-y-auto border-b border-border lg:max-h-none lg:border-b-0 lg:border-e;
+  }
+  .dashboard-chat-item {
+    @apply block w-full border-b border-border px-4 py-3 text-start transition-colors hover:bg-surface-2;
+  }
+  .dashboard-chat-item.is-on {
+    @apply bg-primary/10;
+  }
+  .dashboard-chat-pane {
+    @apply flex min-h-0 min-w-0 flex-col;
+  }
+  .dashboard-chat-head {
+    @apply flex flex-wrap items-center justify-between gap-2 border-b border-border px-4 py-3;
+  }
+  .dashboard-chat-body {
+    @apply flex min-h-[14rem] flex-1 flex-col gap-3 overflow-y-auto p-4;
+  }
+  .dashboard-bubble {
+    @apply max-w-[85%] rounded-2xl bg-surface-2 px-4 py-2 text-sm leading-7;
+  }
+  .dashboard-bubble--mine {
+    @apply self-end bg-primary text-primary-foreground;
+  }
+  .dashboard-bubble-time {
+    @apply mt-1 block text-xs opacity-70;
+  }
+  .dashboard-chat-foot {
+    @apply flex items-center gap-2 border-t border-border p-3;
+  }
+
+  /* ---------- Modal ---------- */
+  .dashboard-modal-overlay {
+    @apply fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4;
+  }
+  .dashboard-modal {
+    @apply flex max-h-[85vh] w-full max-w-md flex-col rounded-2xl border border-border bg-surface shadow-2xl;
+  }
+  .dashboard-modal-head {
+    @apply flex items-center justify-between gap-3 border-b border-border px-5 py-3;
+  }
+  .dashboard-modal-body {
+    @apply space-y-4 overflow-y-auto p-5;
+  }
+  .dashboard-modal-foot {
+    @apply flex justify-end gap-2 border-t border-border px-5 py-3;
+  }
+
+  /* ---------- Key/Value ---------- */
+  .dashboard-kv {
+    @apply grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm;
+  }
+  .dashboard-kv dt {
+    @apply text-muted;
+  }
+  .dashboard-kv dd {
+    @apply min-w-0 break-words font-bold;
+  }
+}

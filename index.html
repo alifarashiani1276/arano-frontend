@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="fa" dir="rtl">
+<html lang="fa" dir="rtl" class="is-loading">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -35,9 +35,183 @@
         } catch (e) {}
       })();
     </script>
+    <!-- لودینگ ورود: همین‌جا (inline) است تا قبل از لود شدن JS هم دیده شود -->
+    <style>
+      html.is-loading,
+      html.is-loading body {
+        overflow: hidden;
+      }
+      #preloader {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        color: #000;
+        font-family: "Vazir", system-ui, sans-serif;
+      }
+      #preloader .pl-panel {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        background: #ccf802; /* رنگ برند آرا نو */
+        will-change: transform;
+        transition: transform 1.1s cubic-bezier(0.76, 0, 0.24, 1);
+      }
+      /* لبه‌ی گرد پرده؛ هنگام بالا رفتن جلوتر از پرده حرکت می‌کند */
+      #preloader .pl-curve {
+        position: absolute;
+        top: calc(100% - 1px); /* ۱ پیکسل هم‌پوشانی تا خط ریز بین پرده و لبه دیده نشود */
+        left: -10%;
+        right: -10%;
+        height: 14vh;
+        background: #ccf802;
+        border-radius: 0 0 50% 50% / 0 0 100% 100%;
+      }
+      #preloader .pl-center {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+        animation: pl-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+      }
+      #preloader .pl-logo {
+        position: relative;
+        width: 72px;
+        aspect-ratio: 857 / 526;
+      }
+      #preloader .pl-logo svg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+      }
+      #preloader .pl-base {
+        fill: rgba(0, 0, 0, 0.13);
+      }
+      /* لوگو از پایین به بالا با درصد لود پر می‌شود */
+      #preloader .pl-fill {
+        fill: #000;
+        clip-path: inset(var(--top, 100%) 0 0 0);
+      }
+      #preloader .pl-count {
+        display: flex;
+        align-items: baseline;
+        gap: 2px;
+        direction: ltr;
+        font-size: 13px;
+        font-weight: 700;
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+      }
+      /* خروج: محتوا محو می‌شود و پرده بالا می‌رود */
+      #preloader.pl-exit .pl-panel {
+        transform: translate3d(0, calc(-100% - 14vh), 0);
+      }
+      #preloader.pl-exit .pl-center {
+        opacity: 0;
+        transform: translate3d(0, -20px, 0);
+        transition:
+          opacity 0.45s ease,
+          transform 0.7s cubic-bezier(0.76, 0, 0.24, 1);
+      }
+      #preloader.pl-fade {
+        opacity: 0;
+        transition: opacity 0.4s ease;
+      }
+      @keyframes pl-in {
+        from {
+          opacity: 0;
+          transform: translate3d(0, 24px, 0) scale(0.94);
+        }
+      }
+    </style>
+    <noscript><style>#preloader{display:none}html.is-loading,html.is-loading body{overflow:auto}</style></noscript>
   </head>
   <body>
+    <div id="preloader" role="status" aria-live="polite" aria-label="در حال بارگذاری">
+      <div class="pl-panel">
+        <div class="pl-center">
+          <div class="pl-logo" aria-hidden="true">
+            <svg class="pl-base" viewBox="84 254 857 526">
+              <defs>
+                <path
+                  id="pl-glyph"
+                  fill-rule="evenodd"
+                  d="M513 271 L315 716 L369 770 L513 437 L563 555 L469 628 L593 629 L654 770 L710 718Z M665 264 L665 360 L827 511 L701 636 L729 701 L931 511Z M360 264 L94 511 L296 702 L324 636 L198 511 L360 360Z"
+                />
+              </defs>
+              <use href="#pl-glyph" />
+            </svg>
+            <svg class="pl-fill" viewBox="84 254 857 526">
+              <use href="#pl-glyph" />
+            </svg>
+          </div>
+          <div class="pl-count" aria-hidden="true">
+            <span class="pl-num">۰</span><span>٪</span>
+          </div>
+        </div>
+
+        <div class="pl-curve" aria-hidden="true"></div>
+      </div>
+    </div>
+
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <script>
+      // لودینگ: درصد = ترکیب «زمان حداقلی» و «آماده شدن واقعی صفحه» (رویداد load:
+      // HTML، فونت‌ها و تصویر Hero). تا قبل از آماده شدن، درصد روی ۸۸ می‌ماند.
+      (function () {
+        var el = document.getElementById("preloader");
+        if (!el) return;
+        var root = document.documentElement;
+        var fill = el.querySelector(".pl-fill");
+        var num = el.querySelector(".pl-num");
+        var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+        var MIN = reduce ? 0 : 1800; // حداقل زمان نمایش (ms)
+        var start = performance.now();
+        var ready = document.readyState === "complete";
+        var p = 0;
+        var last = -1;
+        var closing = false;
+
+        if (!ready) {
+          addEventListener("load", function () { ready = true; }, { once: true });
+          setTimeout(function () { ready = true; }, 8000); // اطمینان: هیچ‌وقت گیر نکند
+        }
+
+        function render(v) {
+          var n = Math.round(v);
+          if (n !== last) {
+            last = n;
+            num.textContent = n.toLocaleString("fa-IR");
+          }
+          fill.style.setProperty("--top", 100 - v + "%");
+        }
+
+        function close() {
+          closing = true;
+          setTimeout(function () {
+            el.classList.add(reduce ? "pl-fade" : "pl-exit");
+            setTimeout(function () {
+              el.remove();
+              root.classList.remove("is-loading");
+              root.dataset.loaded = "true";
+              dispatchEvent(new Event("arano:loaded"));
+            }, reduce ? 400 : 1300);
+          }, reduce ? 0 : 450);
+        }
+
+        function frame(now) {
+          var byTime = MIN ? Math.min(100, ((now - start) / MIN) * 100) : 100;
+          var target = Math.min(byTime, ready ? 100 : 88);
+          p += (target - p) * 0.1;
+          if (target - p < 0.4) p = target;
+          render(p);
+          if (p >= 100) close();
+          else requestAnimationFrame(frame);
+        }
+        requestAnimationFrame(frame);
+      })();
+    </script>
   </body>
 </html>

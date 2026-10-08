@@ -2,6 +2,9 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { FiSend } from "react-icons/fi";
 import { site } from "../../config/site";
+import { apiMessage, statusOf } from "../../lib/api";
+import { MOBILE_REGEX, normalizePhone, sanitizeText } from "../../lib/security";
+import { sendConsultation } from "../../services/consultationService";
 import Icon from "../../ui/Icon";
 import Reveal from "../../ui/Reveal";
 import SectionHeading from "../../ui/SectionHeading";
@@ -11,83 +14,105 @@ const FIELD =
 
 const ERROR_CLASS = "mt-1.5 text-xs font-bold text-red-600 dark:text-red-400";
 
-// اعداد فارسی و عربی را به انگلیسی تبدیل می‌کند
-function normalizeDigits(value) {
-  return value
-    .replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 0x06f0))
-    .replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x0660));
-}
+const MESSAGE_MIN = 10;
+const MESSAGE_MAX = 1000;
 
-// فاصله و خط‌تیره را حذف و پیش‌شماره ایران را به 0 تبدیل می‌کند
-export function normalizePhone(raw) {
-  let value = normalizeDigits(raw).replace(/[\s\-()]/g, "");
-  if (value.startsWith("+98")) value = `0${value.slice(3)}`;
-  else if (value.startsWith("0098")) value = `0${value.slice(4)}`;
-  else if (value.startsWith("98") && value.length === 12)
-    value = `0${value.slice(2)}`;
-  return value;
-}
+// همان قاعده‌ی بک‌اند: حروف فارسی/عربی، انگلیسی، فاصله و نیم‌فاصله
+const NAME_RE = /^[\p{Script=Arabic}A-Za-z\s\u200c]+$/u;
 
-// موبایل: 09xxxxxxxxx  |  ثابت: 0 + پیش‌شماره + شماره (جمعاً ۱۱ رقم)
-const PHONE_REGEX = /^(09\d{9}|0[1-8]\d{9})$/;
+const FIELD_ORDER = ["first_name", "last_name", "phone", "message"];
 
-function validateField(name, rawValue, messages) {
-  const value = rawValue.trim();
-
-  if (name === "name") {
-    if (!value) return messages.nameRequired;
-    if (value.length > 60) return messages.nameTooLong;
-    if (value.length < 3 || !/\p{L}/u.test(value)) return messages.nameInvalid;
-    return "";
+// مقدار تمیزشده و پیام خطای هر فیلد
+function checkField(name, raw, m) {
+  if (name === "first_name" || name === "last_name") {
+    const value = sanitizeText(raw);
+    if (!value) {
+      return {
+        value,
+        error:
+          name === "first_name"
+            ? "نام را وارد کنید."
+            : "نام خانوادگی را وارد کنید.",
+      };
+    }
+    if (value.length < 2 || value.length > 40 || !NAME_RE.test(value)) {
+      return { value, error: m.nameInvalid };
+    }
+    return { value, error: "" };
   }
 
   if (name === "phone") {
-    if (!value) return messages.phoneRequired;
-    return PHONE_REGEX.test(normalizePhone(value)) ? "" : messages.phoneInvalid;
+    const value = normalizePhone(raw);
+    if (!value) return { value, error: m.phoneRequired };
+    return { value, error: MOBILE_REGEX.test(value) ? "" : m.phoneInvalid };
   }
 
-  if (name === "message") {
-    if (!value) return messages.messageRequired;
-    if (value.length < 10) return messages.messageShort;
-    if (value.length > 1000) return messages.messageLong;
-    return "";
-  }
-
-  return "";
+  // message
+  const value = sanitizeText(raw, { multiline: true });
+  if (!value) return { value, error: m.messageRequired };
+  if (value.length < MESSAGE_MIN) return { value, error: m.messageShort };
+  if (value.length > MESSAGE_MAX) return { value, error: m.messageLong };
+  return { value, error: "" };
 }
-
-const FIELD_ORDER = ["name", "phone", "message"];
 
 export default function Contact() {
   const { contact } = site;
   const { form } = contact;
   const [errors, setErrors] = useState({});
+  const [submitting, setSubmitting] = useState(false);
+  const [messageLength, setMessageLength] = useState(0);
 
   const handleBlur = (e) => {
     const { name, value } = e.target;
-    const error = validateField(name, value, form.errors);
+    const { error } = checkField(name, value, form.errors);
     setErrors((prev) =>
       prev[name] === error ? prev : { ...prev, [name]: error },
     );
   };
 
   const handleChange = (e) => {
-    const { name } = e.target;
+    const { name, value } = e.target;
+    if (name === "message") setMessageLength(value.length);
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
-  const handleSubmit = (e) => {
+  const resetForm = (formEl) => {
+    formEl.reset();
+    setErrors({});
+    setMessageLength(0);
+  };
+
+  // خطاهای ۴۲۲ بک‌اند را به پیام فارسی همان فیلد تبدیل می‌کند
+  const serverErrors = (err) => {
+    const raw = err.response?.data?.errors;
+    if (statusOf(err) !== 422 || !raw) return {};
+    const m = form.errors;
+    const fallback = {
+      first_name: m.nameInvalid,
+      last_name: m.nameInvalid,
+      phone: m.phoneInvalid,
+      message: m.messageInvalid,
+    };
+    const out = {};
+    FIELD_ORDER.forEach((name) => {
+      if (raw[name]) out[name] = fallback[name];
+    });
+    return out;
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    if (submitting) return;
+
     const formEl = e.currentTarget;
     const data = Object.fromEntries(new FormData(formEl));
 
     const nextErrors = {};
+    const clean = {};
     FIELD_ORDER.forEach((name) => {
-      nextErrors[name] = validateField(
-        name,
-        String(data[name] ?? ""),
-        form.errors,
-      );
+      const result = checkField(name, String(data[name] ?? ""), form.errors);
+      nextErrors[name] = result.error;
+      clean[name] = result.value;
     });
     setErrors(nextErrors);
 
@@ -97,20 +122,51 @@ export default function Contact() {
       return;
     }
 
-    const payload = {
-      name: String(data.name).trim(),
-      phone: normalizePhone(String(data.phone)),
-      message: String(data.message).trim(),
-    };
-
-    // TODO: اتصال به endpoint ریلز، مثلاً POST /contacts با همین payload
-    // بک‌اند باید همین قواعد را دوباره اعتبارسنجی کند.
-    void payload;
-
-    toast.success(contact.successMessage);
-    formEl.reset();
-    setErrors({});
+    setSubmitting(true);
+    try {
+      await sendConsultation(clean);
+      toast.success(contact.successMessage);
+      resetForm(formEl);
+    } catch (err) {
+      const fieldErrs = serverErrors(err);
+      if (Object.keys(fieldErrs).length) {
+        setErrors((prev) => ({ ...prev, ...fieldErrs }));
+        formEl.elements[Object.keys(fieldErrs)[0]]?.focus();
+      } else {
+        toast.error(apiMessage(err, form.errors.failed));
+      }
+    } finally {
+      setSubmitting(false);
+    }
   };
+
+  const textField = ({ name, id, label, placeholder, autoComplete }) => (
+    <div>
+      <label htmlFor={id} className="text-sm font-bold">
+        {label}
+      </label>
+      <input
+        id={id}
+        name={name}
+        type="text"
+        required
+        maxLength={40}
+        autoComplete={autoComplete}
+        spellCheck={false}
+        placeholder={placeholder}
+        aria-invalid={Boolean(errors[name])}
+        aria-describedby={errors[name] ? `${id}-error` : undefined}
+        onBlur={handleBlur}
+        onChange={handleChange}
+        className={FIELD}
+      />
+      {errors[name] && (
+        <p id={`${id}-error`} role="alert" className={ERROR_CLASS}>
+          {errors[name]}
+        </p>
+      )}
+    </div>
+  );
 
   return (
     <section
@@ -164,37 +220,25 @@ export default function Contact() {
               <form
                 onSubmit={handleSubmit}
                 noValidate
-                className="flex flex-col gap-4"
+                autoComplete="on"
+                aria-busy={submitting}
+                className="relative flex flex-col gap-4"
               >
-                <div>
-                  <label htmlFor="contact-name" className="text-sm font-bold">
-                    {form.nameLabel}
-                  </label>
-                  <input
-                    id="contact-name"
-                    name="name"
-                    type="text"
-                    required
-                    maxLength={80}
-                    autoComplete="name"
-                    placeholder={form.namePlaceholder}
-                    aria-invalid={Boolean(errors.name)}
-                    aria-describedby={
-                      errors.name ? "contact-name-error" : undefined
-                    }
-                    onBlur={handleBlur}
-                    onChange={handleChange}
-                    className={FIELD}
-                  />
-                  {errors.name && (
-                    <p
-                      id="contact-name-error"
-                      role="alert"
-                      className={ERROR_CLASS}
-                    >
-                      {errors.name}
-                    </p>
-                  )}
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {textField({
+                    name: "first_name",
+                    id: "contact-first-name",
+                    label: "نام",
+                    placeholder: "مثلاً علی",
+                    autoComplete: "given-name",
+                  })}
+                  {textField({
+                    name: "last_name",
+                    id: "contact-last-name",
+                    label: "نام خانوادگی",
+                    placeholder: "مثلاً رضایی",
+                    autoComplete: "family-name",
+                  })}
                 </div>
 
                 <div>
@@ -210,6 +254,7 @@ export default function Contact() {
                     dir="ltr"
                     maxLength={20}
                     autoComplete="tel"
+                    spellCheck={false}
                     placeholder={form.phonePlaceholder}
                     aria-invalid={Boolean(errors.phone)}
                     aria-describedby={
@@ -242,32 +287,46 @@ export default function Contact() {
                     name="message"
                     required
                     rows={4}
-                    maxLength={1200}
+                    maxLength={MESSAGE_MAX}
                     placeholder={form.messagePlaceholder}
                     aria-invalid={Boolean(errors.message)}
                     aria-describedby={
-                      errors.message ? "contact-message-error" : undefined
+                      errors.message
+                        ? "contact-message-error"
+                        : "contact-message-count"
                     }
                     onBlur={handleBlur}
                     onChange={handleChange}
                     className={`${FIELD} resize-none`}
                   />
-                  {errors.message && (
-                    <p
-                      id="contact-message-error"
-                      role="alert"
-                      className={ERROR_CLASS}
+                  <div className="mt-1.5 flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      {errors.message && (
+                        <p
+                          id="contact-message-error"
+                          role="alert"
+                          className={`${ERROR_CLASS} mt-0`}
+                        >
+                          {errors.message}
+                        </p>
+                      )}
+                    </div>
+                    <span
+                      id="contact-message-count"
+                      dir="ltr"
+                      className="shrink-0 text-xs text-muted"
                     >
-                      {errors.message}
-                    </p>
-                  )}
+                      {messageLength}/{MESSAGE_MAX}
+                    </span>
+                  </div>
                 </div>
 
                 <button
                   type="submit"
-                  className="group inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground transition-[opacity,transform] duration-200 hover:opacity-90 active:scale-[0.98]"
+                  disabled={submitting}
+                  className="group inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground transition-[opacity,transform] duration-200 hover:opacity-90 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {form.submit}
+                  {submitting ? form.submitting : form.submit}
                   <FiSend
                     size={15}
                     aria-hidden="true"
