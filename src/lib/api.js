@@ -13,7 +13,7 @@ export const api = axios.create({
 // درخواست‌های ورود/OTP/تکمیل پروفایل: ۴۰۱ آن‌ها یعنی «اطلاعات اشتباه است»
 // و به معنی منقضی شدن نشست نیست.
 const AUTH_ATTEMPT =
-  /^\/(admin\/)?auth\/(send-otp|verify-otp|login|complete-profile)$/;
+  /^\/(admin\/)?auth\/(send-otp|verify-otp|login|complete-profile|forgot-password\/(send-otp|verify-otp|reset))$/;
 
 const isAuthAttempt = (config) => AUTH_ATTEMPT.test(config?.url ?? "");
 

@@ -19,6 +19,17 @@ import Logo from "../ui/Logo";
 import ThemeSwitcher from "../features/home/ThemeSwitcher";
 import { getSessionArea, session, useSession } from "../features/auth/session";
 import { tokenStore } from "../features/auth/token";
+import {
+  Field,
+  FormMessage,
+  Stepper,
+  SubmitButton,
+} from "../features/auth/AdminAuthUi";
+import {
+  INPUT,
+  OTP_BOX,
+  PASSWORD_RULES,
+} from "../features/auth/adminAuthShared";
 import { apiMessage, statusOf } from "../lib/api";
 import {
   MOBILE_REGEX,
@@ -59,18 +70,6 @@ const sendLimiter = createLimiter({
   lockMs: 15 * 60 * 1000,
 });
 
-const PASSWORD_RULES = [
-  { id: "len", label: "حداقل ۸ کاراکتر", test: (v) => v.length >= 8 },
-  { id: "upper", label: "یک حرف بزرگ انگلیسی", test: (v) => /[A-Z]/.test(v) },
-  { id: "lower", label: "یک حرف کوچک انگلیسی", test: (v) => /[a-z]/.test(v) },
-  { id: "digit", label: "یک عدد انگلیسی", test: (v) => /[0-9]/.test(v) },
-  {
-    id: "symbol",
-    label: "یک نماد (مثل ! @ #)",
-    test: (v) => /[^A-Za-z0-9]/.test(v),
-  },
-];
-
 const EMPTY_PROFILE = {
   first_name: "",
   last_name: "",
@@ -79,12 +78,6 @@ const EMPTY_PROFILE = {
   password_confirmation: "",
   bio: "",
 };
-
-const INPUT =
-  "h-14 w-full min-w-0 bg-transparent text-sm font-bold outline-none placeholder:text-muted/60";
-
-const OTP_BOX =
-  "h-12 min-w-0 flex-1 rounded-xl border border-border bg-surface-2 text-center text-lg font-black text-foreground outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/15 sm:h-14 sm:rounded-2xl sm:text-xl";
 
 const nameMessage = (code) =>
   code === "required"
@@ -138,108 +131,6 @@ function checkProfile(values) {
 }
 
 // ---------------------------------------------------------------------------
-// اجزای کوچک رابط کاربری
-// ---------------------------------------------------------------------------
-
-function Field({ id, label, icon: IconComp, error, hint, trailing, children }) {
-  return (
-    <div>
-      <label htmlFor={id} className="mb-2 block text-sm font-bold">
-        {label}
-      </label>
-      <div
-        className={`flex items-center gap-3 rounded-2xl border bg-surface-2 px-4 transition focus-within:border-primary/60 focus-within:ring-4 focus-within:ring-primary/10 ${
-          error ? "border-error" : "border-border"
-        }`}
-      >
-        {IconComp && (
-          <IconComp className="shrink-0 text-muted" aria-hidden="true" />
-        )}
-        {children}
-        {trailing}
-      </div>
-      {error ? (
-        <p
-          id={`${id}-error`}
-          role="alert"
-          className="mt-2 text-xs font-bold text-error"
-        >
-          {error}
-        </p>
-      ) : hint ? (
-        <p className="mt-2 text-xs text-muted">{hint}</p>
-      ) : null}
-    </div>
-  );
-}
-
-function SubmitButton({ busy, busyText, disabled, children }) {
-  return (
-    <button
-      type="submit"
-      disabled={busy || disabled}
-      className="group flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-primary px-5 font-black text-primary-foreground transition hover:-translate-y-0.5 hover:opacity-90 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
-    >
-      {busy ? busyText : children}
-    </button>
-  );
-}
-
-function FormMessage({ children }) {
-  if (!children) return null;
-  return (
-    <p role="alert" className="text-center text-xs font-bold text-error">
-      {children}
-    </p>
-  );
-}
-
-function Stepper({ labels, current }) {
-  return (
-    <ol className="mb-8 flex items-center" aria-label="مراحل ورود مدیر">
-      {labels.map((label, index) => {
-        const done = index < current;
-        const active = index === current;
-
-        return (
-          <li
-            key={label}
-            aria-current={active ? "step" : undefined}
-            className="flex flex-1 items-center last:flex-none"
-          >
-            <span
-              className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-xs font-black transition ${
-                done || active
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-surface-2 text-muted"
-              }`}
-            >
-              {done ? (
-                <FiCheck aria-hidden="true" />
-              ) : (
-                (index + 1).toLocaleString("fa-IR")
-              )}
-            </span>
-            <span
-              className={`ms-2 hidden text-xs font-bold sm:block ${
-                active ? "text-foreground" : "text-muted"
-              }`}
-            >
-              {label}
-            </span>
-            {index < labels.length - 1 && (
-              <span
-                className={`mx-3 h-px flex-1 ${done ? "bg-primary" : "bg-border"}`}
-              />
-            )}
-          </li>
-        );
-      })}
-    </ol>
-  );
-}
-
-// ---------------------------------------------------------------------------
 // صفحه
 // ---------------------------------------------------------------------------
 
@@ -262,6 +153,10 @@ export default function AdminLogin() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [failures, setFailures] = useState(0);
+
+  // پیام موفقیت بعد از تغییر رمز (از صفحه‌ی بازیابی رمز)
+  const notice =
+    typeof location.state?.notice === "string" ? location.state.notice : "";
 
   // زمان‌ها به‌صورت timestamp نگه داشته می‌شوند تا شمارنده با بسته بودن تب جابه‌جا نشود
   const [now, setNow] = useState(() => Date.now());
@@ -708,6 +603,15 @@ export default function AdminLogin() {
                   aria-busy={busy}
                   className="space-y-6"
                 >
+                  {notice && (
+                    <p
+                      role="status"
+                      className="rounded-2xl border border-primary/40 bg-primary/5 p-3 text-center text-xs font-bold leading-6 text-primary"
+                    >
+                      {notice}
+                    </p>
+                  )}
+
                   <Field
                     id="admin-phone"
                     label="شماره موبایل مدیر"
@@ -877,6 +781,16 @@ export default function AdminLogin() {
                     ورود به پنل مدیریت
                     <FiArrowLeft className="transition-transform group-hover:-translate-x-1" />
                   </SubmitButton>
+
+                  <div className="text-center">
+                    <Link
+                      to="/auth/admin/forgot-password"
+                      state={{ phone }}
+                      className="text-sm font-black text-primary transition hover:opacity-80"
+                    >
+                      رمز عبور را فراموش کرده‌ام
+                    </Link>
+                  </div>
                 </form>
               )}
 

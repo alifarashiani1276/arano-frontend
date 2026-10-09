@@ -7,6 +7,7 @@ import { Toaster } from "react-hot-toast";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import AdminLogin from "./pages/AdminLogin";
+import AdminForgotPassword from "./pages/AdminForgotPassword";
 import VerifyOtp from "./pages/VerifyOtp";
 import CompleteProfile from "./pages/CompleteProfile";
 import AuthPending from "./pages/AuthPending";
@@ -52,6 +53,10 @@ function AppRoutes() {
 
       <Route path="/auth/login" element={<Login />} />
       <Route path="/auth/admin" element={<AdminLogin />} />
+      <Route
+        path="/auth/admin/forgot-password"
+        element={<AdminForgotPassword />}
+      />
 
       <Route
         path="/auth/otp"

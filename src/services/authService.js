@@ -58,6 +58,31 @@ export const adminCompleteProfile = (payload, setupToken) =>
     .then((response) => response.data.data ?? {});
 
 // ---------------------------------------------------------------------------
+// بازیابی رمز عبور مدیر (OTP -> توکن بازیابی -> رمز جدید)
+// ---------------------------------------------------------------------------
+
+// بک‌اند برای همه‌ی شماره‌ها پاسخ یکسان می‌دهد (وجود حساب افشا نمی‌شود).
+export const adminForgotPasswordSendOtp = (phone) =>
+  api
+    .post("/admin/auth/forgot-password/send-otp", { phone })
+    .then((response) => response.data);
+
+// پاسخ: { reset_token, token_type, expires_in }
+export const adminForgotPasswordVerifyOtp = (phone, code) =>
+  api
+    .post("/admin/auth/forgot-password/verify-otp", { phone, code })
+    .then((response) => response.data.data ?? {});
+
+// توکن بازیابی فقط برای همین یک درخواست و به‌صورت صریح ارسال می‌شود.
+// payload: { password, password_confirmation }
+export const adminResetPassword = (payload, resetToken) =>
+  api
+    .post("/admin/auth/forgot-password/reset", payload, {
+      headers: { Authorization: `Bearer ${resetToken}` },
+    })
+    .then((response) => response.data);
+
+// ---------------------------------------------------------------------------
 // خروج (برای هر دو بخش)
 // ---------------------------------------------------------------------------
 
