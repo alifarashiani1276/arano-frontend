@@ -1,5 +1,5 @@
 {
-  "react": {
-    "outputDirectory": "dist"
-  }
+  "platform": "react",
+  "app": "arano",
+  "port": 3000
 }
