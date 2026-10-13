@@ -106,23 +106,26 @@ export default function Team() {
                     ))}
                   </ul>
 
-                  <ul className="relative mt-6 flex items-center gap-2 border-t border-border pt-5">
-                    {member.links.map((link, l) => (
-                      <li
-                        key={link.label}
-                        style={{ "--cd": "1100ms", "--i": l }}
-                        className="fx-child fx-pop"
-                      >
-                        <a
-                          href={link.href}
-                          aria-label={`${link.label} ${member.name}`}
-                          className="grid h-9 w-9 place-items-center rounded-full border border-border text-muted transition-[color,border-color] duration-200 hover:border-primary hover:text-primary"
+                  {member.links.length > 0 && (
+                    <ul className="relative mt-6 flex items-center gap-2 border-t border-border pt-5">
+                      {member.links.map((link, l) => (
+                        <li
+                          key={link.label}
+                          style={{ "--cd": "1100ms", "--i": l }}
+                          className="fx-child fx-pop"
                         >
-                          <Icon name={link.icon} size={16} />
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
+                          <a
+                            href={link.href}
+                            aria-label={`${link.label} ${member.name}`}
+                            target="_blank"
+                            className="grid h-9 w-9 place-items-center rounded-full border border-border text-muted transition-[color,border-color] duration-200 hover:border-primary hover:text-primary"
+                          >
+                            <Icon name={link.icon} size={16} />
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </article>
               </Motion>
             );

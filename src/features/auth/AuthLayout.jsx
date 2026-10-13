@@ -1,5 +1,6 @@
 import { FiArrowRight, FiShield, FiCheckCircle } from "react-icons/fi";
 import Logo from "../../ui/Logo";
+import BackHome from "../../ui/BackHome";
 import ThemeSwitcher from "../home/ThemeSwitcher";
 
 export default function AuthLayout({
@@ -19,7 +20,10 @@ export default function AuthLayout({
 
         <header className="relative z-[100] mx-auto flex max-w-6xl items-center justify-between px-4 py-5 sm:px-8">
           <Logo />
-          <ThemeSwitcher />
+          <div className="flex items-center gap-2 sm:gap-3">
+            <BackHome />
+            <ThemeSwitcher />
+          </div>
         </header>
 
         <section className="relative z-10 mx-auto grid min-h-[calc(100vh-88px)] max-w-6xl grid-cols-1 items-center gap-12 px-4 pb-12 pt-4 sm:px-8 lg:grid-cols-[0.9fr_1.1fr]">
@@ -27,7 +31,7 @@ export default function AuthLayout({
             <div className="max-w-md">
               <span className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-bold text-muted">
                 <FiShield className="text-primary" />
-                ورود امن به آرا نو
+                ورود امن به آرانو
               </span>
               <h1 className="mt-6 text-4xl font-black leading-[1.2] tracking-tight xl:text-5xl">
                 پروژه‌ات را شروع کن؛
@@ -36,7 +40,7 @@ export default function AuthLayout({
                 </span>
               </h1>
               <p className="mt-5 max-w-sm text-base leading-8 text-muted">
-                با شماره موبایل وارد شو و اطلاعات پروژه‌ات را با تیم آرا نو در
+                با شماره موبایل وارد شو و اطلاعات پروژه‌ات را با تیم آرانو در
                 میان بگذار.
               </p>
 
@@ -103,7 +107,7 @@ export default function AuthLayout({
             </div>
 
             <p className="mt-5 text-center text-xs leading-6 text-muted">
-              ورود به آرا نو به معنی پذیرش قوانین و شرایط استفاده از خدمات است.
+              ورود به آرانو به معنی پذیرش قوانین و شرایط استفاده از خدمات است.
             </p>
           </div>
         </section>

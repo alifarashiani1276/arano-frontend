@@ -140,7 +140,7 @@ export default function Login() {
         </div>
 
         <p className="text-center text-xs text-muted">
-          مدیر آرا نو هستی؟{" "}
+          مدیر آرانو هستی؟{" "}
           <Link
             to="/auth/admin"
             className="font-bold text-primary transition hover:opacity-80"

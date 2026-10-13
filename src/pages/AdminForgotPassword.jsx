@@ -14,6 +14,7 @@ import {
   FiShield,
 } from "react-icons/fi";
 import Logo from "../ui/Logo";
+import BackHome from "../ui/BackHome";
 import ThemeSwitcher from "../features/home/ThemeSwitcher";
 import { getSessionArea, useSession } from "../features/auth/session";
 import { tokenStore } from "../features/auth/token";
@@ -382,8 +383,9 @@ export default function AdminForgotPassword() {
 
         <header className="relative z-[100] mx-auto flex max-w-6xl items-center justify-between px-4 py-5 sm:px-8">
           <Logo />
-          <div className="flex items-center gap-3">
-            <span className="hidden items-center gap-2 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-bold text-muted sm:inline-flex">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <BackHome />
+            <span className="hidden items-center gap-2 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-bold text-muted lg:inline-flex">
               <FiLock className="text-primary" aria-hidden="true" />
               پنل مدیریت
             </span>
@@ -396,7 +398,7 @@ export default function AdminForgotPassword() {
             <div className="max-w-md">
               <span className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-bold text-muted">
                 <FiShield className="text-primary" aria-hidden="true" />
-                فقط برای مدیران آرا نو
+                فقط برای مدیران آرانو
               </span>
               <h1 className="mt-6 text-4xl font-black leading-[1.2] tracking-tight xl:text-5xl">
                 رمزت را فراموش کردی؟

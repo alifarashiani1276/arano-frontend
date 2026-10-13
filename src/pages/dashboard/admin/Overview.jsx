@@ -82,7 +82,7 @@ export default function AdminOverview() {
 
   return (
     <>
-      <PageHeader title="نمای کلی" subtitle="آمار واقعی سیستم مدیریت آرا نو" />
+      <PageHeader title="نمای کلی" subtitle="آمار واقعی سیستم مدیریت آرانو" />
 
       <section className="dashboard-stack">
         <h2 className="dashboard-panel-title">کاربران</h2>

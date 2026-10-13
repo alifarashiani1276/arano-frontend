@@ -3,6 +3,7 @@ import { FiLock } from "react-icons/fi";
 import { site } from "../../config/site";
 import Icon from "../../ui/Icon";
 import Logo from "../../ui/Logo";
+import SmartLink from "../../ui/SmartLink";
 
 export default function Footer() {
   return (
@@ -19,12 +20,12 @@ export default function Footer() {
             <ul className="flex flex-wrap items-center gap-x-6 gap-y-2">
               {site.nav.map((item) => (
                 <li key={item.href}>
-                  <a
+                  <SmartLink
                     href={item.href}
                     className="text-sm text-muted transition-colors duration-200 hover:text-foreground"
                   >
                     {item.label}
-                  </a>
+                  </SmartLink>
                 </li>
               ))}
             </ul>
@@ -47,6 +48,27 @@ export default function Footer() {
 
         <div className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-border py-6 text-xs text-muted">
           <p>{site.footer.copyright}</p>
+
+          {/* نماد اعتماد الکترونیکی (اینماد): کد را بدون تغییر نگه دارید */}
+          <div className="rounded-lg bg-white p-1.5">
+            <a
+              referrerPolicy="origin"
+              target="_blank"
+              href={
+                "https://trustseal.enamad.ir/?id=8145429&Code=abiQkKGbrvskYy3SnKqYmlQXxUWDcj8M"
+              }
+            >
+              <img
+                referrerPolicy="origin"
+                src={
+                  "https://trustseal.enamad.ir/logo.aspx?id=8145429&Code=abiQkKGbrvskYy3SnKqYmlQXxUWDcj8M"
+                }
+                alt=""
+                style={{ cursor: "pointer" }}
+                code="abiQkKGbrvskYy3SnKqYmlQXxUWDcj8M"
+              />
+            </a>
+          </div>
 
           {/* ورود مدیران: عمداً کم‌رنگ و در پایین‌ترین بخش سایت */}
           <Link

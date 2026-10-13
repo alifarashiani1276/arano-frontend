@@ -138,7 +138,7 @@ function HeroBanner() {
   return (
     <section
       id="top"
-      aria-label="معرفی تصویری آرا نو"
+      aria-label="معرفی تصویری آرانو"
       className="relative isolate h-[100svh] min-h-[34rem] overflow-hidden bg-background"
     >
       <picture>

@@ -83,7 +83,7 @@ export const MOCK_PROFILES = {
     last_name: "رضایی",
     phone: "09120000000",
     email: "ali@arano.dev",
-    bio: "مدیر ارشد آرا نو.",
+    bio: "مدیر ارشد آرانو.",
     status: "APPROVED",
     is_active: true,
     role: "SUPER_ADMIN",

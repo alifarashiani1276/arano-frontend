@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { FiGrid, FiLogIn, FiMenu, FiUserPlus, FiX } from "react-icons/fi";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { dashboardPath, useSession } from "../auth/session";
 import { site } from "../../config/site";
 import Logo from "../../ui/Logo";
+import SmartLink from "../../ui/SmartLink";
 import ThemeSwitcher from "./ThemeSwitcher";
 
 const AUTH_LOGIN = "/auth/login";
@@ -13,6 +14,7 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const area = useSession(); // null = وارد نشده
   const headerRef = useRef(null);
+  const { pathname } = useLocation();
 
   useEffect(() => {
     const el = headerRef.current;
@@ -54,13 +56,18 @@ export default function Navbar() {
             className="hidden items-center gap-1 md:flex"
           >
             {site.nav.map((item) => (
-              <a
+              <SmartLink
                 key={item.href}
                 href={item.href}
-                className="relative rounded-full px-3 py-2 text-sm font-bold text-muted transition-colors duration-200 after:absolute after:inset-x-3 after:bottom-1 after:h-px after:origin-right after:scale-x-0 after:bg-primary after:transition-transform after:duration-300 hover:text-foreground hover:after:scale-x-100"
+                aria-current={item.href === pathname ? "page" : undefined}
+                className={`relative rounded-full px-3 py-2 text-sm font-bold transition-colors duration-200 after:absolute after:inset-x-3 after:bottom-1 after:h-px after:origin-right after:bg-primary after:transition-transform after:duration-300 hover:text-foreground hover:after:scale-x-100 ${
+                  item.href === pathname
+                    ? "text-foreground after:scale-x-100"
+                    : "text-muted after:scale-x-0"
+                }`}
               >
                 {item.label}
-              </a>
+              </SmartLink>
             ))}
           </nav>
 
@@ -130,14 +137,17 @@ export default function Navbar() {
           >
             <nav aria-label="منوی موبایل" className="flex flex-col">
               {site.nav.map((item) => (
-                <a
+                <SmartLink
                   key={item.href}
                   href={item.href}
                   onClick={closeMenu}
-                  className="rounded-2xl px-4 py-3 text-base font-bold transition-colors duration-200 hover:bg-surface-2"
+                  aria-current={item.href === pathname ? "page" : undefined}
+                  className={`rounded-2xl px-4 py-3 text-base font-bold transition-colors duration-200 hover:bg-surface-2 ${
+                    item.href === pathname ? "bg-surface-2" : ""
+                  }`}
                 >
                   {item.label}
-                </a>
+                </SmartLink>
               ))}
 
               {area ? (
@@ -172,13 +182,13 @@ export default function Navbar() {
                 </div>
               )}
 
-              <a
+              <SmartLink
                 href={site.cta.href}
                 onClick={closeMenu}
                 className="mt-2 rounded-2xl bg-surface-2 px-4 py-3 text-center text-base font-bold transition-colors hover:bg-primary/10"
               >
                 {site.cta.label}
-              </a>
+              </SmartLink>
             </nav>
           </div>
         )}

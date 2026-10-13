@@ -111,29 +111,51 @@ html.dark-mode {
   min-height: 100vh;
   background: rgb(var(--surface-app));
 }
-::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
 
-::-webkit-scrollbar-track {
-  background: rgb(var(--surface-2));
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgb(var(--color-secondary-300));
-  border-radius: var(--radius-md);
-  border: 2px solid rgb(var(--surface-2));
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgb(var(--color-secondary-400));
-}
-
+/* ── اسکرول‌بار مینیمال، هماهنگ با تم سایت ──
+   از همان متغیرهای تم سایت (--primary / --foreground / --background) استفاده می‌کند.
+   مقدار بعد از کاما فقط fallback است (اگر متغیر تعریف نشده بود). */
 html {
-  scrollbar-width: thin;
-  scrollbar-color: rgb(var(--color-secondary-300)) rgb(var(--surface-2));
   scrollbar-gutter: stable;
+}
+
+/* همه مرورگرها (کروم ۱۲۱+، اج، اپرا، فایرفاکس): استاندارد scrollbar-color
+   توجه: کروم ۱۲۱+ اگر این‌ها را ببیند، ::-webkit-scrollbar را نادیده می‌گیرد؛
+   پس تنظیم رنگ فقط از همین‌جا انجام می‌شود. */
+html,
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(var(--primary, 190 235 0) / 0.6)
+    rgb(var(--background, 13 13 15));
+}
+
+/* نسخه‌های قدیمی‌تر کروم/سافاری که scrollbar-color را پشتیبانی نمی‌کنند */
+@supports not (scrollbar-color: red blue) {
+  ::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+
+  ::-webkit-scrollbar-track,
+  ::-webkit-scrollbar-corner {
+    background-color: rgb(var(--background, 13 13 15));
+  }
+
+  ::-webkit-scrollbar-button {
+    display: none;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: rgb(var(--primary, 190 235 0) / 0.55);
+    background-clip: padding-box;
+    border: 3px solid transparent;
+    border-radius: 999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover,
+  ::-webkit-scrollbar-thumb:active {
+    background-color: rgb(var(--primary, 190 235 0) / 0.95);
+  }
 }
 
 .rti--container {
@@ -141,7 +163,7 @@ html {
   border: 1px solid rgb(var(--border-default)) !important;
   --rti-radius: 8px;
   --rti-s: 8px;
-  --rti-tag: #1f1f23;
+  --rti-tag: rgb(var(--surface-hover-2));
   --rti-tag-remove: #ef4444;
 }
 
@@ -2055,9 +2077,6 @@ body {
     padding: 1.5rem 1.5rem 2rem;
   }
 }
-–––––
-
-/* این بلاک رو به آخر index.css اضافه کن */
 
 .home-founder__contact {
   @apply flex items-center gap-3 flex-wrap;

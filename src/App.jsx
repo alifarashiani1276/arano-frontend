@@ -5,12 +5,16 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Toaster } from "react-hot-toast";
 
 import Home from "./pages/Home";
+import ServicesPage from "./pages/ServicesPage";
+import PortfolioPage from "./pages/PortfolioPage";
+import AboutPage from "./pages/AboutPage";
 import Login from "./pages/Login";
 import AdminLogin from "./pages/AdminLogin";
 import AdminForgotPassword from "./pages/AdminForgotPassword";
 import VerifyOtp from "./pages/VerifyOtp";
 import CompleteProfile from "./pages/CompleteProfile";
 import AuthPending from "./pages/AuthPending";
+import ScrollToTop from "./ui/ScrollToTop";
 
 import RequireStep from "./features/auth/RequireStep";
 import AuthBootstrap from "./features/auth/AuthBootstrap";
@@ -48,66 +52,72 @@ const queryClient = new QueryClient({
 
 function AppRoutes() {
   return (
-    <Routes>
-      <Route path="/" element={<Home />} />
+    <>
+      <ScrollToTop />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/services" element={<ServicesPage />} />
+        <Route path="/portfolio" element={<PortfolioPage />} />
+        <Route path="/about" element={<AboutPage />} />
 
-      <Route path="/auth/login" element={<Login />} />
-      <Route path="/auth/admin" element={<AdminLogin />} />
-      <Route
-        path="/auth/admin/forgot-password"
-        element={<AdminForgotPassword />}
-      />
+        <Route path="/auth/login" element={<Login />} />
+        <Route path="/auth/admin" element={<AdminLogin />} />
+        <Route
+          path="/auth/admin/forgot-password"
+          element={<AdminForgotPassword />}
+        />
 
-      <Route
-        path="/auth/otp"
-        element={
-          <RequireStep step="phone">
-            <VerifyOtp />
-          </RequireStep>
-        }
-      />
+        <Route
+          path="/auth/otp"
+          element={
+            <RequireStep step="phone">
+              <VerifyOtp />
+            </RequireStep>
+          }
+        />
 
-      <Route
-        path="/auth/complete-profile"
-        element={
-          <RequireStep step="verified">
-            <CompleteProfile />
-          </RequireStep>
-        }
-      />
+        <Route
+          path="/auth/complete-profile"
+          element={
+            <RequireStep step="verified">
+              <CompleteProfile />
+            </RequireStep>
+          }
+        />
 
-      <Route path="/auth/pending" element={<AuthPending />} />
+        <Route path="/auth/pending" element={<AuthPending />} />
 
-      <Route element={<ProtectedRoute area="user" />}>
-        <Route path="/dashboard" element={<DashboardLayout area="user" />}>
-          <Route index element={<UserOverview />} />
-          <Route path="projects" element={<UserProjects />} />
-          <Route path="history" element={<UserHistory />} />
-          <Route path="support" element={<UserSupport />} />
-          <Route path="profile" element={<UserProfile />} />
-        </Route>
-      </Route>
-
-      <Route element={<ProtectedRoute area="admin" />}>
-        <Route path="/admin" element={<DashboardLayout area="admin" />}>
-          <Route index element={<AdminOverview />} />
-          <Route path="requests" element={<AdminRequests />} />
-          <Route path="users" element={<AdminUsers />} />
-          <Route path="projects" element={<AdminProjects />} />
-          <Route path="support" element={<AdminSupport />} />
-          <Route path="history" element={<AdminHistory />} />
-          <Route path="consultations" element={<AdminConsultations />} />
-          <Route path="profile" element={<AdminProfile />} />
-
-          <Route element={<SuperOnlyRoute />}>
-            <Route path="admins" element={<Admins />} />
-            <Route path="roles" element={<Roles />} />
+        <Route element={<ProtectedRoute area="user" />}>
+          <Route path="/dashboard" element={<DashboardLayout area="user" />}>
+            <Route index element={<UserOverview />} />
+            <Route path="projects" element={<UserProjects />} />
+            <Route path="history" element={<UserHistory />} />
+            <Route path="support" element={<UserSupport />} />
+            <Route path="profile" element={<UserProfile />} />
           </Route>
         </Route>
-      </Route>
 
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        <Route element={<ProtectedRoute area="admin" />}>
+          <Route path="/admin" element={<DashboardLayout area="admin" />}>
+            <Route index element={<AdminOverview />} />
+            <Route path="requests" element={<AdminRequests />} />
+            <Route path="users" element={<AdminUsers />} />
+            <Route path="projects" element={<AdminProjects />} />
+            <Route path="support" element={<AdminSupport />} />
+            <Route path="history" element={<AdminHistory />} />
+            <Route path="consultations" element={<AdminConsultations />} />
+            <Route path="profile" element={<AdminProfile />} />
+
+            <Route element={<SuperOnlyRoute />}>
+              <Route path="admins" element={<Admins />} />
+              <Route path="roles" element={<Roles />} />
+            </Route>
+          </Route>
+        </Route>
+
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </>
   );
 }
 

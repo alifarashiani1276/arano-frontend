@@ -3,9 +3,7 @@ import Navbar from "../features/home/Navbar";
 import Hero from "../features/home/Hero";
 import Marquee from "../features/home/Marquee";
 import Stats from "../features/home/Stats";
-import Services from "../features/home/Services";
-import Portfolio from "../features/home/Portfolio";
-import About from "../features/home/About";
+import ExploreLinks from "../features/home/ExploreLinks";
 import Team from "../features/home/Team";
 import Contact from "../features/home/Contact";
 import Footer from "../features/home/Footer";
@@ -28,9 +26,7 @@ export default function Home() {
         <Hero />
         <Marquee />
         <Stats />
-        <Services />
-        <Portfolio />
-        <About />
+        <ExploreLinks />
         <Team />
         <Contact />
       </main>

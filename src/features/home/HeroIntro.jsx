@@ -1,6 +1,7 @@
 import { FiArrowLeft } from "react-icons/fi";
 import { site } from "../../config/site";
 import Motion from "../../ui/Motion";
+import SmartLink from "../../ui/SmartLink";
 import SplitWords from "../../ui/SplitWords";
 
 // بخش دوم Hero: بعد از تصویر، با اسکرول و به‌صورت پله‌ای نمایش داده می‌شود.
@@ -71,7 +72,7 @@ export default function HeroIntro() {
             style={{ "--cd": "1100ms" }}
             className="fx-child fx-pop inline-flex"
           >
-            <a
+            <SmartLink
               href={hero.primaryCta.href}
               className="group inline-flex items-center gap-2 rounded-full bg-primary px-7 py-4 text-sm font-bold text-primary-foreground transition-[opacity,transform] duration-200 hover:opacity-90 active:scale-[0.97]"
             >
@@ -81,18 +82,18 @@ export default function HeroIntro() {
                 aria-hidden="true"
                 className="transition-transform duration-200 group-hover:-translate-x-1"
               />
-            </a>
+            </SmartLink>
           </span>
           <span
             style={{ "--cd": "1250ms" }}
             className="fx-child fx-pop inline-flex"
           >
-            <a
+            <SmartLink
               href={hero.secondaryCta.href}
               className="inline-flex items-center rounded-full border border-border bg-surface px-7 py-4 text-sm font-bold transition-[border-color,background-color] duration-200 hover:border-primary/60 hover:bg-surface-2"
             >
               {hero.secondaryCta.label}
-            </a>
+            </SmartLink>
           </span>
         </div>
       </Motion>
