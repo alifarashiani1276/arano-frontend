@@ -36,6 +36,8 @@ export default function Footer() {
               <li key={social.id}>
                 <a
                   href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   aria-label={social.label}
                   className="grid h-10 w-10 place-items-center rounded-full border border-border text-muted transition-[color,border-color] duration-200 hover:border-primary hover:text-primary"
                 >

@@ -233,10 +233,24 @@ export const site = {
   },
 
   socials: [
-    { id: "github", label: "گیت‌هاب", icon: "github", href: "#" },
-    { id: "linkedin", label: "لینکدین", icon: "linkedin", href: "#" },
-    { id: "instagram", label: "اینستاگرام", icon: "instagram", href: "#" },
-    { id: "telegram", label: "تلگرام", icon: "send", href: "#" },
+    {
+      id: "github",
+      label: "گیت‌هاب",
+      icon: "github",
+      href: "https://github.com/alifarashiani1276/",
+    },
+    {
+      id: "instagram",
+      label: "اینستاگرام",
+      icon: "instagram",
+      href: "https://instagram.com/arano_group",
+    },
+    {
+      id: "telegram",
+      label: "تلگرام",
+      icon: "send",
+      href: "https://t.me/+989150635682",
+    },
   ],
 
   footer: {
