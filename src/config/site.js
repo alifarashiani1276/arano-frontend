@@ -141,7 +141,7 @@ export const site = {
       eyebrow: "ارتباط با ما",
       title: "پروژه بعدی‌ات را با هم بسازیم",
       description:
-        "ایده‌ات را برایمان بنویس. معمولاً ظرف یک روز کاری پاسخ می‌دهیم.",
+        "ایده‌ یا درخواستت را برایمان بنویس. معمولاً ظرف یک روز کاری پاسخ می‌دهیم.",
     },
   },
 
@@ -184,21 +184,21 @@ export const site = {
       {
         icon: "mail",
         label: "ایمیل",
-        value: "hello@example.com",
-        href: "mailto:hello@example.com",
+        value: "aranogr3@aranogroup.ir",
+        href: "aranogr3@aranogroup.ir",
         ltr: true,
       },
       {
         icon: "phone",
         label: "تلفن",
-        value: "۰۲۱-۰۰۰۰۰۰۰۰",
-        href: "tel:+982100000000",
+        value: "09370876514",
+        href: "09370876514",
         ltr: true,
       },
       {
         icon: "pin",
         label: "موقعیت",
-        value: "تهران، ایران",
+        value: "خراسان رضوی، جغتای",
         href: null,
         ltr: false,
       },

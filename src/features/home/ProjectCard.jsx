@@ -1,20 +1,32 @@
-import { FiArrowUpRight } from "react-icons/fi";
+import { FiArrowUpRight, FiGithub } from "react-icons/fi";
 import MediaImage from "../../ui/MediaImage";
 
 export default function ProjectCard({ project, index, wide = false }) {
-  const { title, description, categoryLabel, technologies, image, url, year } =
-    project;
+  const {
+    title,
+    description,
+    categoryLabel,
+    technologies,
+    image,
+    mobileImage,
+    url,
+    github,
+    year,
+  } = project;
   const isExternal = typeof url === "string" && url.startsWith("http");
 
   return (
     <article className={`group relative ${wide ? "md:col-span-2" : ""}`}>
       <div
         className={`relative overflow-hidden rounded-3xl border border-border bg-surface-2 transition-colors duration-300 group-focus-within:border-primary group-hover:border-primary/50 ${
-          wide ? "aspect-[16/10] md:aspect-[21/9]" : "aspect-[16/10]"
+          wide
+            ? "aspect-[4/5] md:aspect-[21/9]"
+            : "aspect-[4/5] md:aspect-[16/10]"
         }`}
       >
         <MediaImage
           src={image}
+          mobileSrc={mobileImage}
           alt={`تصویر پروژه ${title}`}
           label={title}
           variant={index}
@@ -60,6 +72,18 @@ export default function ProjectCard({ project, index, wide = false }) {
           <p className="mt-2 max-w-2xl text-sm leading-7 text-muted">
             {description}
           </p>
+
+          {github && (
+            <a
+              href={github}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="relative z-10 mt-4 inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-2 text-xs font-bold text-muted transition-[background-color,color,border-color] duration-200 hover:border-primary/50 hover:text-foreground focus-visible:border-primary focus-visible:text-foreground"
+            >
+              <FiGithub size={16} aria-hidden="true" />
+              برای دیدن ریپوی گیت‌هاب این پروژه کلیک کنید
+            </a>
+          )}
         </div>
         <span
           aria-hidden="true"

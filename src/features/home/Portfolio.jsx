@@ -10,7 +10,9 @@ function Skeleton({ wide }) {
     <div className={wide ? "md:col-span-2" : ""} aria-hidden="true">
       <div
         className={`animate-pulse rounded-3xl bg-surface-2 ${
-          wide ? "aspect-[16/10] md:aspect-[21/9]" : "aspect-[16/10]"
+          wide
+            ? "aspect-[4/5] md:aspect-[21/9]"
+            : "aspect-[4/5] md:aspect-[16/10]"
         }`}
       />
       <div className="mt-5 h-5 w-1/2 animate-pulse rounded-full bg-surface-2" />

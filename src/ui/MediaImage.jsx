@@ -1,4 +1,5 @@
 // نمایش تصویر قابل‌جایگزین. اگر src نبود، Placeholder تمِ‌دار (با رنگ‌های Theme) نمایش داده می‌شود.
+// src = تصویر دسکتاپ، mobileSrc = تصویر موبایل (زیر ۷۶۸ پیکسل، هم‌راستا با breakpoint md).
 const ART = [
   "from-primary/30 via-secondary to-accent/20",
   "from-accent/30 via-secondary to-primary/20",
@@ -8,6 +9,7 @@ const ART = [
 
 export default function MediaImage({
   src,
+  mobileSrc,
   alt = "",
   label,
   variant = 0,
@@ -15,16 +17,23 @@ export default function MediaImage({
   className = "",
   imgClassName = "",
 }) {
+  const fallback = src || mobileSrc;
+
   return (
     <div className={`relative overflow-hidden ${className}`}>
-      {src ? (
-        <img
-          src={src}
-          alt={alt}
-          loading={priority ? "eager" : "lazy"}
-          decoding="async"
-          className={`h-full w-full object-cover ${imgClassName}`}
-        />
+      {fallback ? (
+        <picture>
+          {src && mobileSrc && (
+            <source media="(min-width: 768px)" srcSet={src} />
+          )}
+          <img
+            src={mobileSrc || src}
+            alt={alt}
+            loading={priority ? "eager" : "lazy"}
+            decoding="async"
+            className={`h-full w-full object-cover ${imgClassName}`}
+          />
+        </picture>
       ) : (
         <div
           className={`relative h-full w-full bg-gradient-to-br ${ART[variant % ART.length]}`}

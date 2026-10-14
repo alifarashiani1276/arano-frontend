@@ -16,7 +16,10 @@ export function normalizeProject(raw) {
     categoryLabel: raw.categoryLabel ?? raw.category_label ?? "پروژه",
     technologies: raw.technologies ?? raw.tech_stack ?? [],
     image: raw.image ?? raw.image_url ?? null,
+    mobileImage:
+      raw.mobileImage ?? raw.mobile_image ?? raw.mobile_image_url ?? null,
     url: raw.url ?? raw.project_url ?? null,
+    github: raw.github ?? raw.github_url ?? null,
     year: raw.year ?? "",
     featured: Boolean(raw.featured),
   };
