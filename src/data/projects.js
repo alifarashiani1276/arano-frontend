@@ -52,7 +52,7 @@ export const PROJECTS = [
     technologies: ["React", "Tailwind", "Vercel", "Node.js", "MongoDB"],
     image: "/images/projects/hotel-booking-desktop.webp",
     mobileImage: "/images/projects/hotel-booking-mobile.webp",
-    url: "https://hotel-booking-9bduyu7ky-alifara.vercel.app/",
+    url: "https://hotel-booking-app-theta-rosy.vercel.app/",
     github: "https://github.com/alifarashiani1276/hotel-booking-app",
     year: "",
     featured: false,
