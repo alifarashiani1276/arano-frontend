@@ -8,6 +8,7 @@ import Home from "./pages/Home";
 import ServicesPage from "./pages/ServicesPage";
 import PortfolioPage from "./pages/PortfolioPage";
 import AboutPage from "./pages/AboutPage";
+import TermsPage from "./pages/TermsPage";
 import Login from "./pages/Login";
 import AdminLogin from "./pages/AdminLogin";
 import AdminForgotPassword from "./pages/AdminForgotPassword";
@@ -59,6 +60,7 @@ function AppRoutes() {
         <Route path="/services" element={<ServicesPage />} />
         <Route path="/portfolio" element={<PortfolioPage />} />
         <Route path="/about" element={<AboutPage />} />
+        <Route path="/terms" element={<TermsPage />} />
 
         <Route path="/auth/login" element={<Login />} />
         <Route path="/auth/admin" element={<AdminLogin />} />

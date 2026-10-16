@@ -49,7 +49,15 @@ export default function Footer() {
         </div>
 
         <div className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-border py-6 text-xs text-muted">
-          <p>{site.footer.copyright}</p>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <p>{site.footer.copyright}</p>
+            <Link
+              to="/terms"
+              className="transition-colors duration-200 hover:text-foreground"
+            >
+              قوانین و مقررات
+            </Link>
+          </div>
 
           {/* نماد اعتماد الکترونیکی (اینماد): کد را بدون تغییر نگه دارید */}
           <div className="rounded-lg bg-white p-1.5">
