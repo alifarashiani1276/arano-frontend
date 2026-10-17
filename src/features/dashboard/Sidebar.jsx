@@ -30,8 +30,16 @@ export default function Sidebar({ items, open }) {
       id="dashboard-sidebar"
     >
       <div className="dashboard-brand">
-        <img src={site.logo.src} alt="" />
-        <span>{site.name}</span>
+        <img
+          src={site.logo.wordmarkDark}
+          alt={site.logo.alt}
+          className="dark:hidden"
+        />
+        <img
+          src={site.logo.wordmark}
+          alt={site.logo.alt}
+          className="hidden dark:block"
+        />
       </div>
 
       <nav className="dashboard-nav" aria-label="منوی داشبورد">

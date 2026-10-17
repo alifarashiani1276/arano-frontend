@@ -74,7 +74,7 @@
     @apply flex h-16 shrink-0 items-center gap-3 border-b border-border px-5 text-lg font-black;
   }
   .dashboard-brand img {
-    @apply h-9 w-9 object-contain;
+    @apply h-5 w-auto object-contain;
   }
   .dashboard-nav {
     @apply flex-1 space-y-1 overflow-y-auto p-3;

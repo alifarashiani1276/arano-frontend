@@ -1,5 +1,5 @@
 // تمام متن‌ها، لینک‌ها و تنظیمات ثابت سایت اینجاست.
-// برای تغییر لوگو فقط logo.src را مقدار بدهید، مثلاً: "/images/logo.svg"
+// برای تغییر لوگو فقط logo.src را مقدار بدهید، مثلاً: "/images/arano-logomark-green-on-black.webp"
 // (فایل را داخل public/images بگذارید). Layout نیازی به تغییر ندارد.
 
 export const site = {
@@ -7,7 +7,9 @@ export const site = {
   slogan: "تیم توسعه نرم‌افزار",
 
   logo: {
-    src: "/images/logo.svg",
+    src: "/images/arano-logomark-green-on-black.webp",
+    wordmark: "/images/arano-logo-wordmark.webp",
+    wordmarkDark: "/images/arano-logo-wordmark-black.webp",
     alt: "لوگوی آرانو",
   },
 
@@ -32,8 +34,8 @@ export const site = {
     // تصویر بالای صفحه: desktop برای عرض ۷۶۸ پیکسل به بالا، mobile برای گوشی
     // فایل‌ها را داخل public/images بگذارید.
     banner: {
-      desktop: "/images/hero-desktop.webp",
-      mobile: "/images/hero-mobile.webp",
+      desktop: "/images/arano-hero-desktop.webp",
+      mobile: "/images/arano-hero-mobile.webp",
       alt: "توسعه‌دهنده‌ی آرانو در حال کدنویسی",
     },
     codeFile: "arano.config.js",

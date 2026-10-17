@@ -146,8 +146,8 @@ function HeroBanner() {
         <img
           src={banner.mobile}
           alt={banner.alt}
-          width={941}
-          height={1672}
+          width={768}
+          height={1376}
           decoding="async"
           className="absolute inset-0 -z-20 h-full w-full object-cover object-top md:object-center"
         />

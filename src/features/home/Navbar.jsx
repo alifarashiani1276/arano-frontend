@@ -29,8 +29,20 @@ export default function Navbar() {
       if (e.key === "Escape") setOpen(false);
     };
 
+    // کلیک یا لمس بیرون از منو و دکمه‌ی همبرگری، منو را می‌بندد.
+    const onPointerDown = (e) => {
+      if (e.target.closest('#mobile-menu, [aria-controls="mobile-menu"]')) {
+        return;
+      }
+      setOpen(false);
+    };
+
     document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("pointerdown", onPointerDown);
+    };
   }, [open]);
 
   const closeMenu = () => setOpen(false);

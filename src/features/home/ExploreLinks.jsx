@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { FiArrowLeft, FiBriefcase, FiInfo, FiLayers } from "react-icons/fi";
+import { FiBriefcase, FiInfo, FiLayers } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import useSpotlight from "../../hooks/useSpotlight";
 import Reveal from "../../ui/Reveal";
@@ -27,6 +27,40 @@ const LINKS = [
     Icon: FiInfo,
   },
 ];
+
+// فلش کارت‌ها: لوگوی آرانو با ۹۰ درجه چرخش به چپ.
+// کارت سبز ← لوگوی مشکی | کارت‌های تیره ← لوگوی سبز (هنگام هاور رنگ‌ها برای خوانایی جابه‌جا می‌شوند).
+// در حالت روشن سایت، کارت‌های سفید لوگوی مشکی نشان می‌دهند.
+const MARK = "absolute inset-0 m-auto h-[18px] w-[18px] -rotate-90 object-contain transition-opacity duration-300";
+
+function ArrowLogo({ featured }) {
+  return (
+    <>
+      <img
+        src="/images/arano-logomark-black.webp"
+        alt=""
+        width={18}
+        height={16}
+        className={`${MARK} ${
+          featured
+            ? "opacity-100 dark:group-hover:opacity-0"
+            : "opacity-100 dark:opacity-0 dark:group-hover:opacity-100"
+        }`}
+      />
+      <img
+        src="/images/arano-logomark-green.webp"
+        alt=""
+        width={18}
+        height={16}
+        className={`${MARK} opacity-0 ${
+          featured
+            ? "dark:group-hover:opacity-100"
+            : "dark:opacity-100 dark:group-hover:opacity-0"
+        }`}
+      />
+    </>
+  );
+}
 
 export default function ExploreLinks() {
   const listRef = useRef(null);
@@ -102,13 +136,13 @@ export default function ExploreLinks() {
                     مشاهده
                     <span
                       aria-hidden="true"
-                      className={`grid h-9 w-9 place-items-center rounded-full border transition-[transform,background-color,color,border-color] duration-300 group-hover:-translate-x-1.5 ${
+                      className={`relative grid h-9 w-9 place-items-center rounded-full border transition-[transform,background-color,color,border-color] duration-300 group-hover:-translate-x-1.5 ${
                         featured
                           ? "border-primary-foreground/30 group-hover:border-primary-foreground group-hover:bg-primary-foreground group-hover:text-primary"
                           : "border-border group-hover:border-primary group-hover:bg-primary group-hover:text-primary-foreground"
                       }`}
                     >
-                      <FiArrowLeft size={18} />
+                      <ArrowLogo featured={featured} />
                     </span>
                   </span>
                 </span>
