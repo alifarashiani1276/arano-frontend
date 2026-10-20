@@ -186,22 +186,31 @@ export const site = {
       {
         icon: "mail",
         label: "ایمیل",
-        value: "aranogr3@aranogroup.ir",
-        href: "aranogr3@aranogroup.ir",
+        values: [
+          {
+            value: "aranogr3@aranogroup.ir",
+            href: "mailto:aranogr3@aranogroup.ir",
+          },
+          {
+            value: "Aranogroup@gmail.com",
+            href: "mailto:Aranogroup@gmail.com",
+          },
+        ],
         ltr: true,
       },
       {
         icon: "phone",
         label: "تلفن",
-        value: "09370876514",
-        href: "09370876514",
+        values: [
+          { value: "09370876514", href: "tel:09370876514" },
+          { value: "09105008864", href: "tel:09105008864" },
+        ],
         ltr: true,
       },
       {
         icon: "pin",
         label: "موقعیت",
-        value: "خراسان رضوی، جغتای",
-        href: null,
+        values: [{ value: "خراسان رضوی، جغتای", href: null }],
         ltr: false,
       },
     ],

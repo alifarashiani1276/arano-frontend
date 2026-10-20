@@ -124,7 +124,13 @@ export default function TermsPage() {
                   {[email, phone].map((c) => (
                     <li key={c.label} className="flex gap-2">
                       <span className="text-muted">{c.label}:</span>
-                      <span dir={c.ltr ? "ltr" : undefined}>{c.value}</span>
+                      <span className="flex flex-col">
+                        {c.values.map((v) => (
+                          <span key={v.value} dir={c.ltr ? "ltr" : undefined}>
+                            {v.value}
+                          </span>
+                        ))}
+                      </span>
                     </li>
                   ))}
                 </ul>

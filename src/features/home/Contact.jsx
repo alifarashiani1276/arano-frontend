@@ -196,19 +196,24 @@ export default function Contact() {
                         <span className="block text-xs text-muted">
                           {item.label}
                         </span>
-                        {item.href ? (
-                          <a
-                            href={item.href}
-                            dir={item.ltr ? "ltr" : undefined}
-                            className="break-all text-sm font-bold transition-colors duration-200 hover:text-primary"
-                          >
-                            {item.value}
-                          </a>
-                        ) : (
-                          <span className="text-sm font-bold">
-                            {item.value}
-                          </span>
-                        )}
+                        <span className="flex flex-col">
+                          {item.values.map((v) =>
+                            v.href ? (
+                              <a
+                                key={v.value}
+                                href={v.href}
+                                dir={item.ltr ? "ltr" : undefined}
+                                className="break-all text-sm font-bold transition-colors duration-200 hover:text-primary"
+                              >
+                                {v.value}
+                              </a>
+                            ) : (
+                              <span key={v.value} className="text-sm font-bold">
+                                {v.value}
+                              </span>
+                            ),
+                          )}
+                        </span>
                       </span>
                     </li>
                   ))}
