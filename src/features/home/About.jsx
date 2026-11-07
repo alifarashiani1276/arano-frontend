@@ -27,7 +27,7 @@ function Statement({ segments }) {
   ));
 }
 
-export default function About() {
+export default function About({ asH1 = false }) {
   const { statement, principles } = site.about;
 
   return (
@@ -38,7 +38,11 @@ export default function About() {
     >
       <div className="mx-auto grid max-w-6xl gap-14 px-5 lg:grid-cols-[1fr_1.1fr]">
         <div className="lg:sticky lg:top-28 lg:self-start">
-          <SectionHeading id="about-title" {...site.sections.about} />
+          <SectionHeading
+            as={asH1 ? "h1" : "h2"}
+            id="about-title"
+            {...site.sections.about}
+          />
           <Motion
             as="p"
             fx="words"

@@ -22,7 +22,7 @@ export default function PageCta() {
             </div>
 
             <SmartLink
-              href="/#contact"
+              href="/contact"
               className="group inline-flex items-center gap-2 rounded-full bg-primary px-7 py-4 text-sm font-bold text-primary-foreground transition-[opacity,transform] duration-200 hover:opacity-90 active:scale-[0.97]"
             >
               {site.cta.label}

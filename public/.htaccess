@@ -2,6 +2,16 @@
   RewriteEngine On
   RewriteBase /
   RewriteRule ^index\.html$ - [L]
+
+  # آدرس با اسلش آخر (/services/seo/) → بدون اسلش (۳۰۱)؛ تا هر صفحه فقط یک آدرس داشته باشد
+  RewriteCond %{REQUEST_URI} !^/$
+  RewriteRule ^(.+)/$ /$1 [R=301,L]
+
+  # صفحه‌هایی که موقع Build یک index.html مخصوص خودشان دارند (مثل dist/services/seo/index.html)
+  # با همان فایل (Title/Meta/Schema اختصاصی) سرو می‌شوند
+  RewriteCond %{DOCUMENT_ROOT}/$1/index.html -f
+  RewriteRule ^(.+)$ /$1/index.html [L]
+
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule . /index.html [L]

@@ -47,7 +47,7 @@ export default function TermsPage() {
   const [email, phone] = site.contact.items;
 
   return (
-    <PageShell title="قوانین و مقررات">
+    <PageShell path="/terms">
       <section className="pb-12 md:pb-16">
         <div className="mx-auto max-w-6xl px-5">
           <Reveal className="max-w-3xl">

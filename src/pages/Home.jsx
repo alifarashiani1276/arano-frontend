@@ -7,12 +7,15 @@ import ExploreLinks from "../features/home/ExploreLinks";
 import Team from "../features/home/Team";
 import Contact from "../features/home/Contact";
 import Footer from "../features/home/Footer";
+import Seo from "../seo/Seo";
 
 export default function Home() {
   useScrollFx();
 
   return (
     <div className="min-h-screen overflow-x-clip bg-background text-foreground">
+      <Seo path="/" />
+
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:fixed focus:right-4 focus:top-4 focus:z-[60] focus:rounded-full focus:bg-primary focus:px-5 focus:py-3 focus:text-sm focus:font-bold focus:text-primary-foreground"
@@ -27,8 +30,8 @@ export default function Home() {
         <Marquee />
         <Stats />
         <ExploreLinks />
-        <Team />
-        <Contact />
+        <Team compact />
+        <Contact compact />
       </main>
 
       <Footer />

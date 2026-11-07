@@ -35,3 +35,12 @@ npm run dev
 - `src/data` داده‌های خدمات، تیم و نمونه‌کارها
 - `src/theme` پالت رنگ و تم
 - `src/ui` کامپوننت‌های عمومی
+
+## سئو و ساختار صفحه‌ها
+
+- هر خدمت و هر نوع سایت یک صفحه مستقل دارد (`/services/...` و `/web-design/...`)؛ همه از یک قالب (`src/features/services/ServiceView.jsx`) ساخته می‌شوند.
+- **تنها منبع داده‌ی صفحه‌های خدمت:** `src/data/servicePages.js` (نام/H1، توضیح، متن، FAQ، تکنولوژی، لینک‌های مرتبط). متن‌های فعلی نمونه (placeholder) هستند؛ متن نهایی فقط در همین فایل جایگزین می‌شود.
+- Title، Description، canonical و Schema همه صفحه‌ها: `src/seo/registry.js` و `src/seo/schema.js`.
+- هنگام `npm run build` پلاگین `vite/seoPlugin.js` برای هر صفحه یک `index.html` جدا با Meta/Schema اختصاصی و فایل `sitemap.xml` می‌سازد. **کل پوشه‌ی dist را آپلود کنید** (فایل‌های داخل زیرپوشه‌ها هم لازم‌اند) و `.htaccess` جدید را هم جایگزین کنید.
+- آدرس‌ها بعد از انتشار نباید تغییر کنند؛ هر تغییر باید ریدایرکت ۳۰۱ داشته باشد.
+- بعد از انتشار: `https://aranogroup.ir/sitemap.xml` را در Google Search Console ثبت کنید.

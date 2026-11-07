@@ -1,4 +1,4 @@
-import { lazy } from "react";
+import { Suspense, lazy } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
@@ -8,6 +8,12 @@ import Home from "./pages/Home";
 import ServicesPage from "./pages/ServicesPage";
 import PortfolioPage from "./pages/PortfolioPage";
 import AboutPage from "./pages/AboutPage";
+import TeamPage from "./pages/TeamPage";
+import ContactPage from "./pages/ContactPage";
+import { SERVICE_PAGES } from "./data/servicePages";
+import { BLOG_CATEGORIES } from "./data/blog";
+import { categoryPath } from "./lib/blog";
+import LegacyHashRedirect from "./ui/LegacyHashRedirect";
 import TermsPage from "./pages/TermsPage";
 import Login from "./pages/Login";
 import AdminLogin from "./pages/AdminLogin";
@@ -22,6 +28,14 @@ import AuthBootstrap from "./features/auth/AuthBootstrap";
 import DashboardLayout from "./features/dashboard/DashboardLayout";
 import ProtectedRoute from "./features/dashboard/ProtectedRoute";
 import SuperOnlyRoute from "./features/dashboard/SuperOnlyRoute";
+
+// صفحه‌های خدمت (۲۲ صفحه با یک قالب) فقط وقتی لازم شدند لود می‌شوند.
+const ServicePage = lazy(() => import("./pages/ServicePage"));
+
+// وبلاگ: صفحه‌ی اصلی، دسته‌ها و مقاله فقط وقتی لازم شدند لود می‌شوند.
+const BlogPage = lazy(() => import("./pages/BlogPage"));
+const BlogCategoryPage = lazy(() => import("./pages/BlogCategoryPage"));
+const BlogArticlePage = lazy(() => import("./pages/BlogArticlePage"));
 
 const UserOverview = lazy(() => import("./pages/dashboard/user/Overview"));
 const UserProjects = lazy(() => import("./pages/dashboard/user/Projects"));
@@ -54,13 +68,44 @@ const queryClient = new QueryClient({
 function AppRoutes() {
   return (
     <>
+      <LegacyHashRedirect />
       <ScrollToTop />
+      <Suspense fallback={null}>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/services" element={<ServicesPage />} />
         <Route path="/portfolio" element={<PortfolioPage />} />
         <Route path="/about" element={<AboutPage />} />
+        <Route path="/team" element={<TeamPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+
+        {/* ۲۲ صفحه‌ی مستقل خدمت: /services/... و /web-design/... */}
+        {SERVICE_PAGES.map((page) => (
+          <Route
+            key={page.path}
+            path={page.path}
+            element={<ServicePage path={page.path} />}
+          />
+        ))}
+        <Route
+          path="/web-design"
+          element={<Navigate to="/services#web-design" replace />}
+        />
+        <Route path="/web-design/*" element={<Navigate to="/services" replace />} />
+        <Route path="/services/*" element={<Navigate to="/services" replace />} />
         <Route path="/terms" element={<TermsPage />} />
+
+        {/* وبلاگ: /blog، یک صفحه‌ی مستقل برای هر دسته، و /blog/<slug> برای مقاله */}
+        <Route path="/blog" element={<BlogPage />} />
+        {BLOG_CATEGORIES.map((category) => (
+          <Route
+            key={category.slug}
+            path={categoryPath(category.slug)}
+            element={<BlogCategoryPage slug={category.slug} />}
+          />
+        ))}
+        <Route path="/blog/category/*" element={<Navigate to="/blog" replace />} />
+        <Route path="/blog/:slug" element={<BlogArticlePage />} />
 
         <Route path="/auth/login" element={<Login />} />
         <Route path="/auth/admin" element={<AdminLogin />} />
@@ -119,6 +164,7 @@ function AppRoutes() {
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      </Suspense>
     </>
   );
 }

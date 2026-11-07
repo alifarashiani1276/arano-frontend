@@ -6,6 +6,7 @@ import { apiMessage, statusOf } from "../../lib/api";
 import { MOBILE_REGEX, normalizePhone, sanitizeText } from "../../lib/security";
 import { sendConsultation } from "../../services/consultationService";
 import Icon from "../../ui/Icon";
+import MoreLink from "../../ui/MoreLink";
 import Reveal from "../../ui/Reveal";
 import SectionHeading from "../../ui/SectionHeading";
 
@@ -55,7 +56,9 @@ function checkField(name, raw, m) {
   return { value, error: "" };
 }
 
-export default function Contact() {
+// compact: خلاصه برای صفحه اصلی (اطلاعات تماس + دکمه به /contact)؛ asH1: عنوان H1 در صفحه /contact.
+// فرم کامل فقط در /contact است. برای برگرداندن فرم به صفحه اصلی، در Home.jsx پراپ compact را بردارید.
+export default function Contact({ compact = false, asH1 = false }) {
   const { contact } = site;
   const { form } = contact;
   const [errors, setErrors] = useState({});
@@ -181,9 +184,15 @@ export default function Contact() {
             className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-primary/20 blur-3xl"
           />
 
-          <div className="relative grid gap-10 lg:grid-cols-[1fr_1.1fr]">
+          <div
+            className={`relative grid gap-10 ${compact ? "" : "lg:grid-cols-[1fr_1.1fr]"}`}
+          >
             <div>
-              <SectionHeading id="contact-title" {...site.sections.contact} />
+              <SectionHeading
+                as={asH1 ? "h1" : "h2"}
+                id="contact-title"
+                {...site.sections.contact}
+              />
 
               <Reveal delay={1}>
                 <ul className="mt-8 flex flex-col gap-4">
@@ -219,8 +228,17 @@ export default function Contact() {
                   ))}
                 </ul>
               </Reveal>
+
+              {compact && (
+                <Reveal delay={2} className="mt-8">
+                  <MoreLink to="/contact" hint="و ارسال پیام به آرانو">
+                    ارتباط با ما
+                  </MoreLink>
+                </Reveal>
+              )}
             </div>
 
+            {!compact && (
             <Reveal delay={2}>
               <form
                 onSubmit={handleSubmit}
@@ -340,6 +358,7 @@ export default function Contact() {
                 </button>
               </form>
             </Reveal>
+            )}
           </div>
         </div>
       </div>

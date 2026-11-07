@@ -10,11 +10,22 @@ import ThemeSwitcher from "./ThemeSwitcher";
 const AUTH_LOGIN = "/auth/login";
 const AUTH_REGISTER = "/auth/login";
 
+// «خدمات» در صفحه‌ی هاب و همه‌ی صفحه‌های خدمت (/services/... و /web-design/...) فعال است.
+const inServices = (pathname) =>
+  pathname.startsWith("/services/") || pathname.startsWith("/web-design/");
+
+// «وبلاگ‌ها» در صفحه‌ی اصلی وبلاگ، دسته‌ها و مقاله‌ها (/blog/...) فعال است.
+const inBlog = (pathname) => pathname.startsWith("/blog/");
+
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const area = useSession(); // null = وارد نشده
   const headerRef = useRef(null);
   const { pathname } = useLocation();
+  const isActive = (href) =>
+    href === pathname ||
+    (href === "/services" && inServices(pathname)) ||
+    (href === "/blog" && inBlog(pathname));
 
   useEffect(() => {
     const el = headerRef.current;
@@ -71,9 +82,9 @@ export default function Navbar() {
               <SmartLink
                 key={item.href}
                 href={item.href}
-                aria-current={item.href === pathname ? "page" : undefined}
-                className={`relative rounded-full px-3 py-2 text-sm font-bold transition-colors duration-200 after:absolute after:inset-x-3 after:bottom-1 after:h-px after:origin-right after:bg-primary after:transition-transform after:duration-300 hover:text-foreground hover:after:scale-x-100 ${
-                  item.href === pathname
+                aria-current={isActive(item.href) ? "page" : undefined}
+                className={`relative rounded-full px-2 py-2 text-sm font-bold transition-colors duration-200 after:absolute after:inset-x-2 lg:px-3 lg:after:inset-x-3 after:bottom-1 after:h-px after:origin-right after:bg-primary after:transition-transform after:duration-300 hover:text-foreground hover:after:scale-x-100 ${
+                  isActive(item.href)
                     ? "text-foreground after:scale-x-100"
                     : "text-muted after:scale-x-0"
                 }`}
@@ -153,9 +164,9 @@ export default function Navbar() {
                   key={item.href}
                   href={item.href}
                   onClick={closeMenu}
-                  aria-current={item.href === pathname ? "page" : undefined}
+                  aria-current={isActive(item.href) ? "page" : undefined}
                   className={`rounded-2xl px-4 py-3 text-base font-bold transition-colors duration-200 hover:bg-surface-2 ${
-                    item.href === pathname ? "bg-surface-2" : ""
+                    isActive(item.href) ? "bg-surface-2" : ""
                   }`}
                 >
                   {item.label}

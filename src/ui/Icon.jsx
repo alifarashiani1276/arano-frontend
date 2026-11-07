@@ -15,6 +15,20 @@ import {
   FiTerminal,
   FiGitBranch,
   FiDatabase,
+  FiShoppingCart,
+  FiBriefcase,
+  FiUser,
+  FiGlobe,
+  FiTarget,
+  FiHeart,
+  FiHome,
+  FiBookOpen,
+  FiCoffee,
+  FiSettings,
+  FiSearch,
+  FiPenTool,
+  FiTool,
+  FiDroplet,
 } from "react-icons/fi";
 
 // برای تغییر آیکون‌ها فقط این نقشه را ویرایش کنید؛
@@ -36,6 +50,21 @@ const ICONS = {
   terminal: FiTerminal,
   git: FiGitBranch,
   database: FiDatabase,
+  cart: FiShoppingCart,
+  briefcase: FiBriefcase,
+  user: FiUser,
+  globe: FiGlobe,
+  language: FiGlobe,
+  target: FiTarget,
+  heart: FiHeart,
+  home: FiHome,
+  book: FiBookOpen,
+  coffee: FiCoffee,
+  settings: FiSettings,
+  search: FiSearch,
+  pen: FiPenTool,
+  tool: FiTool,
+  palette: FiDroplet,
 };
 
 export default function Icon({ name, ...props }) {

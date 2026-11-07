@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
+import seoPlugin from "./vite/seoPlugin.js";
 
 // فقط در Build (نه در حالت dev که HMR به اسکریپت inline نیاز دارد):
 // یک Content-Security-Policy به index.html اضافه می‌کند تا جلوی اجرای
@@ -59,7 +60,7 @@ export default defineConfig(({ mode }) => {
   }
 
   return {
-    plugins: [react(), cspPlugin(apiOrigin)],
+    plugins: [react(), cspPlugin(apiOrigin), seoPlugin()],
     server: {
       port: 3000,
     },

@@ -4,6 +4,8 @@ import { TEAM } from "../../data/team";
 import useSpotlight from "../../hooks/useSpotlight";
 import Icon from "../../ui/Icon";
 import Motion from "../../ui/Motion";
+import MoreLink from "../../ui/MoreLink";
+import Reveal from "../../ui/Reveal";
 import SectionHeading from "../../ui/SectionHeading";
 import SplitWords from "../../ui/SplitWords";
 
@@ -14,7 +16,8 @@ const ENTRY = [
   { "--x": "-70px", "--y": "20px", "--r": "-2deg" },
 ];
 
-export default function Team() {
+// compact: خلاصه برای صفحه اصلی (بدون بیو) + دکمه «بیشتر بدانید»؛ asH1: عنوان H1 در صفحه /team
+export default function Team({ compact = false, asH1 = false }) {
   const listRef = useRef(null);
   useSpotlight(listRef, ".spot");
 
@@ -25,7 +28,11 @@ export default function Team() {
       className="scroll-mt-24 border-t border-border bg-surface-2/50 py-24 md:py-32"
     >
       <div className="mx-auto max-w-6xl px-5">
-        <SectionHeading id="team-title" {...site.sections.team} />
+        <SectionHeading
+          as={asH1 ? "h1" : "h2"}
+          id="team-title"
+          {...site.sections.team}
+        />
 
         <ul ref={listRef} className="mt-14 grid gap-6 md:grid-cols-3">
           {TEAM.map((member, i) => {
@@ -87,12 +94,14 @@ export default function Team() {
                     </div>
                   </div>
 
-                  <p
-                    style={{ "--cd": "800ms" }}
-                    className="fx-child fx-up relative mt-5 text-sm leading-7 text-muted"
-                  >
-                    {member.bio}
-                  </p>
+                  {!compact && (
+                    <p
+                      style={{ "--cd": "800ms" }}
+                      className="fx-child fx-up relative mt-5 text-sm leading-7 text-muted"
+                    >
+                      {member.bio}
+                    </p>
+                  )}
 
                   <ul dir="ltr" className="relative mt-5 flex flex-wrap gap-2">
                     {member.skills.map((skill, s) => (
@@ -106,7 +115,7 @@ export default function Team() {
                     ))}
                   </ul>
 
-                  {member.links.length > 0 && (
+                  {!compact && member.links.length > 0 && (
                     <ul className="relative mt-6 flex items-center gap-2 border-t border-border pt-5">
                       {member.links.map((link, l) => (
                         <li
@@ -118,6 +127,7 @@ export default function Team() {
                             href={link.href}
                             aria-label={`${link.label} ${member.name}`}
                             target="_blank"
+                            rel="noopener noreferrer"
                             className="grid h-9 w-9 place-items-center rounded-full border border-border text-muted transition-[color,border-color] duration-200 hover:border-primary hover:text-primary"
                           >
                             <Icon name={link.icon} size={16} />
@@ -131,6 +141,12 @@ export default function Team() {
             );
           })}
         </ul>
+
+        {compact && (
+          <Reveal delay={1} className="mt-12 flex justify-center">
+            <MoreLink to="/team" hint="درباره تیم آرانو" />
+          </Reveal>
+        )}
       </div>
     </section>
   );

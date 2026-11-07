@@ -16,12 +16,13 @@ export const site = {
   nav: [
     { label: "خدمات", href: "/services" },
     { label: "نمونه‌کارها", href: "/portfolio" },
+    { label: "وبلاگ‌ها", href: "/blog" },
     { label: "درباره ما", href: "/about" },
-    { label: "تیم", href: "/#team" },
-    { label: "ارتباط با ما", href: "/#contact" },
+    { label: "تیم", href: "/team" },
+    { label: "ارتباط با ما", href: "/contact" },
   ],
 
-  cta: { label: "شروع پروژه", href: "/#contact" },
+  cta: { label: "شروع پروژه", href: "/contact" },
 
   hero: {
     status: "پذیرای پروژه‌های جدید",
@@ -30,7 +31,7 @@ export const site = {
     description:
       "آرانو تیمی سه‌نفره از توسعه‌دهنده فرانت‌اند، توسعه‌دهنده بک‌اند و طراح رابط و تجربه کاربری است. از طراحی تا استقرار، وب‌اپلیکیشن‌هایی سریع، پایدار و قابل‌رشد می‌سازیم.",
     primaryCta: { label: "مشاهده نمونه‌کارها", href: "/portfolio" },
-    secondaryCta: { label: "گفتگو با تیم", href: "#contact" },
+    secondaryCta: { label: "گفتگو با تیم", href: "/contact" },
     // تصویر بالای صفحه: desktop برای عرض ۷۶۸ پیکسل به بالا، mobile برای گوشی
     // فایل‌ها را داخل public/images بگذارید.
     banner: {
@@ -119,9 +120,7 @@ export const site = {
   sections: {
     services: {
       eyebrow: "خدمات",
-      title: "هر چه برای ساخت یک محصول دیجیتال لازم است",
-      description:
-        "از اولین طرح تا انتشار نسخه نهایی، هر مرحله را با استاندارد مهندسی و دقت طراحی پیش می‌بریم.",
+      title: "هر چه برای ساخت یک وبسایت لازم است",
     },
     portfolio: {
       eyebrow: "نمونه‌کارها",

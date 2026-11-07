@@ -21,7 +21,7 @@ function Skeleton({ wide }) {
   );
 }
 
-export default function Portfolio() {
+export default function Portfolio({ asH1 = false }) {
   const { data: projects = [], isLoading, isError, refetch } = useProjects();
   const [active, setActive] = useState("all");
 
@@ -50,7 +50,11 @@ export default function Portfolio() {
     >
       <div className="mx-auto max-w-6xl px-5">
         <div className="flex flex-wrap items-end justify-between gap-8">
-          <SectionHeading id="portfolio-title" {...site.sections.portfolio} />
+          <SectionHeading
+            as={asH1 ? "h1" : "h2"}
+            id="portfolio-title"
+            {...site.sections.portfolio}
+          />
           {!isLoading && !isError && (
             <Reveal delay={1}>
               <p className="text-sm text-muted">
