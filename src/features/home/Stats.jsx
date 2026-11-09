@@ -1,10 +1,13 @@
-import { site } from "../../config/site";
+import { useLang } from "../../i18n/LangContext";
+import { useSite } from "../../i18n/useData";
 import Reveal from "../../ui/Reveal";
 
 export default function Stats() {
+  const site = useSite();
+  const { t } = useLang();
   return (
     <section
-      aria-label="آمار تیم"
+      aria-label={t("آمار تیم")}
       className="border-y border-border bg-surface/50"
     >
       <Reveal>
@@ -12,7 +15,7 @@ export default function Stats() {
           {site.stats.map((stat) => (
             <div
               key={stat.label}
-              className="flex flex-col-reverse items-center gap-2 border-border px-4 py-10 text-center odd:border-l md:border-l md:last:border-l-0"
+              className="flex flex-col-reverse items-center gap-2 border-border px-4 py-10 text-center odd:border-e md:border-e md:last:border-e-0"
             >
               <dt className="text-sm text-muted">{stat.label}</dt>
               <dd className="text-4xl font-black text-primary md:text-5xl">

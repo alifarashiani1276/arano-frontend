@@ -1,7 +1,8 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { FiSend } from "react-icons/fi";
-import { site } from "../../config/site";
+import { useLang } from "../../i18n/LangContext";
+import { useSite } from "../../i18n/useData";
 import { apiMessage, statusOf } from "../../lib/api";
 import { MOBILE_REGEX, normalizePhone, sanitizeText } from "../../lib/security";
 import { sendConsultation } from "../../services/consultationService";
@@ -24,7 +25,7 @@ const NAME_RE = /^[\p{Script=Arabic}A-Za-z\s\u200c]+$/u;
 const FIELD_ORDER = ["first_name", "last_name", "phone", "message"];
 
 // مقدار تمیزشده و پیام خطای هر فیلد
-function checkField(name, raw, m) {
+function checkField(name, raw, m, t) {
   if (name === "first_name" || name === "last_name") {
     const value = sanitizeText(raw);
     if (!value) {
@@ -32,8 +33,8 @@ function checkField(name, raw, m) {
         value,
         error:
           name === "first_name"
-            ? "نام را وارد کنید."
-            : "نام خانوادگی را وارد کنید.",
+            ? t("نام را وارد کنید.")
+            : t("نام خانوادگی را وارد کنید."),
       };
     }
     if (value.length < 2 || value.length > 40 || !NAME_RE.test(value)) {
@@ -59,6 +60,8 @@ function checkField(name, raw, m) {
 // compact: خلاصه برای صفحه اصلی (اطلاعات تماس + دکمه به /contact)؛ asH1: عنوان H1 در صفحه /contact.
 // فرم کامل فقط در /contact است. برای برگرداندن فرم به صفحه اصلی، در Home.jsx پراپ compact را بردارید.
 export default function Contact({ compact = false, asH1 = false }) {
+  const site = useSite();
+  const { t } = useLang();
   const { contact } = site;
   const { form } = contact;
   const [errors, setErrors] = useState({});
@@ -67,7 +70,7 @@ export default function Contact({ compact = false, asH1 = false }) {
 
   const handleBlur = (e) => {
     const { name, value } = e.target;
-    const { error } = checkField(name, value, form.errors);
+    const { error } = checkField(name, value, form.errors, t);
     setErrors((prev) =>
       prev[name] === error ? prev : { ...prev, [name]: error },
     );
@@ -113,7 +116,7 @@ export default function Contact({ compact = false, asH1 = false }) {
     const nextErrors = {};
     const clean = {};
     FIELD_ORDER.forEach((name) => {
-      const result = checkField(name, String(data[name] ?? ""), form.errors);
+      const result = checkField(name, String(data[name] ?? ""), form.errors, t);
       nextErrors[name] = result.error;
       clean[name] = result.value;
     });
@@ -231,8 +234,8 @@ export default function Contact({ compact = false, asH1 = false }) {
 
               {compact && (
                 <Reveal delay={2} className="mt-8">
-                  <MoreLink to="/contact" hint="و ارسال پیام به آرانو">
-                    ارتباط با ما
+                  <MoreLink to="/contact" hint={t("و ارسال پیام به آرانو")}>
+                    {t("ارتباط با ما")}
                   </MoreLink>
                 </Reveal>
               )}
@@ -251,15 +254,15 @@ export default function Contact({ compact = false, asH1 = false }) {
                   {textField({
                     name: "first_name",
                     id: "contact-first-name",
-                    label: "نام",
-                    placeholder: "مثلاً علی",
+                    label: t("نام"),
+                    placeholder: t("مثلاً علی"),
                     autoComplete: "given-name",
                   })}
                   {textField({
                     name: "last_name",
                     id: "contact-last-name",
-                    label: "نام خانوادگی",
-                    placeholder: "مثلاً رضایی",
+                    label: t("نام خانوادگی"),
+                    placeholder: t("مثلاً رضایی"),
                     autoComplete: "family-name",
                   })}
                 </div>
@@ -353,7 +356,7 @@ export default function Contact({ compact = false, asH1 = false }) {
                   <FiSend
                     size={15}
                     aria-hidden="true"
-                    className="transition-transform duration-200 group-hover:-translate-x-1"
+                    className="transition-transform duration-200 rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1"
                   />
                 </button>
               </form>

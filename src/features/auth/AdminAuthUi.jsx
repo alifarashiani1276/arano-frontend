@@ -1,4 +1,5 @@
 import { FiCheck } from "react-icons/fi";
+import { useLang } from "../../i18n/LangContext";
 
 // اجزای کوچک رابط کاربری مشترک بین صفحه‌ی ورود مدیر و بازیابی رمز مدیر.
 
@@ -64,8 +65,10 @@ export function FormMessage({ children }) {
 }
 
 export function Stepper({ labels, current, ariaLabel = "مراحل ورود مدیر" }) {
+  const { t, n } = useLang();
+
   return (
-    <ol className="mb-8 flex items-center" aria-label={ariaLabel}>
+    <ol className="mb-8 flex items-center" aria-label={t(ariaLabel)}>
       {labels.map((label, index) => {
         const done = index < current;
         const active = index === current;
@@ -86,7 +89,7 @@ export function Stepper({ labels, current, ariaLabel = "مراحل ورود مد
               {done ? (
                 <FiCheck aria-hidden="true" />
               ) : (
-                (index + 1).toLocaleString("fa-IR")
+                n(index + 1)
               )}
             </span>
             <span

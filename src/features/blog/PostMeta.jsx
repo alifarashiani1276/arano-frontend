@@ -1,8 +1,10 @@
 import { FiCalendar, FiClock, FiUser } from "react-icons/fi";
+import { useLang } from "../../i18n/LangContext";
 import { formatDate, formatNumber } from "../../lib/blog";
 
 // تاریخ انتشار، زمان مطالعه و نویسنده؛ هر کدام فقط در صورت وجود نمایش داده می‌شود.
 export default function PostMeta({ post, className = "" }) {
+  const { lang, t, isEn } = useLang();
   const { publishedAt, readingMinutes, author } = post;
 
   return (
@@ -12,13 +14,13 @@ export default function PostMeta({ post, className = "" }) {
       {publishedAt && (
         <li className="inline-flex items-center gap-1.5">
           <FiCalendar size={14} aria-hidden="true" />
-          <time dateTime={publishedAt}>{formatDate(publishedAt)}</time>
+          <time dateTime={publishedAt}>{formatDate(publishedAt, lang)}</time>
         </li>
       )}
       {readingMinutes > 0 && (
         <li className="inline-flex items-center gap-1.5">
           <FiClock size={14} aria-hidden="true" />
-          {formatNumber(readingMinutes)} دقیقه مطالعه
+          {formatNumber(readingMinutes, lang)} {isEn ? "min read" : "دقیقه مطالعه"}
         </li>
       )}
       {author && (

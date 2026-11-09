@@ -1,14 +1,17 @@
-import { Link } from "react-router-dom";
-import { FiArrowLeft } from "react-icons/fi";
-import { SERVICE_GROUPS } from "../../data/servicePages";
+import { Link } from "../../i18n/Link";
+import { ArrowForward } from "../../i18n/Arrow";
+import { useLang } from "../../i18n/LangContext";
+import { useServiceGroups } from "../../i18n/useData";
 import useProjects from "../../hooks/useProjects";
 import { getBreadcrumbs, getPage } from "../../seo/registry";
+import MediaImage from "../../ui/MediaImage";
 import Reveal from "../../ui/Reveal";
 import ProjectCard from "../home/ProjectCard";
 import Breadcrumb from "./Breadcrumb";
+import { EN_STEPS } from "../../i18n/en/ui";
 import Faq from "./Faq";
 
-// مراحل کار: بخش مشترک همه صفحه‌های خدمت (متن نهایی بعداً می‌آید).
+// مراحل کار: بخش مشترک همه صفحه‌های خدمت (متن نهایی بعداً می‌آید). متن انگلیسی: src/i18n/en/ui.js
 const STEPS = [
   {
     title: "جلسه مشاوره و نیازسنجی",
@@ -31,6 +34,7 @@ const STEPS = [
 const H2 = "text-2xl font-black leading-[1.5] md:text-4xl";
 
 function RelatedProjects({ service }) {
+  const { t, isEn } = useLang();
   const { data: projects = [] } = useProjects();
   const picked = service.projects
     .map((id) => projects.find((p) => p.id === id))
@@ -46,10 +50,12 @@ function RelatedProjects({ service }) {
       <div className="mx-auto max-w-6xl px-5">
         <Reveal className="max-w-2xl">
           <h2 id="related-work-title" className={H2}>
-            نمونه‌کارهای مرتبط
+            {t("نمونه‌کارهای مرتبط")}
           </h2>
           <p className="mt-3 text-sm leading-8 text-muted md:text-base">
-            چند پروژه از کارهایی که نزدیک به «{service.name}» ساخته‌ایم.
+            {isEn
+              ? `A few projects we have built that are close to "${service.name}".`
+              : `چند پروژه از کارهایی که نزدیک به «${service.name}» ساخته‌ایم.`}
           </p>
         </Reveal>
         <div className="mt-12 grid gap-x-6 gap-y-14 md:grid-cols-2">
@@ -69,10 +75,12 @@ const LINK_CARD =
 
 // قالب مشترک همه ۲۲ صفحه‌ی خدمت. فقط داده (src/data/servicePages.js) فرق می‌کند.
 export default function ServiceView({ path }) {
-  const entry = getPage(path);
+  const { t, n, lang, isEn } = useLang();
+  const SERVICE_GROUPS = useServiceGroups();
+  const entry = getPage(path, lang);
   const service = entry.service;
   const group = SERVICE_GROUPS.find((g) => g.id === service.group);
-  const related = service.related.map((p) => getPage(p)).filter(Boolean);
+  const related = service.related.map((p) => getPage(p, lang)).filter(Boolean);
 
   return (
     <>
@@ -86,7 +94,8 @@ export default function ServiceView({ path }) {
               aria-hidden="true"
               className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-primary/20 blur-3xl"
             />
-            <div className="relative max-w-3xl">
+            <div className="relative grid items-center gap-8 lg:grid-cols-[1.15fr_1fr] lg:gap-12">
+            <div className="max-w-3xl">
               <p className="mb-4 flex items-center gap-3 text-sm font-bold text-primary">
                 <span aria-hidden="true" className="h-px w-8 bg-primary" />
                 {group.title}
@@ -106,20 +115,32 @@ export default function ServiceView({ path }) {
                   to="/contact"
                   className="group inline-flex items-center gap-2 rounded-full bg-primary px-7 py-4 text-sm font-bold text-primary-foreground transition-[opacity,transform] duration-200 hover:opacity-90 active:scale-[0.97]"
                 >
-                  مشاوره رایگان
-                  <FiArrowLeft
+                  {t("مشاوره رایگان")}
+                  <ArrowForward
                     size={18}
                     aria-hidden="true"
-                    className="transition-transform duration-200 group-hover:-translate-x-1"
+                    className="transition-transform duration-200 rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1"
                   />
                 </Link>
                 <Link
                   to="/services"
                   className="inline-flex items-center rounded-full border border-border bg-surface px-6 py-4 text-sm font-bold transition-[background-color,border-color] duration-200 hover:border-primary hover:bg-primary/10"
                 >
-                  همه خدمات آرانو
+                  {t("همه خدمات آرانو")}
                 </Link>
               </div>
+            </div>
+
+            {/* تصویر مخصوص همین خدمت؛ روی موبایل بالای متن، روی دسکتاپ کنار متن */}
+            {service.image && (
+              <MediaImage
+                src={service.image}
+                alt={`${t("تصویر خدمت")} ${service.name}`}
+                priority
+                imgClassName="absolute inset-0"
+                className="order-first aspect-[16/10] w-full rounded-2xl border border-border bg-background lg:order-none"
+              />
+            )}
             </div>
           </div>
         </div>
@@ -130,7 +151,7 @@ export default function ServiceView({ path }) {
         <div className="mx-auto grid max-w-6xl gap-8 px-5 lg:grid-cols-[1fr_1.4fr]">
           <Reveal>
             <h2 id="about-service-title" className={H2}>
-              درباره {service.name}
+              {isEn ? `About ${service.name}` : `درباره ${service.name}`}
             </h2>
           </Reveal>
           <Reveal delay={1}>
@@ -149,22 +170,22 @@ export default function ServiceView({ path }) {
         <div className="mx-auto max-w-6xl px-5">
           <Reveal className="max-w-2xl">
             <h2 id="process-title" className={H2}>
-              مراحل کار و تکنولوژی‌ها
+              {t("مراحل کار و تکنولوژی‌ها")}
             </h2>
           </Reveal>
 
           <div className="mt-12 grid gap-10 lg:grid-cols-[1.4fr_1fr]">
             <ol className="divide-y divide-border border-y border-border">
-              {STEPS.map((step, i) => (
+              {STEPS.map((stepFa, i) => {
+                const step = isEn ? EN_STEPS[i] : stepFa;
+                return (
                 <Reveal as="li" key={step.title} delay={Math.min(i, 3)}>
                   <div className="group flex gap-6 py-7">
                     <span
                       aria-hidden="true"
                       className="text-5xl font-black text-transparent transition-colors duration-300 [-webkit-text-stroke:1.5px_rgb(var(--foreground)/0.35)] group-hover:text-primary group-hover:[-webkit-text-stroke:0]"
                     >
-                      {(i + 1).toLocaleString("fa-IR", {
-                        minimumIntegerDigits: 2,
-                      })}
+                      {n(i + 1, { minimumIntegerDigits: 2 })}
                     </span>
                     <div>
                       <h3 className="text-lg font-black">{step.title}</h3>
@@ -174,12 +195,13 @@ export default function ServiceView({ path }) {
                     </div>
                   </div>
                 </Reveal>
-              ))}
+                );
+              })}
             </ol>
 
             <Reveal delay={1}>
               <div className="rounded-3xl border border-border bg-surface p-6 md:p-8">
-                <h3 className="text-lg font-black">تکنولوژی‌ها</h3>
+                <h3 className="text-lg font-black">{t("تکنولوژی‌ها")}</h3>
                 <ul dir="ltr" className="mt-5 flex flex-wrap gap-2">
                   {service.tech.map((tech) => (
                     <li
@@ -204,7 +226,9 @@ export default function ServiceView({ path }) {
         <div className="mx-auto max-w-4xl px-5">
           <Reveal>
             <h2 id="faq-title" className={H2}>
-              سوالات متداول درباره {service.name}
+              {isEn
+                ? `Frequently asked questions about ${service.name}`
+                : `سوالات متداول درباره ${service.name}`}
             </h2>
           </Reveal>
           <Reveal delay={1} className="mt-10">
@@ -218,17 +242,17 @@ export default function ServiceView({ path }) {
         <div className="mx-auto max-w-6xl px-5">
           <Reveal>
             <h2 id="links-title" className="text-xl font-black md:text-2xl">
-              خدمات مرتبط
+              {t("خدمات مرتبط")}
             </h2>
           </Reveal>
           <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <li>
               <Link to="/services" className={LINK_CARD}>
-                همه خدمات آرانو
-                <FiArrowLeft
+                {t("همه خدمات آرانو")}
+                <ArrowForward
                   size={15}
                   aria-hidden="true"
-                  className="text-primary transition-transform duration-200 group-hover:-translate-x-1"
+                  className="text-primary transition-transform duration-200 rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1"
                 />
               </Link>
             </li>
@@ -236,10 +260,10 @@ export default function ServiceView({ path }) {
               <li key={page.path}>
                 <Link to={page.path} className={LINK_CARD}>
                   {page.h1}
-                  <FiArrowLeft
+                  <ArrowForward
                     size={15}
                     aria-hidden="true"
-                    className="text-primary transition-transform duration-200 group-hover:-translate-x-1"
+                    className="text-primary transition-transform duration-200 rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1"
                   />
                 </Link>
               </li>
@@ -249,17 +273,17 @@ export default function ServiceView({ path }) {
           {service.blog.length > 0 && (
             <>
               <h2 className="mt-10 text-xl font-black md:text-2xl">
-                مقاله‌های مرتبط
+                {t("مقاله‌های مرتبط")}
               </h2>
               <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {service.blog.map((post) => (
                   <li key={post.href}>
                     <Link to={post.href} className={LINK_CARD}>
                       {post.title}
-                      <FiArrowLeft
+                      <ArrowForward
                         size={15}
                         aria-hidden="true"
-                        className="text-primary transition-transform duration-200 group-hover:-translate-x-1"
+                        className="text-primary transition-transform duration-200 rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1"
                       />
                     </Link>
                   </li>

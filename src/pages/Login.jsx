@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
-import { FiArrowLeft, FiPhone } from "react-icons/fi";
-import { Link, useNavigate } from "react-router-dom";
+import { FiPhone } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
+import { ArrowForward } from "../i18n/Arrow";
+import { Link } from "../i18n/Link";
+import { useLang } from "../i18n/LangContext";
 import AuthLayout from "../features/auth/AuthLayout";
 import { authFlow } from "../features/auth/authFlow";
 import useBotTrap from "../hooks/useBotTrap";
@@ -25,6 +28,7 @@ const otpRequestLimiter = createLimiter({
 
 export default function Login() {
   const navigate = useNavigate();
+  const { t, isEn, lang, to } = useLang();
   const [phone, setPhone] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -35,6 +39,11 @@ export default function Login() {
     authFlow.reset();
   }, []);
 
+  // پیام خطا به زبان قبلی نماند
+  useEffect(() => {
+    setError("");
+  }, [lang]);
+
   const submit = async (event) => {
     event.preventDefault();
     if (submitting) return;
@@ -44,14 +53,16 @@ export default function Login() {
 
     const value = normalizePhone(phone);
     if (!MOBILE_REGEX.test(value)) {
-      setError("شماره موبایل را به‌صورت صحیح وارد کنید (مثلاً 09123456789).");
+      setError(t("شماره موبایل را به‌صورت صحیح وارد کنید (مثلاً 09123456789)."));
       return;
     }
 
     const gate = otpRequestLimiter.attempt();
     if (!gate.ok) {
       setError(
-        `تعداد درخواست‌ها زیاد است. ${formatWait(gate.retryAfter)} دیگر دوباره تلاش کنید.`,
+        isEn
+          ? `Too many requests. Try again in ${formatWait(gate.retryAfter, true)}.`
+          : `تعداد درخواست‌ها زیاد است. ${formatWait(gate.retryAfter)} دیگر دوباره تلاش کنید.`,
       );
       return;
     }
@@ -60,9 +71,9 @@ export default function Login() {
     try {
       await sendOtp(value);
       authFlow.start(value);
-      navigate("/auth/otp");
+      navigate(to("/auth/otp"));
     } catch (err) {
-      setError(apiMessage(err, "ارسال کد انجام نشد. لطفاً دوباره تلاش کنید."));
+      setError(t(apiMessage(err, "ارسال کد انجام نشد. لطفاً دوباره تلاش کنید.")));
     } finally {
       setSubmitting(false);
     }
@@ -71,8 +82,8 @@ export default function Login() {
   return (
     <AuthLayout
       step={1}
-      title="ورود یا ثبت‌نام"
-      subtitle="شماره موبایلت را وارد کن تا کد تأیید برایت ارسال شود."
+      title={t("ورود یا ثبت‌نام")}
+      subtitle={t("شماره موبایلت را وارد کن تا کد تأیید برایت ارسال شود.")}
     >
       <form
         onSubmit={submit}
@@ -85,7 +96,7 @@ export default function Login() {
 
         <div>
           <label htmlFor="phone" className="mb-2 block text-sm font-bold">
-            شماره موبایل
+            {t("شماره موبایل")}
           </label>
           <div
             className={`flex items-center gap-3 rounded-2xl border bg-surface-2 px-4 transition focus-within:border-primary/60 focus-within:ring-4 focus-within:ring-primary/10 ${error ? "border-error" : "border-border"}`}
@@ -131,21 +142,21 @@ export default function Login() {
           disabled={submitting}
           className="group flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-primary px-5 font-black text-primary-foreground transition hover:-translate-y-0.5 hover:opacity-90 active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          دریافت کد تأیید
-          <FiArrowLeft className="transition-transform group-hover:-translate-x-1" />
+          {t("دریافت کد تأیید")}
+          <ArrowForward className="transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
         </button>
 
         <div className="rounded-2xl border border-border bg-surface-2 p-4 text-center text-xs leading-6 text-muted">
-          کد تأیید فقط برای شماره‌ای که وارد می‌کنی ارسال خواهد شد.
+          {t("کد تأیید فقط برای شماره‌ای که وارد می‌کنی ارسال خواهد شد.")}
         </div>
 
         <p className="text-center text-xs text-muted">
-          مدیر آرانو هستی؟{" "}
+          {t("مدیر آرانو هستی؟")}{" "}
           <Link
             to="/auth/admin"
             className="font-bold text-primary transition hover:opacity-80"
           >
-            ورود مدیران
+            {t("ورود مدیران")}
           </Link>
         </p>
       </form>

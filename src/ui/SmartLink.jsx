@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "../i18n/Link";
 
 // لینک داخلی (مسیر یا مسیر+هش مثل "/#contact") با Link رد می‌شود تا صفحه Reload نشود؛
 // بقیه (مثل "#contact" یا آدرس بیرونی) همان <a> ساده‌اند.

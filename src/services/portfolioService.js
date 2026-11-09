@@ -1,5 +1,5 @@
 import axios from "axios";
-import { PROJECTS } from "../data/projects";
+import { getProjectsRaw } from "../i18n/text";
 
 // VITE_USE_MOCK=false  ->  GET {VITE_BASE_URL}/projects (Rails)
 const USE_MOCK = import.meta.env.VITE_USE_MOCK !== "false";
@@ -25,8 +25,8 @@ export function normalizeProject(raw) {
   };
 }
 
-export async function getProjects() {
-  if (USE_MOCK) return PROJECTS.map(normalizeProject);
+export async function getProjects(lang = "fa") {
+  if (USE_MOCK) return getProjectsRaw(lang).map(normalizeProject);
 
   const { data } = await axios.get(`${BASE_URL}/projects`);
   const list = Array.isArray(data) ? data : (data.projects ?? []);

@@ -1,5 +1,6 @@
-import { Suspense, lazy } from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Fragment, Suspense, lazy } from "react";
+import { Route, Routes } from "react-router-dom";
+import { Navigate } from "./i18n/Link";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Toaster } from "react-hot-toast";
@@ -22,6 +23,7 @@ import VerifyOtp from "./pages/VerifyOtp";
 import CompleteProfile from "./pages/CompleteProfile";
 import AuthPending from "./pages/AuthPending";
 import ScrollToTop from "./ui/ScrollToTop";
+import { LangProvider } from "./i18n/LangContext";
 
 import RequireStep from "./features/auth/RequireStep";
 import AuthBootstrap from "./features/auth/AuthBootstrap";
@@ -52,6 +54,7 @@ const AdminHistory = lazy(() => import("./pages/dashboard/admin/History"));
 const AdminConsultations = lazy(
   () => import("./pages/dashboard/admin/Consultations"),
 );
+const AdminComments = lazy(() => import("./pages/dashboard/admin/Comments"));
 const Admins = lazy(() => import("./pages/dashboard/admin/Admins"));
 const Roles = lazy(() => import("./pages/dashboard/admin/Roles"));
 const AdminProfile = lazy(() => import("./pages/dashboard/admin/Profile"));
@@ -71,99 +74,127 @@ function AppRoutes() {
       <LegacyHashRedirect />
       <ScrollToTop />
       <Suspense fallback={null}>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/services" element={<ServicesPage />} />
-        <Route path="/portfolio" element={<PortfolioPage />} />
-        <Route path="/about" element={<AboutPage />} />
-        <Route path="/team" element={<TeamPage />} />
-        <Route path="/contact" element={<ContactPage />} />
+        <Routes>
+          {/* صفحه‌های عمومی دو زبانه‌اند: بدون پیشوند = فارسی، /en/... = انگلیسی */}
+          {["", "/en"].map((prefix) => (
+            <Fragment key={`public-${prefix || "fa"}`}>
+              <Route path={prefix || "/"} element={<Home />} />
+              <Route path={`${prefix}/services`} element={<ServicesPage />} />
+              <Route path={`${prefix}/portfolio`} element={<PortfolioPage />} />
+              <Route path={`${prefix}/about`} element={<AboutPage />} />
+              <Route path={`${prefix}/team`} element={<TeamPage />} />
+              <Route path={`${prefix}/contact`} element={<ContactPage />} />
 
-        {/* ۲۲ صفحه‌ی مستقل خدمت: /services/... و /web-design/... */}
-        {SERVICE_PAGES.map((page) => (
-          <Route
-            key={page.path}
-            path={page.path}
-            element={<ServicePage path={page.path} />}
-          />
-        ))}
-        <Route
-          path="/web-design"
-          element={<Navigate to="/services#web-design" replace />}
-        />
-        <Route path="/web-design/*" element={<Navigate to="/services" replace />} />
-        <Route path="/services/*" element={<Navigate to="/services" replace />} />
-        <Route path="/terms" element={<TermsPage />} />
+              {/* ۲۲ صفحه‌ی مستقل خدمت: /services/... و /web-design/... */}
+              {SERVICE_PAGES.map((page) => (
+                <Route
+                  key={page.path}
+                  path={`${prefix}${page.path}`}
+                  element={<ServicePage path={page.path} />}
+                />
+              ))}
+              <Route
+                path={`${prefix}/web-design`}
+                element={<Navigate to="/services#web-design" replace />}
+              />
+              <Route
+                path={`${prefix}/web-design/*`}
+                element={<Navigate to="/services" replace />}
+              />
+              <Route
+                path={`${prefix}/services/*`}
+                element={<Navigate to="/services" replace />}
+              />
+              <Route path={`${prefix}/terms`} element={<TermsPage />} />
 
-        {/* وبلاگ: /blog، یک صفحه‌ی مستقل برای هر دسته، و /blog/<slug> برای مقاله */}
-        <Route path="/blog" element={<BlogPage />} />
-        {BLOG_CATEGORIES.map((category) => (
-          <Route
-            key={category.slug}
-            path={categoryPath(category.slug)}
-            element={<BlogCategoryPage slug={category.slug} />}
-          />
-        ))}
-        <Route path="/blog/category/*" element={<Navigate to="/blog" replace />} />
-        <Route path="/blog/:slug" element={<BlogArticlePage />} />
+              {/* وبلاگ: /blog، یک صفحه‌ی مستقل برای هر دسته، و /blog/<slug> برای مقاله */}
+              <Route path={`${prefix}/blog`} element={<BlogPage />} />
+              {BLOG_CATEGORIES.map((category) => (
+                <Route
+                  key={category.slug}
+                  path={`${prefix}${categoryPath(category.slug)}`}
+                  element={<BlogCategoryPage slug={category.slug} />}
+                />
+              ))}
+              <Route
+                path={`${prefix}/blog/category/*`}
+                element={<Navigate to="/blog" replace />}
+              />
+              <Route
+                path={`${prefix}/blog/:slug`}
+                element={<BlogArticlePage lang={prefix ? "en" : undefined} />}
+              />
+            </Fragment>
+          ))}
 
-        <Route path="/auth/login" element={<Login />} />
-        <Route path="/auth/admin" element={<AdminLogin />} />
-        <Route
-          path="/auth/admin/forgot-password"
-          element={<AdminForgotPassword />}
-        />
+          {/* صفحه‌های ورود هم دو زبانه‌اند: /auth/... و /en/auth/... */}
+          <Fragment>
+            {["", "/en"].map((prefix) => (
+              <Fragment key={prefix || "fa"}>
+                <Route path={`${prefix}/auth/login`} element={<Login />} />
+                <Route path={`${prefix}/auth/admin`} element={<AdminLogin />} />
+                <Route
+                  path={`${prefix}/auth/admin/forgot-password`}
+                  element={<AdminForgotPassword />}
+                />
 
-        <Route
-          path="/auth/otp"
-          element={
-            <RequireStep step="phone">
-              <VerifyOtp />
-            </RequireStep>
-          }
-        />
+                <Route
+                  path={`${prefix}/auth/otp`}
+                  element={
+                    <RequireStep step="phone">
+                      <VerifyOtp />
+                    </RequireStep>
+                  }
+                />
 
-        <Route
-          path="/auth/complete-profile"
-          element={
-            <RequireStep step="verified">
-              <CompleteProfile />
-            </RequireStep>
-          }
-        />
+                <Route
+                  path={`${prefix}/auth/complete-profile`}
+                  element={
+                    <RequireStep step="verified">
+                      <CompleteProfile />
+                    </RequireStep>
+                  }
+                />
 
-        <Route path="/auth/pending" element={<AuthPending />} />
+                <Route
+                  path={`${prefix}/auth/pending`}
+                  element={<AuthPending />}
+                />
+              </Fragment>
+            ))}
+          </Fragment>
 
-        <Route element={<ProtectedRoute area="user" />}>
-          <Route path="/dashboard" element={<DashboardLayout area="user" />}>
-            <Route index element={<UserOverview />} />
-            <Route path="projects" element={<UserProjects />} />
-            <Route path="history" element={<UserHistory />} />
-            <Route path="support" element={<UserSupport />} />
-            <Route path="profile" element={<UserProfile />} />
-          </Route>
-        </Route>
-
-        <Route element={<ProtectedRoute area="admin" />}>
-          <Route path="/admin" element={<DashboardLayout area="admin" />}>
-            <Route index element={<AdminOverview />} />
-            <Route path="requests" element={<AdminRequests />} />
-            <Route path="users" element={<AdminUsers />} />
-            <Route path="projects" element={<AdminProjects />} />
-            <Route path="support" element={<AdminSupport />} />
-            <Route path="history" element={<AdminHistory />} />
-            <Route path="consultations" element={<AdminConsultations />} />
-            <Route path="profile" element={<AdminProfile />} />
-
-            <Route element={<SuperOnlyRoute />}>
-              <Route path="admins" element={<Admins />} />
-              <Route path="roles" element={<Roles />} />
+          <Route element={<ProtectedRoute area="user" />}>
+            <Route path="/dashboard" element={<DashboardLayout area="user" />}>
+              <Route index element={<UserOverview />} />
+              <Route path="projects" element={<UserProjects />} />
+              <Route path="history" element={<UserHistory />} />
+              <Route path="support" element={<UserSupport />} />
+              <Route path="profile" element={<UserProfile />} />
             </Route>
           </Route>
-        </Route>
 
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+          <Route element={<ProtectedRoute area="admin" />}>
+            <Route path="/admin" element={<DashboardLayout area="admin" />}>
+              <Route index element={<AdminOverview />} />
+              <Route path="requests" element={<AdminRequests />} />
+              <Route path="users" element={<AdminUsers />} />
+              <Route path="projects" element={<AdminProjects />} />
+              <Route path="support" element={<AdminSupport />} />
+              <Route path="history" element={<AdminHistory />} />
+              <Route path="consultations" element={<AdminConsultations />} />
+              <Route path="comments" element={<AdminComments />} />
+              <Route path="profile" element={<AdminProfile />} />
+
+              <Route element={<SuperOnlyRoute />}>
+                <Route path="admins" element={<Admins />} />
+                <Route path="roles" element={<Roles />} />
+              </Route>
+            </Route>
+          </Route>
+
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
       </Suspense>
     </>
   );
@@ -182,9 +213,11 @@ function App() {
         }}
       />
 
-      <AuthBootstrap>
-        <AppRoutes />
-      </AuthBootstrap>
+      <LangProvider>
+        <AuthBootstrap>
+          <AppRoutes />
+        </AuthBootstrap>
+      </LangProvider>
     </QueryClientProvider>
   );
 }

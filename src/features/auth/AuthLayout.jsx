@@ -1,6 +1,10 @@
-import { FiArrowRight, FiShield, FiCheckCircle } from "react-icons/fi";
+import { FiShield, FiCheckCircle } from "react-icons/fi";
 import Logo from "../../ui/Logo";
 import BackHome from "../../ui/BackHome";
+import { ArrowBack } from "../../i18n/Arrow";
+import { useLang } from "../../i18n/LangContext";
+import useDocumentTitle from "../../hooks/useDocumentTitle";
+import LangSwitch from "../home/LangSwitch";
 import ThemeSwitcher from "../home/ThemeSwitcher";
 
 export default function AuthLayout({
@@ -10,10 +14,12 @@ export default function AuthLayout({
   subtitle,
   onBack,
 }) {
+  const { t, n, isEn, dir } = useLang();
+  useDocumentTitle(typeof title === "string" ? title : "");
   const steps = ["شماره موبایل", "تأیید کد", "تکمیل اطلاعات"];
 
   return (
-    <main dir="rtl" className="min-h-screen bg-background text-foreground">
+    <main dir={dir} className="min-h-screen bg-background text-foreground">
       <div className="relative min-h-screen overflow-hidden">
         <div className="pointer-events-none absolute -right-32 -top-32 h-80 w-80 rounded-full bg-primary/10 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-40 -left-32 h-96 w-96 rounded-full bg-accent/10 blur-3xl" />
@@ -22,6 +28,7 @@ export default function AuthLayout({
           <Logo />
           <div className="flex items-center gap-2 sm:gap-3">
             <BackHome />
+            <LangSwitch />
             <ThemeSwitcher />
           </div>
         </header>
@@ -31,17 +38,18 @@ export default function AuthLayout({
             <div className="max-w-md">
               <span className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-bold text-muted">
                 <FiShield className="text-primary" />
-                ورود امن به آرانو
+                {t("ورود امن به آرانو")}
               </span>
               <h1 className="mt-6 text-4xl font-black leading-[1.2] tracking-tight xl:text-5xl">
-                پروژه‌ات را شروع کن؛
+                {t("پروژه‌ات را شروع کن؛")}
                 <span className="block text-primary">
-                  ما بقیه مسیر را می‌سازیم.
+                  {t("ما بقیه مسیر را می‌سازیم.")}
                 </span>
               </h1>
               <p className="mt-5 max-w-sm text-base leading-8 text-muted">
-                با شماره موبایل وارد شو و اطلاعات پروژه‌ات را با تیم آرانو در
-                میان بگذار.
+                {t(
+                  "با شماره موبایل وارد شو و اطلاعات پروژه‌ات را با تیم آرانو در میان بگذار.",
+                )}
               </p>
 
               <div className="mt-8 space-y-4">
@@ -57,7 +65,7 @@ export default function AuthLayout({
                     <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
                       <FiCheckCircle />
                     </span>
-                    {item}
+                    {t(item)}
                   </div>
                 ))}
               </div>
@@ -74,13 +82,15 @@ export default function AuthLayout({
                         type="button"
                         onClick={onBack}
                         className="grid h-8 w-8 place-items-center rounded-full border border-border text-muted transition hover:bg-surface-2 hover:text-foreground"
-                        aria-label="بازگشت"
+                        aria-label={t("بازگشت")}
                       >
-                        <FiArrowRight />
+                        <ArrowBack />
                       </button>
                     )}
                     <span className="text-xs font-bold text-primary">
-                      مرحله {step} از ۳
+                      {isEn
+                        ? `Step ${step} of 3`
+                        : `مرحله ${n(step)} از ${n(3)}`}
                     </span>
                   </div>
                   <h2 className="text-2xl font-black sm:text-3xl">{title}</h2>
@@ -90,7 +100,7 @@ export default function AuthLayout({
                 </div>
               </div>
 
-              <div className="mb-8 flex gap-2" aria-label="مراحل احراز هویت">
+              <div className="mb-8 flex gap-2" aria-label={t("مراحل احراز هویت")}>
                 {steps.map((item, index) => (
                   <div
                     key={item}
@@ -107,7 +117,7 @@ export default function AuthLayout({
             </div>
 
             <p className="mt-5 text-center text-xs leading-6 text-muted">
-              ورود به آرانو به معنی پذیرش قوانین و شرایط استفاده از خدمات است.
+              {t("ورود به آرانو به معنی پذیرش قوانین و شرایط استفاده از خدمات است.")}
             </p>
           </div>
         </section>

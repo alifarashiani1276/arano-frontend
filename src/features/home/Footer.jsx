@@ -1,13 +1,17 @@
-import { Link } from "react-router-dom";
 import { FiLock } from "react-icons/fi";
-import { site } from "../../config/site";
+import { Link } from "../../i18n/Link";
+import { useLang } from "../../i18n/LangContext";
+import { useSite } from "../../i18n/useData";
 import Icon from "../../ui/Icon";
 import Logo from "../../ui/Logo";
+import FloatingContact from "./FloatingContact";
 import SmartLink from "../../ui/SmartLink";
 
 export default function Footer() {
+  const site = useSite();
+  const { t } = useLang();
   return (
-    <footer className="relative overflow-hidden border-t border-border">
+    <footer className="relative overflow-hidden border-t border-border pb-16">
       <div className="mx-auto max-w-6xl px-5 pt-16">
         <p className="max-w-xl text-3xl font-black leading-[1.5] md:text-5xl">
           {site.footer.slogan}
@@ -16,7 +20,7 @@ export default function Footer() {
         <div className="mt-12 flex flex-wrap items-center justify-between gap-8">
           <Logo />
 
-          <nav aria-label="منوی پایین سایت">
+          <nav aria-label={t("منوی پایین سایت")}>
             <ul className="flex flex-wrap items-center gap-x-6 gap-y-2">
               {site.nav.map((item) => (
                 <li key={item.href}>
@@ -55,7 +59,7 @@ export default function Footer() {
               to="/terms"
               className="transition-colors duration-200 hover:text-foreground"
             >
-              قوانین و مقررات
+              {t("قوانین و مقررات")}
             </Link>
           </div>
 
@@ -86,7 +90,7 @@ export default function Footer() {
             className="inline-flex items-center gap-1.5 transition-colors duration-200 hover:text-foreground"
           >
             <FiLock size={13} aria-hidden="true" />
-            ورود مدیران
+            {t("ورود مدیران")}
           </Link>
         </div>
       </div>
@@ -97,6 +101,8 @@ export default function Footer() {
       >
         {site.name}
       </p>
+      {/* نوار تماس ثابت؛ در همه‌ی صفحه‌هایی که فوتر دارند (خانه، خدمات، وبلاگ، ...) نمایش داده می‌شود */}
+      <FloatingContact />
     </footer>
   );
 }

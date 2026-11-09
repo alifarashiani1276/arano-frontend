@@ -163,3 +163,9 @@ export const updateAdminProfile = (payload) =>
 
 export const updateUserProfile = (payload) =>
   api.put("/profile", payload).then((response) => data(response).user);
+
+export const getAdminComments = (params) =>
+  api.get("/admin/comments", { params }).then((response) => data(response));
+
+export const deleteAdminComment = (id) =>
+  api.delete(`/admin/comments/${id}`).then((response) => response.data);

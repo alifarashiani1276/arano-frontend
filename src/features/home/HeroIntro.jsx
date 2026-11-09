@@ -1,11 +1,12 @@
-import { FiArrowLeft } from "react-icons/fi";
-import { site } from "../../config/site";
+import { ArrowForward } from "../../i18n/Arrow";
+import { useSite } from "../../i18n/useData";
 import Motion from "../../ui/Motion";
 import SmartLink from "../../ui/SmartLink";
 import SplitWords from "../../ui/SplitWords";
 
 // بخش دوم Hero: بعد از تصویر، با اسکرول و به‌صورت پله‌ای نمایش داده می‌شود.
 export default function HeroIntro() {
+  const site = useSite();
   const { hero } = site;
   let wordIndex = 0;
 
@@ -77,10 +78,10 @@ export default function HeroIntro() {
               className="group inline-flex items-center gap-2 rounded-full bg-primary px-7 py-4 text-sm font-bold text-primary-foreground transition-[opacity,transform] duration-200 hover:opacity-90 active:scale-[0.97]"
             >
               {hero.primaryCta.label}
-              <FiArrowLeft
+              <ArrowForward
                 size={18}
                 aria-hidden="true"
-                className="transition-transform duration-200 group-hover:-translate-x-1"
+                className="transition-transform duration-200 rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1"
               />
             </SmartLink>
           </span>

@@ -1,7 +1,9 @@
 import { FiArrowUpRight, FiGithub } from "react-icons/fi";
+import { useLang } from "../../i18n/LangContext";
 import MediaImage from "../../ui/MediaImage";
 
 export default function ProjectCard({ project, index, wide = false }) {
+  const { t, n } = useLang();
   const {
     title,
     description,
@@ -27,7 +29,7 @@ export default function ProjectCard({ project, index, wide = false }) {
         <MediaImage
           src={image}
           mobileSrc={mobileImage}
-          alt={`تصویر پروژه ${title}`}
+          alt={`${t("تصویر پروژه")} ${title}`}
           label={title}
           variant={index}
           className="h-full w-full"
@@ -63,7 +65,7 @@ export default function ProjectCard({ project, index, wide = false }) {
                 className="after:absolute after:inset-0"
               >
                 {title}
-                <span className="sr-only"> - مشاهده پروژه</span>
+                <span className="sr-only"> - {t("مشاهده پروژه")}</span>
               </a>
             ) : (
               title
@@ -81,7 +83,7 @@ export default function ProjectCard({ project, index, wide = false }) {
               className="relative z-10 mt-4 inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-2 text-xs font-bold text-muted transition-[background-color,color,border-color] duration-200 hover:border-primary/50 hover:text-foreground focus-visible:border-primary focus-visible:text-foreground"
             >
               <FiGithub size={16} aria-hidden="true" />
-              برای دیدن ریپوی گیت‌هاب این پروژه کلیک کنید
+              {t("برای دیدن ریپوی گیت‌هاب این پروژه کلیک کنید")}
             </a>
           )}
         </div>
@@ -89,7 +91,7 @@ export default function ProjectCard({ project, index, wide = false }) {
           aria-hidden="true"
           className="shrink-0 text-3xl font-black text-foreground/10 transition-colors duration-300 group-hover:text-primary/40"
         >
-          {(index + 1).toLocaleString("fa-IR", { minimumIntegerDigits: 2 })}
+          {n(index + 1, { minimumIntegerDigits: 2 })}
         </span>
       </div>
 

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useLang } from "../i18n/LangContext";
 import { filterPosts, sortNewest } from "../lib/blog";
 
 const PAGE_SIZE = 9;
@@ -8,6 +9,7 @@ const PAGE_SIZE = 9;
 // وضعیت در آدرس هم می‌ماند (?q=...&category=...&sort=oldest) تا لینک قابل‌اشتراک باشد.
 // fixedCategory: در صفحه‌ی یک دسته، فیلتر دسته ثابت است و از آدرس خوانده نمی‌شود.
 export default function useBlogFilters(posts, { fixedCategory } = {}) {
+  const { lang } = useLang();
   const [params, setParams] = useSearchParams();
   const urlQuery = params.get("q") ?? "";
 
@@ -44,9 +46,9 @@ export default function useBlogFilters(posts, { fixedCategory } = {}) {
   }, [query]);
 
   const filtered = useMemo(() => {
-    const list = filterPosts(posts, { query, category });
+    const list = filterPosts(posts, { query, category, lang });
     return sort === "oldest" ? [...list].sort((a, b) => -sortNewest(a, b)) : list;
-  }, [posts, query, category, sort]);
+  }, [posts, query, category, sort, lang]);
 
   const isFiltering = query.trim() !== "" || category !== "all";
 

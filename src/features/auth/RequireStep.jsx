@@ -1,4 +1,4 @@
-import { Navigate } from "react-router-dom";
+import { Navigate } from "../../i18n/Link";
 import { authFlow } from "./authFlow";
 
 // جلوی ورود مستقیم به مرحله‌های بعدی (با تایپ آدرس) را می‌گیرد.

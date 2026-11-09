@@ -1,7 +1,9 @@
+import { useLang } from "../../i18n/LangContext";
 import BlogCard from "./BlogCard";
 
 // مقاله‌های هم‌دسته (بدون مقاله‌ی جاری)؛ اگر چیزی نبود، هیچ‌چیز نمایش داده نمی‌شود.
 export default function RelatedPosts({ post, posts, limit = 3 }) {
+  const { t } = useLang();
   const related = posts
     .filter((p) => p.slug !== post.slug && p.category === post.category)
     .slice(0, limit);
@@ -11,7 +13,7 @@ export default function RelatedPosts({ post, posts, limit = 3 }) {
   return (
     <section aria-labelledby="related-title" className="mt-20 border-t border-border pt-12">
       <h2 id="related-title" className="text-2xl font-black">
-        مقاله‌های مرتبط
+        {t("مقاله‌های مرتبط")}
       </h2>
       <div className="mt-8 grid gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
         {related.map((p, i) => (

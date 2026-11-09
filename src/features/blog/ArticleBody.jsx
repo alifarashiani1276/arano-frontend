@@ -24,7 +24,7 @@ export default function ArticleBody({ content }) {
             return (
               <List
                 key={i}
-                className={`space-y-2 pr-6 marker:text-primary ${b.type === "ul" ? "list-disc" : "list-decimal"}`}
+                className={`space-y-2 ps-6 marker:text-primary ${b.type === "ul" ? "list-disc" : "list-decimal"}`}
               >
                 {(b.items ?? []).map((item, j) => (
                   <li key={j}>{item}</li>
@@ -34,7 +34,7 @@ export default function ArticleBody({ content }) {
           }
           case "quote":
             return (
-              <blockquote key={i} className="rounded-2xl border-r-4 border-primary bg-surface-2 px-6 py-4">
+              <blockquote key={i} className="rounded-2xl border-s-4 border-primary bg-surface-2 px-6 py-4">
                 <p>{b.text}</p>
                 {b.cite && <footer className="mt-2 text-sm text-muted">— {b.cite}</footer>}
               </blockquote>

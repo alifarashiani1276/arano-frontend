@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import OtpInput from "react-otp-input";
-import { FiArrowLeft, FiRefreshCw } from "react-icons/fi";
+import { FiRefreshCw } from "react-icons/fi";
+import { ArrowForward } from "../i18n/Arrow";
+import { useLang } from "../i18n/LangContext";
 import AuthLayout from "../features/auth/AuthLayout";
 import { authFlow } from "../features/auth/authFlow";
 import { session } from "../features/auth/session";
@@ -80,6 +82,7 @@ async function verifyOtpRequest(phone, code) {
 
 export default function VerifyOtp() {
   const navigate = useNavigate();
+  const { t, n, isEn, lang, to } = useLang();
   const phone = authFlow.getPhone() ?? "";
 
   const [otp, setOtp] = useState("");
@@ -98,7 +101,7 @@ export default function VerifyOtp() {
   useEffect(() => {
     if (!phone) {
       if (!finished.current) {
-        navigate("/auth/login", { replace: true });
+        navigate(to("/auth/login"), { replace: true });
       }
       return undefined;
     }
@@ -122,6 +125,11 @@ export default function VerifyOtp() {
 
     return () => clearInterval(timer);
   }, [phone, navigate]);
+
+  // پیام خطا به زبان قبلی نماند
+  useEffect(() => {
+    setMessage("");
+  }, [lang]);
 
   const locked = lockLeft > 0;
 
@@ -151,7 +159,7 @@ export default function VerifyOtp() {
         if (!user.profile_completed) {
           authFlow.markVerified();
 
-          navigate("/auth/complete-profile", {
+          navigate(to("/auth/complete-profile"), {
             replace: true,
           });
 
@@ -167,7 +175,7 @@ export default function VerifyOtp() {
             replace: true,
           });
         } else {
-          navigate("/auth/pending", {
+          navigate(to("/auth/pending"), {
             replace: true,
           });
         }
@@ -178,12 +186,12 @@ export default function VerifyOtp() {
       setOtp("");
 
       if (result.fatal) {
-        setMessage(result.fatal);
+        setMessage(t(result.fatal));
         return;
       }
 
       if (result.tooMany) {
-        lock("تعداد تلاش‌ها زیاد بود. ورود کد موقتاً قفل شد.");
+        lock(t("تعداد تلاش‌ها زیاد بود. ورود کد موقتاً قفل شد."));
         return;
       }
 
@@ -191,14 +199,17 @@ export default function VerifyOtp() {
       setAttempts(next);
 
       if (next >= MAX_ATTEMPTS) {
-        lock("تعداد تلاش‌های اشتباه زیاد بود. ورود کد موقتاً قفل شد.");
+        lock(t("تعداد تلاش‌های اشتباه زیاد بود. ورود کد موقتاً قفل شد."));
       } else {
+        const left = MAX_ATTEMPTS - next;
         setMessage(
-          `کد واردشده صحیح نیست یا منقضی شده است. ${(MAX_ATTEMPTS - next).toLocaleString("fa-IR")} تلاش باقی مانده است.`,
+          isEn
+            ? `The code is incorrect or has expired. ${left} ${left === 1 ? "attempt" : "attempts"} left.`
+            : `کد واردشده صحیح نیست یا منقضی شده است. ${n(left)} تلاش باقی مانده است.`,
         );
       }
     } catch (err) {
-      setMessage(apiMessage(err, "خطای سرور. لطفاً دوباره تلاش کنید."));
+      setMessage(t(apiMessage(err, "خطای سرور. لطفاً دوباره تلاش کنید.")));
     } finally {
       setBusy(false);
     }
@@ -213,9 +224,11 @@ export default function VerifyOtp() {
 
     if (!gate.ok) {
       setMessage(
-        `تعداد ارسال مجدد زیاد است. ${formatWait(
-          gate.retryAfter,
-        )} دیگر دوباره تلاش کنید.`,
+        isEn
+          ? `Too many resend requests. Try again in ${formatWait(gate.retryAfter, true)}.`
+          : `تعداد ارسال مجدد زیاد است. ${formatWait(
+              gate.retryAfter,
+            )} دیگر دوباره تلاش کنید.`,
       );
       return;
     }
@@ -229,27 +242,37 @@ export default function VerifyOtp() {
       setOtp("");
       setAttempts(0);
     } catch (err) {
-      setMessage(apiMessage(err, "ارسال مجدد کد انجام نشد."));
+      setMessage(t(apiMessage(err, "ارسال مجدد کد انجام نشد.")));
     }
   };
 
   const goBack = () => {
     authFlow.reset();
-    navigate("/auth/login");
+    navigate(to("/auth/login"));
   };
 
   return (
     <AuthLayout
       step={2}
-      title="کد تأیید را وارد کن"
+      title={t("کد تأیید را وارد کن")}
       subtitle={
-        <>
-          کد ۶ رقمی ارسال‌شده به{" "}
-          <bdi dir="ltr" className="font-bold text-foreground">
-            {maskPhone(phone)}
-          </bdi>{" "}
-          را وارد کن.
-        </>
+        isEn ? (
+          <>
+            Enter the 6-digit code sent to{" "}
+            <bdi dir="ltr" className="font-bold text-foreground">
+              {maskPhone(phone)}
+            </bdi>
+            .
+          </>
+        ) : (
+          <>
+            کد ۶ رقمی ارسال‌شده به{" "}
+            <bdi dir="ltr" className="font-bold text-foreground">
+              {maskPhone(phone)}
+            </bdi>{" "}
+            را وارد کن.
+          </>
+        )
       }
       onBack={goBack}
     >
@@ -286,7 +309,7 @@ export default function VerifyOtp() {
         {message && (
           <p role="alert" className="text-center text-xs font-bold text-error">
             {message}
-            {locked && ` (${formatWait(lockLeft)})`}
+            {locked && ` (${formatWait(lockLeft, isEn)})`}
           </p>
         )}
 
@@ -295,17 +318,18 @@ export default function VerifyOtp() {
           disabled={otp.length !== OTP_LENGTH || busy || locked || !phone}
           className="group flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary px-5 font-black text-primary-foreground transition hover:opacity-90 disabled:opacity-50 sm:h-14"
         >
-          {busy ? "در حال بررسی..." : "تأیید و ادامه"}
+          {busy ? t("در حال بررسی...") : t("تأیید و ادامه")}
 
           {!busy && (
-            <FiArrowLeft className="transition-transform group-hover:-translate-x-1" />
+            <ArrowForward className="transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
           )}
         </button>
 
         <div className="text-center">
           {seconds > 0 ? (
             <p className="text-sm text-muted">
-              ارسال مجدد کد تا {Math.floor(seconds / 60)}:
+              {isEn ? "Resend code in " : "ارسال مجدد کد تا "}
+              {Math.floor(seconds / 60)}:
               {String(seconds % 60).padStart(2, "0")}
             </p>
           ) : (
@@ -316,7 +340,7 @@ export default function VerifyOtp() {
               className="inline-flex items-center gap-2 text-sm font-black text-primary transition hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <FiRefreshCw />
-              ارسال مجدد کد
+              {t("ارسال مجدد کد")}
             </button>
           )}
         </div>

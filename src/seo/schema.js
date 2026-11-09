@@ -2,7 +2,8 @@
 // BreadcrumbList + FAQPage + Service برای هر صفحه خدمت.
 
 import { site } from "../config/site.js";
-import { SITE_NAME, SITE_URL, absUrl, getBreadcrumbs } from "./registry.js";
+import { LANG_META } from "../i18n/config.js";
+import { SITE_NAME, SITE_NAME_EN, SITE_URL, absUrl, getBreadcrumbs } from "./registry.js";
 
 const CTX = "https://schema.org";
 
@@ -17,11 +18,17 @@ export const organizationLd = () => ({
   "@type": "Organization",
   "@id": `${SITE_URL}/#organization`,
   name: SITE_NAME,
-  alternateName: "Arano",
+  alternateName: SITE_NAME_EN,
   url: `${SITE_URL}/`,
   logo: `${SITE_URL}/images/icon-512.png`,
   description: site.slogan,
   email: emailItem?.value,
+  contactPoint: {
+    "@type": "ContactPoint",
+    telephone: toIntlPhone(phoneItem?.value),
+    contactType: "customer support",
+    availableLanguage: ["fa", "en"],
+  },
   telephone: toIntlPhone(phoneItem?.value),
   address: {
     "@type": "PostalAddress",
@@ -30,6 +37,15 @@ export const organizationLd = () => ({
     addressCountry: "IR",
   },
   sameAs: site.socials.map((s) => s.href),
+});
+
+export const websiteLd = (lang) => ({
+  "@context": CTX,
+  "@type": "WebSite",
+  name: SITE_NAME,
+  alternateName: SITE_NAME_EN,
+  url: `${SITE_URL}/`,
+  inLanguage: LANG_META[lang].ldLang,
 });
 
 export const breadcrumbLd = (items) => ({
@@ -78,7 +94,7 @@ export const articleLd = (page) => {
     mainEntityOfPage: absUrl(page.path),
     datePublished: post.publishedAt,
     dateModified: post.updatedAt || post.publishedAt,
-    inLanguage: "fa-IR",
+    inLanguage: LANG_META[page.lang ?? "fa"].ldLang,
     ...(post.cover
       ? { image: absAsset(post.cover.src || post.cover.mobileSrc) }
       : {}),
@@ -92,6 +108,7 @@ export const articleLd = (page) => {
 // همه‌ی JSON-LD هر صفحه (آرایه‌ای از آبجکت‌ها)
 export function getJsonLd(page) {
   const out = [organizationLd()];
+  if (page.kind === "home") out.push(websiteLd(page.lang ?? "fa"));
   if (page.kind === "service") {
     out.push(breadcrumbLd(getBreadcrumbs(page)));
     out.push(serviceLd(page));

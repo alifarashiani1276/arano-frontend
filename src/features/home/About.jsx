@@ -1,5 +1,6 @@
 import { Fragment } from "react";
-import { site } from "../../config/site";
+import { useLang } from "../../i18n/LangContext";
+import { useSite } from "../../i18n/useData";
 import Motion from "../../ui/Motion";
 import SectionHeading from "../../ui/SectionHeading";
 
@@ -28,6 +29,8 @@ function Statement({ segments }) {
 }
 
 export default function About({ asH1 = false }) {
+  const site = useSite();
+  const { n } = useLang();
   const { statement, principles } = site.about;
 
   return (
@@ -68,7 +71,7 @@ export default function About({ asH1 = false }) {
                   style={{ "--cd": "150ms" }}
                   className="fx-child fx-slide text-5xl font-black text-transparent transition-colors duration-300 [-webkit-text-stroke:1.5px_rgb(var(--foreground)/0.35)] group-hover:text-primary group-hover:[-webkit-text-stroke:0]"
                 >
-                  {(i + 1).toLocaleString("fa-IR", { minimumIntegerDigits: 2 })}
+                  {n(i + 1, { minimumIntegerDigits: 2 })}
                 </span>
                 <div>
                   <h3

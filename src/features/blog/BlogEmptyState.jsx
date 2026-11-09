@@ -1,5 +1,5 @@
 import { FiBookOpen } from "react-icons/fi";
-import { Link } from "react-router-dom";
+import { Link } from "../../i18n/Link";
 import Reveal from "../../ui/Reveal";
 
 // وضعیت خالی وبلاگ/دسته/جست‌وجو. actions: [{ label, to? , onClick?, primary? }]

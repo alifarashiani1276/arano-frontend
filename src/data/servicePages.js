@@ -10,6 +10,7 @@
 // blog = مقاله‌های بلاگ مرتبط [{ title, href }] — بلاگ که ساخته شد اینجا پر می‌شود.
 
 import { SERVICES } from "./services.js";
+import { blogLinksFor } from "./blog.js";
 
 const main = (id) => SERVICES.find((s) => s.id === id);
 
@@ -668,9 +669,43 @@ const PAGES = [
   },
 ];
 
+// تصویر مخصوص هر خدمت (public/images/services) — هم روی کارت‌ها و هم در بالای صفحه‌ی خدمت نمایش داده می‌شود.
+const IMG = (file) => `/images/services/${file}`;
+
+const IMAGES = {
+  frontend: IMG("frontend-development-service-arano.webp"),
+  "backend-api": IMG("backend-api-database-service-arano.webp"),
+  "ui-ux-graphic": IMG("ui-ux-graphic-design-service-arano.webp"),
+  "full-project": IMG("full-website-project-execution-arano.webp"),
+  store: IMG("online-store-website-design-arano.webp"),
+  corporate: IMG("corporate-website-design-arano.webp"),
+  personal: IMG("personal-portfolio-website-design-arano.webp"),
+  wordpress: IMG("wordpress-website-design-arano.webp"),
+  custom: IMG("custom-coded-website-design-arano.webp"),
+  landing: IMG("landing-page-design-arano.webp"),
+  clinic: IMG("medical-clinic-website-design-arano.webp"),
+  "real-estate": IMG("real-estate-website-design-arano.webp"),
+  education: IMG("online-course-education-website-arano.webp"),
+  restaurant: IMG("restaurant-cafe-website-design-arano.webp"),
+  industrial: IMG("industrial-factory-website-design-arano.webp"),
+  "portal-automation": IMG("portal-automation-system-design-arano.webp"),
+  multilingual: IMG("multilingual-website-design-arano.webp"),
+  seo: IMG("website-seo-optimization-service-arano-16-9.webp"),
+  "branding-logo": IMG("logo-brand-identity-design-arano.webp"),
+  maintenance: IMG("website-maintenance-support-arano.webp"),
+  "speed-optimization": IMG("website-speed-optimization-arano.webp"),
+  "wordpress-theme": IMG("custom-wordpress-theme-development-arano.webp"),
+};
+
 export const SERVICE_PAGES = PAGES.map((p) => {
   const base = SERVICE_GROUPS.find((g) => g.id === p.group).base;
-  return { ...p, path: `${base}/${p.slug}`, blog: p.blog ?? [] };
+  const path = `${base}/${p.slug}`;
+  return {
+    ...p,
+    path,
+    image: p.image ?? IMAGES[p.slug],
+    blog: p.blog ?? blogLinksFor(path),
+  };
 });
 
 export const getServiceByPath = (path) =>

@@ -6,6 +6,7 @@ import {
   FiLifeBuoy,
   FiMessageSquare,
   FiShield,
+  FiStar,
   FiUser,
   FiUserCheck,
   FiUsers,
@@ -27,6 +28,7 @@ export const ADMIN_NAV = [
   { to: "/admin/support", label: "پشتیبانی", icon: FiMessageSquare },
   { to: "/admin/history", label: "تاریخچه", icon: FiClock },
   { to: "/admin/consultations", label: "درخواست مشاوره", icon: FiGlobe },
+  { to: "/admin/comments", label: "نظرات کاربران", icon: FiStar },
   { to: "/admin/profile", label: "پروفایل", icon: FiUser },
   {
     to: "/admin/admins",

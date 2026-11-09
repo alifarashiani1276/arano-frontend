@@ -1,5 +1,7 @@
 import { useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+import { stripLang } from "../i18n/config";
+import { useNavigate } from "../i18n/Link";
 
 // لینک‌های قدیمی مثل /#team و /#contact (در بوکمارک‌ها، پیام‌ها یا سایت‌های دیگر)
 // به صفحه‌ی واقعی همان بخش هدایت می‌شوند. (هش هیچ‌وقت به سرور نمی‌رسد؛ پس باید سمت مرورگر باشد.)
@@ -16,7 +18,7 @@ export default function LegacyHashRedirect() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (pathname === "/" && MAP[hash]) navigate(MAP[hash], { replace: true });
+    if (stripLang(pathname) === "/" && MAP[hash]) navigate(MAP[hash], { replace: true });
   }, [pathname, hash, navigate]);
 
   return null;

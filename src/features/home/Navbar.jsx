@@ -1,14 +1,17 @@
 import { useEffect, useRef, useState } from "react";
-import { FiGrid, FiLogIn, FiMenu, FiUserPlus, FiX } from "react-icons/fi";
-import { Link, useLocation } from "react-router-dom";
+import { FiGrid, FiLogIn, FiMenu, FiX } from "react-icons/fi";
+import { useLocation } from "react-router-dom";
 import { dashboardPath, useSession } from "../auth/session";
-import { site } from "../../config/site";
+import { stripLang } from "../../i18n/config";
+import { Link } from "../../i18n/Link";
+import { useLang } from "../../i18n/LangContext";
+import { useSite } from "../../i18n/useData";
 import Logo from "../../ui/Logo";
 import SmartLink from "../../ui/SmartLink";
+import LangSwitch from "./LangSwitch";
 import ThemeSwitcher from "./ThemeSwitcher";
 
 const AUTH_LOGIN = "/auth/login";
-const AUTH_REGISTER = "/auth/login";
 
 // «خدمات» در صفحه‌ی هاب و همه‌ی صفحه‌های خدمت (/services/... و /web-design/...) فعال است.
 const inServices = (pathname) =>
@@ -21,7 +24,10 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const area = useSession(); // null = وارد نشده
   const headerRef = useRef(null);
-  const { pathname } = useLocation();
+  const { pathname: rawPath } = useLocation();
+  const pathname = stripLang(rawPath);
+  const site = useSite();
+  const { t, to } = useLang();
   const isActive = (href) =>
     href === pathname ||
     (href === "/services" && inServices(pathname)) ||
@@ -75,7 +81,7 @@ export default function Navbar() {
           <Logo />
 
           <nav
-            aria-label="منوی اصلی"
+            aria-label={t("منوی اصلی")}
             className="hidden items-center gap-1 md:flex"
           >
             {site.nav.map((item) => (
@@ -98,47 +104,31 @@ export default function Navbar() {
             {area ? (
               <Link
                 to={dashboardPath(area)}
-                className="inline-flex h-9 items-center justify-center gap-1.5 rounded-full bg-primary px-3 text-xs font-bold text-primary-foreground transition-[opacity,transform] duration-200 hover:opacity-90 active:scale-[0.97] sm:h-10 sm:px-4 sm:text-sm"
+                aria-label={t("ورود به داشبورد")}
+                title={t("ورود به داشبورد")}
+                className="inline-flex h-9 w-9 items-center justify-center gap-1.5 rounded-full bg-primary text-xs font-bold text-primary-foreground transition-[opacity,transform] duration-200 hover:opacity-90 active:scale-[0.97] sm:h-10 sm:w-auto sm:px-4 sm:text-sm"
               >
-                <FiGrid
-                  className="hidden sm:block"
-                  size={15}
-                  aria-hidden="true"
-                />
-                ورود به داشبورد
+                <FiGrid size={15} aria-hidden="true" />
+                <span className="hidden sm:inline">{t("ورود به داشبورد")}</span>
               </Link>
             ) : (
-              <div className="flex items-center gap-1 sm:gap-1.5">
-                <a
-                  href={AUTH_LOGIN}
-                  className="inline-flex h-9 items-center justify-center gap-1.5 rounded-full border border-border bg-surface-2 px-3 text-xs font-bold text-foreground transition-[background-color,transform,border-color] duration-200 hover:border-primary hover:bg-primary/10 active:scale-[0.97] sm:h-10 sm:px-4 sm:text-sm"
-                >
-                  <FiLogIn
-                    className="hidden sm:block"
-                    size={15}
-                    aria-hidden="true"
-                  />
-                  ورود
-                </a>
-                <a
-                  href={AUTH_REGISTER}
-                  className="inline-flex h-9 items-center justify-center gap-1.5 rounded-full bg-primary px-3 text-xs font-bold text-primary-foreground transition-[opacity,transform] duration-200 hover:opacity-90 active:scale-[0.97] sm:h-10 sm:px-4 sm:text-sm"
-                >
-                  <FiUserPlus
-                    className="hidden sm:block"
-                    size={15}
-                    aria-hidden="true"
-                  />
-                  ثبت‌نام
-                </a>
-              </div>
+              <a
+                href={to(AUTH_LOGIN)}
+                aria-label={t("ورود / ثبت‌نام")}
+                title={t("ورود / ثبت‌نام")}
+                className="inline-flex h-9 w-9 items-center justify-center gap-1.5 rounded-full bg-primary text-xs font-bold text-primary-foreground transition-[opacity,transform] duration-200 hover:opacity-90 active:scale-[0.97] sm:h-10 sm:w-auto sm:px-4 sm:text-sm"
+              >
+                <FiLogIn size={15} aria-hidden="true" />
+                <span className="hidden sm:inline">{t("ورود / ثبت‌نام")}</span>
+              </a>
             )}
 
+            <LangSwitch />
             <ThemeSwitcher />
 
             <button
               type="button"
-              aria-label={open ? "بستن منو" : "باز کردن منو"}
+              aria-label={open ? t("بستن منو") : t("باز کردن منو")}
               aria-expanded={open}
               aria-controls="mobile-menu"
               onClick={() => setOpen((v) => !v)}
@@ -158,7 +148,7 @@ export default function Navbar() {
             id="mobile-menu"
             className="mx-auto mt-2 max-w-6xl animate-pop-in rounded-3xl border border-border bg-surface p-3 shadow-lg md:hidden"
           >
-            <nav aria-label="منوی موبایل" className="flex flex-col">
+            <nav aria-label={t("منوی موبایل")} className="flex flex-col">
               {site.nav.map((item) => (
                 <SmartLink
                   key={item.href}
@@ -172,38 +162,6 @@ export default function Navbar() {
                   {item.label}
                 </SmartLink>
               ))}
-
-              {area ? (
-                <div className="mt-2 border-t border-border pt-3">
-                  <Link
-                    to={dashboardPath(area)}
-                    onClick={closeMenu}
-                    className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90"
-                  >
-                    <FiGrid size={16} aria-hidden="true" />
-                    ورود به داشبورد
-                  </Link>
-                </div>
-              ) : (
-                <div className="mt-2 grid grid-cols-2 gap-2 border-t border-border pt-3">
-                  <a
-                    href={AUTH_LOGIN}
-                    onClick={closeMenu}
-                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-border bg-surface-2 px-4 py-3 text-sm font-bold text-foreground transition-colors hover:border-primary hover:bg-primary/10"
-                  >
-                    <FiLogIn size={16} aria-hidden="true" />
-                    ورود
-                  </a>
-                  <a
-                    href={AUTH_REGISTER}
-                    onClick={closeMenu}
-                    className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 text-sm font-bold text-primary-foreground transition-opacity hover:opacity-90"
-                  >
-                    <FiUserPlus size={16} aria-hidden="true" />
-                    ثبت‌نام
-                  </a>
-                </div>
-              )}
 
               <SmartLink
                 href={site.cta.href}

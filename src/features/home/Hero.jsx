@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { site } from "../../config/site";
+import { useLang } from "../../i18n/LangContext";
+import { useSite } from "../../i18n/useData";
 import HeroIntro from "./HeroIntro";
 
 const TOKEN_CLASS = {
@@ -58,6 +59,7 @@ function useTyping(lines) {
 
 // پنجره‌ی کد تایپ‌شونده؛ روی تصویر بالای صفحه (گوشه‌ی پایین) قرار می‌گیرد.
 function CodeWindow() {
+  const site = useSite();
   const { codeFile, codeLines } = site.hero;
   const { count, lineLengths } = useTyping(codeLines);
 
@@ -133,12 +135,14 @@ function CodeWindow() {
 
 // بخش اول صفحه: تصویر تمام‌صفحه (دسکتاپ/موبایل جدا) + پنجره‌ی کد در گوشه‌ی تصویر
 function HeroBanner() {
+  const site = useSite();
+  const { t } = useLang();
   const { banner } = site.hero;
 
   return (
     <section
       id="top"
-      aria-label="معرفی تصویری آرانو"
+      aria-label={t("معرفی تصویری آرانو")}
       className="relative isolate h-[100svh] min-h-[34rem] overflow-hidden bg-background"
     >
       <picture>
@@ -149,6 +153,7 @@ function HeroBanner() {
           width={768}
           height={1376}
           decoding="async"
+          fetchpriority="high"
           className="absolute inset-0 -z-20 h-full w-full object-cover object-top md:object-center"
         />
       </picture>

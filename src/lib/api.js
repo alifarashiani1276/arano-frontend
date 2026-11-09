@@ -58,7 +58,7 @@ api.interceptors.response.use(
       // Redirect مجدد ایجاد نمی‌کنیم.
       if (
         typeof window !== "undefined" &&
-        !window.location.pathname.startsWith("/auth/")
+        !/^(\/en)?\/auth\//.test(window.location.pathname)
       ) {
         window.location.assign(loginPath);
       }

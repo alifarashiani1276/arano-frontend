@@ -1,5 +1,4 @@
 import {
-  FiArrowLeft,
   FiBookOpen,
   FiBriefcase,
   FiLayout,
@@ -9,7 +8,9 @@ import {
   FiServer,
   FiZap,
 } from "react-icons/fi";
-import { Link } from "react-router-dom";
+import { ArrowForward } from "../../i18n/Arrow";
+import { Link } from "../../i18n/Link";
+import { useLang } from "../../i18n/LangContext";
 import { categoryPath, formatNumber } from "../../lib/blog";
 
 const ICONS = {
@@ -24,6 +25,7 @@ const ICONS = {
 
 // کارت دسته‌بندی برای صفحه اصلی وبلاگ؛ تعداد مقاله فقط وقتی بیشتر از صفر است نمایش داده می‌شود.
 export default function CategoryCard({ category, count = 0 }) {
+  const { lang, t, isEn } = useLang();
   const Icon = ICONS[category.slug] ?? FiBookOpen;
 
   return (
@@ -40,11 +42,13 @@ export default function CategoryCard({ category, count = 0 }) {
       <h3 className="mt-5 text-lg font-black leading-[1.6]">{category.name}</h3>
       <p className="mt-2 text-sm leading-7 text-muted">{category.short}</p>
       <span className="mt-auto flex items-center justify-between pt-5 text-xs font-bold text-muted transition-colors duration-200 group-hover:text-foreground">
-        <span>{count > 0 ? `${formatNumber(count)} مقاله` : "مشاهده دسته"}</span>
-        <FiArrowLeft
+        <span>{count > 0
+            ? `${formatNumber(count, lang)} ${isEn ? (count === 1 ? "article" : "articles") : "مقاله"}`
+            : t("مشاهده دسته")}</span>
+        <ArrowForward
           size={16}
           aria-hidden="true"
-          className="transition-transform duration-200 group-hover:-translate-x-1"
+          className="transition-transform duration-200 rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1"
         />
       </span>
     </Link>

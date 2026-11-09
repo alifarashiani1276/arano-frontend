@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { site } from "../../config/site";
+import { useLang } from "../../i18n/LangContext";
+import { useSite } from "../../i18n/useData";
 import useProjects from "../../hooks/useProjects";
 import Reveal from "../../ui/Reveal";
 import SectionHeading from "../../ui/SectionHeading";
@@ -22,6 +23,8 @@ function Skeleton({ wide }) {
 }
 
 export default function Portfolio({ asH1 = false }) {
+  const site = useSite();
+  const { t, n } = useLang();
   const { data: projects = [], isLoading, isError, refetch } = useProjects();
   const [active, setActive] = useState("all");
 
@@ -29,10 +32,10 @@ export default function Portfolio({ asH1 = false }) {
     const map = new Map();
     projects.forEach((p) => map.set(p.category, p.categoryLabel));
     return [
-      { id: "all", label: "همه پروژه‌ها" },
+      { id: "all", label: t("همه پروژه‌ها") },
       ...Array.from(map, ([id, label]) => ({ id, label })),
     ];
-  }, [projects]);
+  }, [projects, t]);
 
   const visible = useMemo(
     () =>
@@ -59,9 +62,9 @@ export default function Portfolio({ asH1 = false }) {
             <Reveal delay={1}>
               <p className="text-sm text-muted">
                 <span className="text-4xl font-black text-primary">
-                  {visible.length.toLocaleString("fa-IR")}
+                  {n(visible.length)}
                 </span>{" "}
-                پروژه
+                {t("پروژه")}
               </p>
             </Reveal>
           )}
@@ -70,7 +73,7 @@ export default function Portfolio({ asH1 = false }) {
         <Reveal delay={1}>
           <div
             role="group"
-            aria-label="فیلتر دسته‌بندی نمونه‌کارها"
+            aria-label={t("فیلتر دسته‌بندی نمونه‌کارها")}
             className="mt-10 flex flex-wrap gap-2"
           >
             {categories.map((cat) => (
@@ -96,13 +99,13 @@ export default function Portfolio({ asH1 = false }) {
             role="alert"
             className="mt-14 rounded-3xl border border-border bg-surface p-10 text-center"
           >
-            <p className="text-muted">دریافت نمونه‌کارها با مشکل روبه‌رو شد.</p>
+            <p className="text-muted">{t("دریافت نمونه‌کارها با مشکل روبه‌رو شد.")}</p>
             <button
               type="button"
               onClick={() => refetch()}
               className="mt-5 rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground"
             >
-              تلاش دوباره
+              {t("تلاش دوباره")}
             </button>
           </div>
         ) : (

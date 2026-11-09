@@ -10,7 +10,7 @@ export const site = {
     src: "/images/arano-logomark-green-on-black.webp",
     wordmark: "/images/arano-logo-wordmark.webp",
     wordmarkDark: "/images/arano-logo-wordmark-black.webp",
-    alt: "لوگوی آرانو",
+    alt: "لوگوی آرانو | Arano Web Studio",
   },
 
   nav: [
@@ -265,6 +265,6 @@ export const site = {
 
   footer: {
     slogan: "همیشه یک قدم جلوتر.",
-    copyright: "© ۱۴۰۵ آرانو. تمامی حقوق محفوظ است.",
+    copyright: "© ۱۴۰۵ آرانو | Arano Web Studio. تمامی حقوق محفوظ است.",
   },
 };

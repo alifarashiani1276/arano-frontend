@@ -1,14 +1,17 @@
-import { FiArrowLeft } from "react-icons/fi";
-import { site } from "../config/site";
+import { ArrowForward } from "../i18n/Arrow";
+import { useLang } from "../i18n/LangContext";
+import { useSite } from "../i18n/useData";
 import Reveal from "../ui/Reveal";
 import SmartLink from "../ui/SmartLink";
 
 // نوار پایین صفحه‌های جداشده: مسیر مستقیم به فرم ارتباط در صفحه اصلی.
 export default function PageCta() {
+  const site = useSite();
+  const { t } = useLang();
   const { contact } = site.sections;
 
   return (
-    <section aria-label="شروع پروژه" className="py-16 md:py-20">
+    <section aria-label={t("شروع پروژه")} className="py-16 md:py-20">
       <div className="mx-auto max-w-6xl px-5">
         <Reveal>
           <div className="flex flex-wrap items-center justify-between gap-6 rounded-3xl border border-border bg-surface p-8 md:p-12">
@@ -26,10 +29,10 @@ export default function PageCta() {
               className="group inline-flex items-center gap-2 rounded-full bg-primary px-7 py-4 text-sm font-bold text-primary-foreground transition-[opacity,transform] duration-200 hover:opacity-90 active:scale-[0.97]"
             >
               {site.cta.label}
-              <FiArrowLeft
+              <ArrowForward
                 size={18}
                 aria-hidden="true"
-                className="transition-transform duration-200 group-hover:-translate-x-1"
+                className="transition-transform duration-200 rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1"
               />
             </SmartLink>
           </div>

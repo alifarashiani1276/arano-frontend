@@ -1,6 +1,6 @@
 import { useRef } from "react";
-import { site } from "../../config/site";
-import { TEAM } from "../../data/team";
+import { useLang } from "../../i18n/LangContext";
+import { useSite, useTeam } from "../../i18n/useData";
 import useSpotlight from "../../hooks/useSpotlight";
 import Icon from "../../ui/Icon";
 import Motion from "../../ui/Motion";
@@ -10,6 +10,12 @@ import SectionHeading from "../../ui/SectionHeading";
 import SplitWords from "../../ui/SplitWords";
 
 // کارت اول از راست، سومی از چپ، وسطی از پایین وارد می‌شود.
+const ENTRY_LTR = [
+  { "--x": "-70px", "--y": "20px", "--r": "-2deg" },
+  { "--x": "0px", "--y": "70px", "--r": "0deg" },
+  { "--x": "70px", "--y": "20px", "--r": "2deg" },
+];
+
 const ENTRY = [
   { "--x": "70px", "--y": "20px", "--r": "2deg" },
   { "--x": "0px", "--y": "70px", "--r": "0deg" },
@@ -18,6 +24,11 @@ const ENTRY = [
 
 // compact: خلاصه برای صفحه اصلی (بدون بیو) + دکمه «بیشتر بدانید»؛ asH1: عنوان H1 در صفحه /team
 export default function Team({ compact = false, asH1 = false }) {
+  const site = useSite();
+  const TEAM = useTeam();
+  const { t, isEn } = useLang();
+  // کارت اول از سمتِ شروعِ صفحه وارد می‌شود (در انگلیسی چپ)
+  const entry = isEn ? ENTRY_LTR : ENTRY;
   const listRef = useRef(null);
   useSpotlight(listRef, ".spot");
 
@@ -43,7 +54,7 @@ export default function Team({ compact = false, asH1 = false }) {
                 key={member.id}
                 fx="side"
                 delay={i * 160}
-                style={ENTRY[i % ENTRY.length]}
+                style={entry[i % entry.length]}
                 className="h-full"
               >
                 <article className="spot group relative h-full overflow-hidden rounded-3xl border border-border bg-surface p-6 transition-[transform,border-color] duration-300 hover:-translate-y-1.5 hover:border-primary/50">
@@ -144,7 +155,7 @@ export default function Team({ compact = false, asH1 = false }) {
 
         {compact && (
           <Reveal delay={1} className="mt-12 flex justify-center">
-            <MoreLink to="/team" hint="درباره تیم آرانو" />
+            <MoreLink to="/team" hint={t("درباره تیم آرانو")} />
           </Reveal>
         )}
       </div>

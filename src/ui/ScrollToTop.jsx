@@ -4,9 +4,13 @@ import { useLocation } from "react-router-dom";
 // بعد از هر تغییر مسیر: اگر هش دارد (مثل /#contact) به همان بخش می‌رود،
 // وگرنه بالای صفحه. (React Router خودش اسکرول را بازنشانی نمی‌کند.)
 export default function ScrollToTop() {
-  const { pathname, hash } = useLocation();
+  const { pathname, hash, state } = useLocation();
+  // تغییر زبان (LangSwitch) همان‌جا می‌ماند و اسکرول نمی‌شود
+  const keepScroll = Boolean(state?.keepScroll);
 
   useEffect(() => {
+    if (keepScroll) return undefined;
+
     if (hash) {
       const id = decodeURIComponent(hash.slice(1));
       const raf = requestAnimationFrame(() => {
@@ -18,7 +22,7 @@ export default function ScrollToTop() {
     }
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
     return undefined;
-  }, [pathname, hash]);
+  }, [pathname, hash, keepScroll]);
 
   return null;
 }

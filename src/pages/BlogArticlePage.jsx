@@ -3,6 +3,7 @@ import PageShell from "./PageShell";
 import ArticleView from "../features/blog/ArticleView";
 import BlogEmptyState from "../features/blog/BlogEmptyState";
 import useBlogPosts from "../hooks/useBlogPosts";
+import { useLang } from "../i18n/LangContext";
 import { BLOG_PATH, articlePath } from "../lib/blog";
 import { articleMeta } from "../seo/registry";
 import { FiFileText } from "react-icons/fi";
@@ -11,12 +12,13 @@ import { FiFileText } from "react-icons/fi";
 // اگر مقاله‌ای با این آدرس نبود: پیام «پیدا نشد» + noindex (SPA نمی‌تواند وضعیت ۴۰۴ بدهد).
 export default function BlogArticlePage() {
   const { slug } = useParams();
+  const { t, lang } = useLang();
   const { data: posts = [], isLoading } = useBlogPosts();
   const post = posts.find((p) => p.slug === slug);
 
   if (post) {
     return (
-      <PageShell path={articlePath(post.slug)} seo={articleMeta(post)} hideCta>
+      <PageShell path={articlePath(post.slug)} seo={articleMeta(post, lang)} hideCta>
         <ArticleView post={post} posts={posts} />
       </PageShell>
     );
@@ -26,8 +28,8 @@ export default function BlogArticlePage() {
     <PageShell
       path={articlePath(slug ?? "")}
       seo={{
-        title: "مقاله پیدا نشد | وبلاگ آرانو",
-        description: "مقاله‌ای با این آدرس پیدا نشد.",
+        title: t("مقاله پیدا نشد | وبلاگ آرانو"),
+        description: t("مقاله‌ای با این آدرس پیدا نشد."),
         noindex: true,
       }}
       hideCta
@@ -38,9 +40,9 @@ export default function BlogArticlePage() {
         ) : (
           <BlogEmptyState
             icon={FiFileText}
-            title="مقاله‌ای با این آدرس پیدا نشد."
-            description="ممکن است آدرس تغییر کرده یا مقاله هنوز منتشر نشده باشد."
-            actions={[{ label: "بازگشت به وبلاگ", to: BLOG_PATH, primary: true }]}
+            title={t("مقاله‌ای با این آدرس پیدا نشد.")}
+            description={t("ممکن است آدرس تغییر کرده یا مقاله هنوز منتشر نشده باشد.")}
+            actions={[{ label: t("بازگشت به وبلاگ"), to: BLOG_PATH, primary: true }]}
           />
         )}
       </section>

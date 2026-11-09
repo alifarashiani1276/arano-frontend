@@ -1,18 +1,30 @@
-import { FiArrowLeft } from "react-icons/fi";
-import { Link } from "react-router-dom";
+import { ArrowForward } from "../../i18n/Arrow";
+import { Link } from "../../i18n/Link";
+import { useLang } from "../../i18n/LangContext";
 import Icon from "../../ui/Icon";
+import MediaImage from "../../ui/MediaImage";
 import Motion from "../../ui/Motion";
 
 // کارت خدمت در هاب. ظاهرش همان کارت قبلی بخش خدمات است؛
 // عنوان (کلمه کلیدی) یک لینک واقعی <a href> است و با after:inset-0 کل کارت را کلیک‌پذیر می‌کند.
 // «بیشتر بخوانید» فقط تزئینی است و کنار عنوان قرار دارد، نه به‌جای آن.
+// ساختار: تصویر افقی ۱۶:۱۰ (بدون برش) بالا + متن پایین؛ ارتفاع همه‌ی کارت‌های یک ردیف با grid یکی می‌شود.
 export default function ServiceCard({ page, index }) {
+  const { t } = useLang();
   const tags = page.tags ?? page.tech.slice(0, 3);
 
   return (
     <Motion as="li" fx="deal" delay={(index % 4) * 140} className="h-full w-full">
-      <article className="spot group relative mx-auto flex h-full w-full max-w-[320px] flex-col overflow-hidden rounded-3xl border border-border bg-surface transition-[transform,border-color] duration-300 hover:-translate-y-1.5 hover:border-primary/50 max-sm:aspect-[540/720] sm:aspect-[5/7]">
-        <div className="relative h-[60%] overflow-hidden bg-gradient-to-br from-secondary/60 via-secondary/25 to-transparent p-3 sm:p-4">
+      <article className="spot group relative mx-auto flex h-full w-full max-w-[320px] flex-col overflow-hidden rounded-3xl border border-border bg-surface transition-[transform,border-color] duration-300 hover:-translate-y-1.5 hover:border-primary/50">
+        <div className="relative aspect-[16/10] w-full shrink-0 overflow-hidden bg-gradient-to-br from-secondary/60 via-secondary/25 to-transparent">
+          <MediaImage
+            src={page.image}
+            alt={`${t("تصویر خدمت")} ${page.name}`}
+            label={page.name}
+            variant={index}
+            className="h-full w-full"
+            imgClassName="transition-transform duration-500 ease-out group-hover:scale-105"
+          />
           <span
             aria-hidden="true"
             style={{ "--cd": "350ms" }}
@@ -22,7 +34,7 @@ export default function ServiceCard({ page, index }) {
           </span>
         </div>
 
-        <div className="flex min-h-[42%] flex-col justify-end p-3 pt-3 sm:p-4 sm:pt-4">
+        <div className="flex flex-1 flex-col justify-end p-3 pt-3 sm:p-4 sm:pt-4">
           <h3
             style={{ "--cd": "450ms" }}
             className="fx-child fx-up line-clamp-2 text-sm font-black leading-5 text-foreground sm:text-base sm:leading-6"
@@ -51,10 +63,10 @@ export default function ServiceCard({ page, index }) {
             aria-hidden="true"
             className="mt-2 inline-flex items-center gap-1 text-[10px] font-bold text-primary sm:mt-3 sm:text-xs"
           >
-            بیشتر بخوانید
-            <FiArrowLeft
+            {t("بیشتر بخوانید")}
+            <ArrowForward
               size={12}
-              className="transition-transform duration-200 group-hover:-translate-x-1"
+              className="transition-transform duration-200 rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1"
             />
           </span>
         </div>

@@ -1,10 +1,13 @@
-import { FiChevronLeft } from "react-icons/fi";
-import { Link } from "react-router-dom";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import { Link } from "../../i18n/Link";
+import { useLang } from "../../i18n/LangContext";
 
 // Breadcrumb قابل‌مشاهده: خانه › خدمات › نام صفحه (Schema آن در src/seo/schema.js ساخته می‌شود).
 export default function Breadcrumb({ items }) {
+  const { t, isEn } = useLang();
+  const Sep = isEn ? FiChevronRight : FiChevronLeft;
   return (
-    <nav aria-label="مسیر صفحه">
+    <nav aria-label={t("مسیر صفحه")}>
       <ol className="flex flex-wrap items-center gap-1.5 text-xs text-muted">
         {items.map((item, i) => {
           const last = i === items.length - 1;
@@ -22,7 +25,7 @@ export default function Breadcrumb({ items }) {
                   {item.name}
                 </Link>
               )}
-              {!last && <FiChevronLeft size={13} aria-hidden="true" />}
+              {!last && <Sep size={13} aria-hidden="true" />}
             </li>
           );
         })}

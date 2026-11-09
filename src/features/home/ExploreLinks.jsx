@@ -1,12 +1,13 @@
 import { useRef } from "react";
 import { FiBriefcase, FiInfo, FiLayers } from "react-icons/fi";
-import { Link } from "react-router-dom";
+import { Link } from "../../i18n/Link";
+import { useLang } from "../../i18n/LangContext";
 import useSpotlight from "../../hooks/useSpotlight";
 import Reveal from "../../ui/Reveal";
 
 // سه کارت بزرگ به صفحه‌های جداگانه؛ «نمونه‌کارها» عمداً برجسته‌تر است.
 // انیمیشن‌ها سبک‌اند: فقط transform / opacity + نور دنبال‌کننده‌ی موس (همان .spot سایت).
-const LINKS = [
+const LINKS_SRC = [
   {
     to: "/portfolio",
     title: "نمونه‌کارها",
@@ -31,7 +32,7 @@ const LINKS = [
 // فلش کارت‌ها: لوگوی آرانو با ۹۰ درجه چرخش به چپ.
 // کارت سبز ← لوگوی مشکی | کارت‌های تیره ← لوگوی سبز (هنگام هاور رنگ‌ها برای خوانایی جابه‌جا می‌شوند).
 // در حالت روشن سایت، کارت‌های سفید لوگوی مشکی نشان می‌دهند.
-const MARK = "absolute inset-0 m-auto h-[18px] w-[18px] -rotate-90 object-contain transition-opacity duration-300";
+const MARK = "absolute inset-0 m-auto h-[18px] w-[18px] rtl:-rotate-90 ltr:rotate-90 object-contain transition-opacity duration-300";
 
 function ArrowLogo({ featured }) {
   return (
@@ -63,13 +64,15 @@ function ArrowLogo({ featured }) {
 }
 
 export default function ExploreLinks() {
+  const { t, n } = useLang();
+  const LINKS = LINKS_SRC.map((l) => ({ ...l, title: t(l.title), text: t(l.text) }));
   const listRef = useRef(null);
   useSpotlight(listRef, ".spot");
 
   return (
     <section
       id="explore"
-      aria-label="مشاهده بخش‌های سایت"
+      aria-label={t("مشاهده بخش‌های سایت")}
       className="scroll-mt-24 py-16 md:py-24"
     >
       <div className="mx-auto max-w-6xl px-5">
@@ -109,7 +112,7 @@ export default function ExploreLinks() {
                       : "text-foreground/5 group-hover:text-primary/15"
                   }`}
                 >
-                  {(i + 1).toLocaleString("fa-IR", { minimumIntegerDigits: 2 })}
+                  {n(i + 1, { minimumIntegerDigits: 2 })}
                 </span>
 
                 <span
@@ -133,10 +136,10 @@ export default function ExploreLinks() {
 
                 <span className="relative mt-auto flex items-center justify-between pt-8 text-sm font-bold">
                   <span className="inline-flex items-center gap-2">
-                    مشاهده
+                    {t("مشاهده")}
                     <span
                       aria-hidden="true"
-                      className={`relative grid h-9 w-9 place-items-center rounded-full border transition-[transform,background-color,color,border-color] duration-300 group-hover:-translate-x-1.5 ${
+                      className={`relative grid h-9 w-9 place-items-center rounded-full border transition-[transform,background-color,color,border-color] duration-300 rtl:group-hover:-translate-x-1.5 ltr:group-hover:translate-x-1.5 ${
                         featured
                           ? "border-primary-foreground/30 group-hover:border-primary-foreground group-hover:bg-primary-foreground group-hover:text-primary"
                           : "border-border group-hover:border-primary group-hover:bg-primary group-hover:text-primary-foreground"

@@ -208,8 +208,13 @@ export function createLimiter({
 }
 
 // 75 -> «۲ دقیقه» | 20 -> «۲۰ ثانیه»
-export function formatWait(seconds) {
+export function formatWait(seconds, isEn = false) {
   const s = Math.max(1, Math.ceil(seconds));
+  if (isEn) {
+    if (s < 60) return `${s} second${s === 1 ? "" : "s"}`;
+    const m = Math.ceil(s / 60);
+    return `${m} minute${m === 1 ? "" : "s"}`;
+  }
   if (s < 60) return `${s.toLocaleString("fa-IR")} ثانیه`;
   return `${Math.ceil(s / 60).toLocaleString("fa-IR")} دقیقه`;
 }

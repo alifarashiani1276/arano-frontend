@@ -1,11 +1,14 @@
-import { site } from "../../config/site";
+import { useLang } from "../../i18n/LangContext";
+import { useSite } from "../../i18n/useData";
 
 export default function Marquee() {
+  const site = useSite();
+  const { t } = useLang();
   const items = site.marquee;
 
   return (
     <section
-      aria-label="تکنولوژی‌های مورد استفاده"
+      aria-label={t("تکنولوژی‌های مورد استفاده")}
       className="overflow-hidden py-10 md:py-14"
     >
       <div

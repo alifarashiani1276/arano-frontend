@@ -1,6 +1,8 @@
-import { useState } from "react";
-import { FiArrowLeft, FiUser } from "react-icons/fi";
+import { useEffect, useState } from "react";
+import { FiUser } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import { ArrowForward } from "../i18n/Arrow";
+import { useLang } from "../i18n/LangContext";
 import AuthLayout from "../features/auth/AuthLayout";
 import { authFlow } from "../features/auth/authFlow";
 import { session } from "../features/auth/session";
@@ -63,8 +65,8 @@ const MESSAGES = {
   },
 };
 
-// مقدار تمیزشده و پیام خطای یک فیلد
-function checkField(name, raw) {
+// مقدار تمیزشده و پیام خطای یک فیلد (پیام با t به زبان صفحه ترجمه می‌شود)
+function checkField(name, raw, t) {
   let result;
 
   if (name === "first_name" || name === "last_name") {
@@ -87,12 +89,12 @@ function checkField(name, raw) {
 
   return {
     value: result.value,
-    error: result.error ? (map[result.error] ?? map.invalid) : "",
+    error: result.error ? t(map[result.error] ?? map.invalid) : "",
   };
 }
 
 // خطاهای اعتبارسنجی Backend
-function serverFieldErrors(err) {
+function serverFieldErrors(err, t) {
   const raw = err.response?.data?.errors;
 
   if (statusOf(err) !== 422 || !raw) {
@@ -108,10 +110,11 @@ function serverFieldErrors(err) {
       return;
     }
 
-    out[name] =
+    out[name] = t(
       name === "email" && /taken/i.test(first)
         ? "این ایمیل قبلاً ثبت شده است."
-        : MESSAGES[name].invalid;
+        : MESSAGES[name].invalid,
+    );
   });
 
   return out;
@@ -122,6 +125,7 @@ const INPUT_BOX =
 
 export default function CompleteProfile() {
   const navigate = useNavigate();
+  const { t, lang, to } = useLang();
 
   const [form, setForm] = useState(initial);
   const [errors, setErrors] = useState({});
@@ -129,6 +133,12 @@ export default function CompleteProfile() {
   const [submitting, setSubmitting] = useState(false);
 
   const { onFocus, check } = useBotTrap(2500);
+
+  // پیام‌های خطا به زبان قبلی نمانند
+  useEffect(() => {
+    setErrors({});
+    setFormError("");
+  }, [lang]);
 
   const change = (event) => {
     const { name, value } = event.target;
@@ -150,7 +160,7 @@ export default function CompleteProfile() {
 
   const blur = (event) => {
     const { name, value } = event.target;
-    const { error } = checkField(name, value);
+    const { error } = checkField(name, value, t);
 
     setErrors((prev) =>
       prev[name] === error
@@ -176,7 +186,7 @@ export default function CompleteProfile() {
     const clean = {};
 
     FIELD_ORDER.forEach((name) => {
-      const result = checkField(name, form[name]);
+      const result = checkField(name, form[name], t);
 
       nextErrors[name] = result.error;
       clean[name] = result.value;
@@ -198,7 +208,7 @@ export default function CompleteProfile() {
     }
 
     if (trap === "fast") {
-      setFormError("لطفاً چند ثانیه صبر کنید و دوباره ارسال کنید.");
+      setFormError(t("لطفاً چند ثانیه صبر کنید و دوباره ارسال کنید."));
       return;
     }
 
@@ -206,9 +216,11 @@ export default function CompleteProfile() {
 
     if (!gate.ok) {
       setFormError(
-        `تعداد ارسال‌ها زیاد است. ${formatWait(
-          gate.retryAfter,
-        )} دیگر دوباره تلاش کنید.`,
+        lang === "en"
+          ? `Too many submissions. Try again in ${formatWait(gate.retryAfter, true)}.`
+          : `تعداد ارسال‌ها زیاد است. ${formatWait(
+              gate.retryAfter,
+            )} دیگر دوباره تلاش کنید.`,
       );
       return;
     }
@@ -226,18 +238,18 @@ export default function CompleteProfile() {
       // مراحل موقت Login را پاک می‌کنیم.
       authFlow.reset();
 
-      navigate("/auth/pending", {
+      navigate(to("/auth/pending"), {
         replace: true,
       });
     } catch (err) {
       if (statusOf(err) === 401) {
-        navigate("/auth/login", {
+        navigate(to("/auth/login"), {
           replace: true,
         });
         return;
       }
 
-      const fieldErrs = serverFieldErrors(err);
+      const fieldErrs = serverFieldErrors(err, t);
 
       if (Object.keys(fieldErrs).length) {
         setErrors((prev) => ({
@@ -248,7 +260,7 @@ export default function CompleteProfile() {
         formEl.elements[Object.keys(fieldErrs)[0]]?.focus();
       } else {
         setFormError(
-          apiMessage(err, "ثبت اطلاعات انجام نشد. لطفاً دوباره تلاش کنید."),
+          t(apiMessage(err, "ثبت اطلاعات انجام نشد. لطفاً دوباره تلاش کنید.")),
         );
       }
     } finally {
@@ -259,7 +271,7 @@ export default function CompleteProfile() {
   const goBack = () => {
     authFlow.reset();
 
-    navigate("/auth/login");
+    navigate(to("/auth/login"));
   };
 
   const fieldProps = (name) => ({
@@ -285,8 +297,10 @@ export default function CompleteProfile() {
   return (
     <AuthLayout
       step={3}
-      title="اطلاعاتت را تکمیل کن"
-      subtitle="چند اطلاعات ساده وارد کن تا حساب کاربری‌ات برای بررسی تیم آماده شود."
+      title={t("اطلاعاتت را تکمیل کن")}
+      subtitle={t(
+        "چند اطلاعات ساده وارد کن تا حساب کاربری‌ات برای بررسی تیم آماده شود.",
+      )}
       onBack={goBack}
     >
       <form
@@ -305,7 +319,7 @@ export default function CompleteProfile() {
           ].map(([name, label, placeholder, autoComplete]) => (
             <div key={name}>
               <label htmlFor={name} className="mb-2 block text-sm font-bold">
-                {label}
+                {t(label)}
               </label>
 
               <div
@@ -322,7 +336,7 @@ export default function CompleteProfile() {
                   maxLength={50}
                   autoComplete={autoComplete}
                   spellCheck={false}
-                  placeholder={placeholder}
+                  placeholder={t(placeholder)}
                   className="h-14 w-full bg-transparent px-3 text-sm font-bold outline-none placeholder:text-muted/50"
                 />
               </div>
@@ -334,7 +348,7 @@ export default function CompleteProfile() {
 
         <div>
           <label htmlFor="email" className="mb-2 block text-sm font-bold">
-            ایمیل
+            {t("ایمیل")}
           </label>
 
           <input
@@ -358,7 +372,8 @@ export default function CompleteProfile() {
 
         <div>
           <label htmlFor="bio" className="mb-2 block text-sm font-bold">
-            درباره شما <span className="font-normal text-muted">(اختیاری)</span>
+            {t("درباره شما")}{" "}
+            <span className="font-normal text-muted">{t("(اختیاری)")}</span>
           </label>
 
           <textarea
@@ -366,7 +381,7 @@ export default function CompleteProfile() {
             {...fieldProps("bio")}
             rows={4}
             maxLength={BIO_MAX}
-            placeholder="اگر دوست داری کمی درباره خودت بنویس..."
+            placeholder={t("اگر دوست داری کمی درباره خودت بنویس...")}
             className={`w-full resize-none p-4 text-sm leading-7 ${INPUT_BOX} ${
               errors.bio ? "border-error" : "border-border"
             }`}
@@ -393,16 +408,18 @@ export default function CompleteProfile() {
           className="group flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-primary px-5 font-black text-primary-foreground transition hover:-translate-y-0.5 hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {submitting
-            ? "در حال ثبت اطلاعات..."
-            : "ثبت اطلاعات و ارسال برای بررسی"}
+            ? t("در حال ثبت اطلاعات...")
+            : t("ثبت اطلاعات و ارسال برای بررسی")}
 
           {!submitting && (
-            <FiArrowLeft className="transition-transform group-hover:-translate-x-1" />
+            <ArrowForward className="transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
           )}
         </button>
 
         <p className="text-center text-xs leading-6 text-muted">
-          بعد از ثبت اطلاعات، حساب شما در وضعیت «در انتظار تأیید» قرار می‌گیرد.
+          {t(
+            "بعد از ثبت اطلاعات، حساب شما در وضعیت «در انتظار تأیید» قرار می‌گیرد.",
+          )}
         </p>
       </form>
     </AuthLayout>

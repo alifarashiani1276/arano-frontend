@@ -6,6 +6,7 @@ import Stats from "../features/home/Stats";
 import ExploreLinks from "../features/home/ExploreLinks";
 import Team from "../features/home/Team";
 import Contact from "../features/home/Contact";
+import Reviews from "../features/home/Reviews";
 import Footer from "../features/home/Footer";
 import Seo from "../seo/Seo";
 
@@ -32,6 +33,7 @@ export default function Home() {
         <ExploreLinks />
         <Team compact />
         <Contact compact />
+        <Reviews />
       </main>
 
       <Footer />

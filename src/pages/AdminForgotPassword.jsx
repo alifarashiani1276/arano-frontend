@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
-import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import { ArrowBack, ArrowForward } from "../i18n/Arrow";
+import { Link } from "../i18n/Link";
+import { useLang } from "../i18n/LangContext";
+import useDocumentTitle from "../hooks/useDocumentTitle";
 import OtpInput from "react-otp-input";
 import {
-  FiArrowLeft,
-  FiArrowRight,
   FiCheck,
   FiEye,
   FiEyeOff,
@@ -15,6 +17,7 @@ import {
 } from "react-icons/fi";
 import Logo from "../ui/Logo";
 import BackHome from "../ui/BackHome";
+import LangSwitch from "../features/home/LangSwitch";
 import ThemeSwitcher from "../features/home/ThemeSwitcher";
 import { getSessionArea, useSession } from "../features/auth/session";
 import { tokenStore } from "../features/auth/token";
@@ -72,6 +75,8 @@ export default function AdminForgotPassword() {
   const navigate = useNavigate();
   const location = useLocation();
   const sessionUser = useSession();
+  const { t, n, isEn, lang, dir, to } = useLang();
+  useDocumentTitle(t("بازیابی رمز عبور مدیر"));
 
   const [step, setStep] = useState("phone"); // phone | otp | password
   const [phone, setPhone] = useState(() => {
@@ -126,9 +131,15 @@ export default function AdminForgotPassword() {
 
   useEffect(() => {
     if (resetExpired) {
-      restart("مهلت ثبت رمز جدید تمام شد. دوباره کد تأیید دریافت کنید.");
+      restart(t("مهلت ثبت رمز جدید تمام شد. دوباره کد تأیید دریافت کنید."));
     }
-  }, [resetExpired, restart]);
+  }, [resetExpired, restart, t]);
+
+  // پیام‌های خطا به زبان قبلی نمانند
+  useEffect(() => {
+    setError("");
+    setFieldErrors({});
+  }, [lang]);
 
   // مدیری که از قبل وارد شده، مستقیم به پنل می‌رود
   if (
@@ -145,8 +156,11 @@ export default function AdminForgotPassword() {
       lockForTooMany();
     } else {
       setFailures(next);
+      const left = MAX_FAILURES - next;
       setError(
-        `${message} ${(MAX_FAILURES - next).toLocaleString("fa-IR")} تلاش باقی مانده است.`,
+        isEn
+          ? `${message} ${left} ${left === 1 ? "attempt" : "attempts"} left.`
+          : `${message} ${n(left)} تلاش باقی مانده است.`,
       );
     }
   };
@@ -164,7 +178,9 @@ export default function AdminForgotPassword() {
     const gate = sendLimiter.attempt();
     if (!gate.ok) {
       setError(
-        `تعداد درخواست‌ها زیاد است. ${formatWait(gate.retryAfter)} دیگر دوباره تلاش کنید.`,
+        isEn
+          ? `Too many requests. Try again in ${formatWait(gate.retryAfter, true)}.`
+          : `تعداد درخواست‌ها زیاد است. ${formatWait(gate.retryAfter)} دیگر دوباره تلاش کنید.`,
       );
       return false;
     }
@@ -175,7 +191,7 @@ export default function AdminForgotPassword() {
       setNow(Date.now());
       return true;
     } catch (err) {
-      setError(apiMessage(err, "ارسال کد انجام نشد. دوباره تلاش کنید."));
+      setError(t(apiMessage(err, "ارسال کد انجام نشد. دوباره تلاش کنید.")));
       return false;
     }
   };
@@ -186,7 +202,7 @@ export default function AdminForgotPassword() {
 
     const value = normalizePhone(phone);
     if (!MOBILE_REGEX.test(value)) {
-      setError("شماره موبایل را به‌صورت صحیح وارد کنید (مثلاً 09123456789).");
+      setError(t("شماره موبایل را به‌صورت صحیح وارد کنید (مثلاً 09123456789)."));
       return;
     }
 
@@ -231,11 +247,11 @@ export default function AdminForgotPassword() {
       setOtp("");
 
       if (code === 422) {
-        registerFailure("کد واردشده صحیح نیست یا منقضی شده است.");
+        registerFailure(t("کد واردشده صحیح نیست یا منقضی شده است."));
       } else if (code === 429) {
         lockForTooMany();
       } else {
-        setError(apiMessage(err, "تأیید کد انجام نشد. دوباره تلاش کنید."));
+        setError(t(apiMessage(err, "تأیید کد انجام نشد. دوباره تلاش کنید.")));
       }
     } finally {
       setBusy(false);
@@ -263,10 +279,10 @@ export default function AdminForgotPassword() {
 
     const errors = {};
     if (!PASSWORD_RULES.every((rule) => rule.test(password))) {
-      errors.password = "رمز عبور همه‌ی شرایط را ندارد.";
+      errors.password = t("رمز عبور همه‌ی شرایط را ندارد.");
     }
     if (password !== confirmation) {
-      errors.password_confirmation = "تکرار رمز عبور یکسان نیست.";
+      errors.password_confirmation = t("تکرار رمز عبور یکسان نیست.");
     }
 
     setFieldErrors(errors);
@@ -286,11 +302,12 @@ export default function AdminForgotPassword() {
       );
 
       // همه‌ی توکن‌های مدیر در بک‌اند باطل شده؛ مدیر باید دوباره وارد شود
-      navigate("/auth/admin", {
+      navigate(to("/auth/admin"), {
         replace: true,
         state: {
-          notice:
+          notice: t(
             "رمز عبور با موفقیت تغییر کرد. با شماره‌ی خود و رمز جدید وارد شوید.",
+          ),
         },
       });
     } catch (err) {
@@ -298,28 +315,31 @@ export default function AdminForgotPassword() {
 
       if (code === 401 || code === 403) {
         restart(
-          "مهلت ثبت رمز جدید تمام شده یا توکن بازیابی معتبر نیست. دوباره کد تأیید دریافت کنید.",
+          t(
+            "مهلت ثبت رمز جدید تمام شده یا توکن بازیابی معتبر نیست. دوباره کد تأیید دریافت کنید.",
+          ),
         );
       } else if (code === 422 && err.response?.data?.errors) {
         const raw = err.response.data.errors;
         const next = {};
 
         if (raw.password?.[0]) {
-          next.password =
-            "رمز عبور شرایط لازم را ندارد یا با تکرار آن یکسان نیست.";
+          next.password = t(
+            "رمز عبور شرایط لازم را ندارد یا با تکرار آن یکسان نیست.",
+          );
         }
         if (raw.password_confirmation?.[0]) {
-          next.password_confirmation = "تکرار رمز عبور معتبر نیست.";
+          next.password_confirmation = t("تکرار رمز عبور معتبر نیست.");
         }
 
         if (Object.keys(next).length) {
           setFieldErrors(next);
         } else {
-          setError("اطلاعات واردشده معتبر نیست.");
+          setError(t("اطلاعات واردشده معتبر نیست."));
         }
       } else {
         // شامل 409 (درخواست هم‌زمان) و 429 (Rate Limit)
-        setError(apiMessage(err, "تغییر رمز انجام نشد. دوباره تلاش کنید."));
+        setError(t(apiMessage(err, "تغییر رمز انجام نشد. دوباره تلاش کنید.")));
       }
     } finally {
       setBusy(false);
@@ -328,17 +348,26 @@ export default function AdminForgotPassword() {
 
   // ---------- ظاهر ----------
   const stepIndex = step === "phone" ? 0 : step === "otp" ? 1 : 2;
-  const stepLabels = ["شماره مدیر", "کد تأیید", "رمز جدید"];
+  const stepLabels = [t("شماره مدیر"), t("تأیید کد"), t("رمز جدید")];
 
   const titles = {
     phone: {
-      title: "بازیابی رمز عبور مدیر",
-      subtitle:
+      title: t("بازیابی رمز عبور مدیر"),
+      subtitle: t(
         "شماره‌ی ثبت‌شده‌ی مدیر را وارد کن تا اگر حساب واجد شرایط باشد، کد تأیید ارسال شود.",
+      ),
     },
     otp: {
-      title: "تأیید شماره‌ی مدیر",
-      subtitle: (
+      title: t("تأیید شماره‌ی مدیر"),
+      subtitle: isEn ? (
+        <>
+          Enter the 6-digit code for{" "}
+          <bdi dir="ltr" className="font-bold text-foreground">
+            {maskPhone(phone)}
+          </bdi>
+          .
+        </>
+      ) : (
         <>
           کد ۶ رقمی مربوط به{" "}
           <bdi dir="ltr" className="font-bold text-foreground">
@@ -349,8 +378,10 @@ export default function AdminForgotPassword() {
       ),
     },
     password: {
-      title: "رمز عبور جدید",
-      subtitle: `کد تأیید شد. رمز جدید را مشخص کن. (${formatWait(resetLeft || 1)} مهلت باقی مانده)`,
+      title: t("رمز عبور جدید"),
+      subtitle: isEn
+        ? `Code verified. Set your new password. (${formatWait(resetLeft || 1, true)} left)`
+        : `کد تأیید شد. رمز جدید را مشخص کن. (${formatWait(resetLeft || 1)} مهلت باقی مانده)`,
     },
   }[step];
 
@@ -359,8 +390,9 @@ export default function AdminForgotPassword() {
       role="alert"
       className="rounded-2xl border border-error/40 bg-error/5 p-3 text-center text-xs font-bold leading-6 text-error"
     >
-      تلاش‌های ناموفق زیاد بود. برای امنیت، تا {formatWait(lockLeft)} دیگر امکان
-      تلاش نیست.
+      {isEn
+        ? `Too many failed attempts. For security, you can't try again for ${formatWait(lockLeft, true)}.`
+        : `تلاش‌های ناموفق زیاد بود. برای امنیت، تا ${formatWait(lockLeft)} دیگر امکان تلاش نیست.`}
     </p>
   );
 
@@ -368,7 +400,7 @@ export default function AdminForgotPassword() {
     <button
       type="button"
       onClick={() => setShowPassword((value) => !value)}
-      aria-label={showPassword ? "پنهان کردن رمز" : "نمایش رمز"}
+      aria-label={showPassword ? t("پنهان کردن رمز") : t("نمایش رمز")}
       className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-muted transition hover:bg-surface hover:text-foreground"
     >
       {showPassword ? <FiEyeOff /> : <FiEye />}
@@ -376,7 +408,7 @@ export default function AdminForgotPassword() {
   );
 
   return (
-    <main dir="rtl" className="min-h-screen bg-background text-foreground">
+    <main dir={dir} className="min-h-screen bg-background text-foreground">
       <div className="relative min-h-screen overflow-hidden">
         <div className="pointer-events-none absolute -right-32 -top-32 h-80 w-80 rounded-full bg-primary/10 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-40 -left-32 h-96 w-96 rounded-full bg-accent/10 blur-3xl" />
@@ -387,8 +419,9 @@ export default function AdminForgotPassword() {
             <BackHome />
             <span className="hidden items-center gap-2 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-bold text-muted lg:inline-flex">
               <FiLock className="text-primary" aria-hidden="true" />
-              پنل مدیریت
+              {t("پنل مدیریت")}
             </span>
+            <LangSwitch />
             <ThemeSwitcher />
           </div>
         </header>
@@ -398,14 +431,16 @@ export default function AdminForgotPassword() {
             <div className="max-w-md">
               <span className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-bold text-muted">
                 <FiShield className="text-primary" aria-hidden="true" />
-                فقط برای مدیران آرانو
+                {t("فقط برای مدیران آرانو")}
               </span>
               <h1 className="mt-6 text-4xl font-black leading-[1.2] tracking-tight xl:text-5xl">
-                رمزت را فراموش کردی؟
-                <span className="block text-primary">امن بازیابی کن.</span>
+                {t("رمزت را فراموش کردی؟")}
+                <span className="block text-primary">
+                  {t("امن بازیابی کن.")}
+                </span>
               </h1>
               <p className="mt-5 max-w-sm text-base leading-8 text-muted">
-                با تأیید شماره‌ی مدیر، رمز جدیدی برای حساب خودت تعیین کن.
+                {t("با تأیید شماره‌ی مدیر، رمز جدیدی برای حساب خودت تعیین کن.")}
               </p>
 
               <div className="mt-8 space-y-4">
@@ -421,7 +456,7 @@ export default function AdminForgotPassword() {
                     <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
                       <IconComp aria-hidden="true" />
                     </span>
-                    {text}
+                    {t(text)}
                   </div>
                 ))}
               </div>
@@ -443,8 +478,8 @@ export default function AdminForgotPassword() {
                     onClick={() => restart()}
                     className="mb-3 inline-flex items-center gap-1.5 text-xs font-bold text-muted transition hover:text-foreground"
                   >
-                    <FiArrowRight aria-hidden="true" />
-                    شروع دوباره
+                    <ArrowBack aria-hidden="true" />
+                    {t("شروع دوباره")}
                   </button>
                 )}
                 <h2 className="text-2xl font-black sm:text-3xl">
@@ -464,7 +499,7 @@ export default function AdminForgotPassword() {
                 >
                   <Field
                     id="reset-phone"
-                    label="شماره موبایل مدیر"
+                    label={t("شماره موبایل مدیر")}
                     icon={FiPhone}
                     error={error}
                   >
@@ -494,18 +529,18 @@ export default function AdminForgotPassword() {
                     />
                   </Field>
 
-                  <SubmitButton busy={busy} busyText="در حال ارسال...">
-                    دریافت کد تأیید
-                    <FiArrowLeft className="transition-transform group-hover:-translate-x-1" />
+                  <SubmitButton busy={busy} busyText={t("در حال ارسال...")}>
+                    {t("دریافت کد تأیید")}
+                    <ArrowForward className="transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
                   </SubmitButton>
 
                   <div className="rounded-2xl border border-border bg-surface-2 p-4 text-center text-xs leading-6 text-muted">
-                    رمزت یادت آمد؟{" "}
+                    {t("رمزت یادت آمد؟")}{" "}
                     <Link
                       to="/auth/admin"
                       className="font-bold text-primary hover:opacity-80"
                     >
-                      بازگشت به ورود مدیران
+                      {t("بازگشت به ورود مدیران")}
                     </Link>
                   </div>
                 </form>
@@ -549,17 +584,18 @@ export default function AdminForgotPassword() {
 
                   <SubmitButton
                     busy={busy}
-                    busyText="در حال بررسی..."
+                    busyText={t("در حال بررسی...")}
                     disabled={otp.length !== OTP_LENGTH || locked}
                   >
-                    تأیید و ادامه
-                    <FiArrowLeft className="transition-transform group-hover:-translate-x-1" />
+                    {t("تأیید و ادامه")}
+                    <ArrowForward className="transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
                   </SubmitButton>
 
                   <div className="text-center">
                     {resendLeft > 0 ? (
                       <p className="text-sm text-muted">
-                        ارسال مجدد کد تا {Math.floor(resendLeft / 60)}:
+                        {isEn ? "Resend code in " : "ارسال مجدد کد تا "}
+                        {Math.floor(resendLeft / 60)}:
                         {String(resendLeft % 60).padStart(2, "0")}
                       </p>
                     ) : (
@@ -570,7 +606,7 @@ export default function AdminForgotPassword() {
                         className="inline-flex items-center gap-2 text-sm font-black text-primary transition hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         <FiRefreshCw aria-hidden="true" />
-                        ارسال مجدد کد
+                        {t("ارسال مجدد کد")}
                       </button>
                     )}
                   </div>
@@ -586,7 +622,7 @@ export default function AdminForgotPassword() {
                 >
                   <Field
                     id="reset-password"
-                    label="رمز عبور جدید"
+                    label={t("رمز عبور جدید")}
                     icon={FiLock}
                     error={fieldErrors.password}
                     trailing={toggleButton}
@@ -630,7 +666,7 @@ export default function AdminForgotPassword() {
                             className={ok ? "opacity-100" : "opacity-30"}
                             aria-hidden="true"
                           />
-                          {rule.label}
+                          {t(rule.label)}
                         </li>
                       );
                     })}
@@ -638,7 +674,7 @@ export default function AdminForgotPassword() {
 
                   <Field
                     id="reset-password-confirmation"
-                    label="تکرار رمز عبور جدید"
+                    label={t("تکرار رمز عبور جدید")}
                     icon={FiLock}
                     error={fieldErrors.password_confirmation}
                   >
@@ -671,16 +707,16 @@ export default function AdminForgotPassword() {
 
                   <FormMessage>{error}</FormMessage>
 
-                  <SubmitButton busy={busy} busyText="در حال ثبت رمز...">
-                    ثبت رمز جدید
-                    <FiArrowLeft className="transition-transform group-hover:-translate-x-1" />
+                  <SubmitButton busy={busy} busyText={t("در حال ثبت رمز...")}>
+                    {t("ثبت رمز جدید")}
+                    <ArrowForward className="transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
                   </SubmitButton>
                 </form>
               )}
             </div>
 
             <p className="mt-5 text-center text-xs leading-6 text-muted">
-              هر تلاش بازیابی رمز مدیر ثبت و محدود می‌شود.
+              {t("هر تلاش بازیابی رمز مدیر ثبت و محدود می‌شود.")}
             </p>
           </div>
         </section>

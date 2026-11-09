@@ -1,10 +1,11 @@
 import { FiAlertCircle } from "react-icons/fi";
-import { site } from "../config/site";
-import { termsMeta, termsSections } from "../data/terms";
+import { useLang } from "../i18n/LangContext";
+import { useSite, useTerms } from "../i18n/useData";
 import Reveal from "../ui/Reveal";
 import PageShell from "./PageShell";
 
 function Block({ block }) {
+  const { isEn } = useLang();
   if (block.type === "law") {
     return (
       <figure className="rounded-2xl border border-primary/30 bg-primary/5 p-5">
@@ -13,7 +14,7 @@ function Block({ block }) {
           {block.label}
         </figcaption>
         <blockquote className="text-sm leading-8 md:text-base">
-          «{block.text}»
+          {isEn ? `"${block.text}"` : `«${block.text}»`}
         </blockquote>
       </figure>
     );
@@ -44,6 +45,9 @@ function Block({ block }) {
 }
 
 export default function TermsPage() {
+  const site = useSite();
+  const { meta: termsMeta, sections: termsSections } = useTerms();
+  const { t, n } = useLang();
   const [email, phone] = site.contact.items;
 
   return (
@@ -62,16 +66,16 @@ export default function TermsPage() {
               {termsMeta.description}
             </p>
             <p className="mt-4 text-xs text-muted">
-              آخرین بازبینی: {termsMeta.updatedAt}
+              {t("آخرین بازبینی:")} {termsMeta.updatedAt}
             </p>
           </Reveal>
 
           <div className="mt-12 grid gap-8 lg:grid-cols-[16rem_1fr]">
             <nav
-              aria-label="فهرست قوانین"
+              aria-label={t("فهرست قوانین")}
               className="h-fit rounded-2xl border border-border bg-surface p-5 lg:sticky lg:top-28"
             >
-              <p className="mb-3 text-sm font-black">فهرست</p>
+              <p className="mb-3 text-sm font-black">{t("فهرست")}</p>
               <ol className="space-y-2">
                 {termsSections.map((s, i) => (
                   <li key={s.id}>
@@ -80,7 +84,7 @@ export default function TermsPage() {
                       className="flex gap-2 text-xs leading-6 text-muted transition-colors hover:text-primary"
                     >
                       <span className="text-primary">
-                        {(i + 1).toLocaleString("fa-IR")}.
+                        {n(i + 1)}.
                       </span>
                       {s.title}
                     </a>
@@ -102,8 +106,8 @@ export default function TermsPage() {
                     id={`${s.id}-title`}
                     className="mb-5 text-xl font-black leading-[1.6] md:text-2xl"
                   >
-                    <span className="ml-2 text-primary">
-                      {(i + 1).toLocaleString("fa-IR")}.
+                    <span className="me-2 text-primary">
+                      {n(i + 1)}.
                     </span>
                     {s.title}
                   </h2>
@@ -116,9 +120,9 @@ export default function TermsPage() {
               ))}
 
               <Reveal className="rounded-3xl border border-border bg-surface-2 p-6 md:p-8">
-                <h2 className="mb-3 text-xl font-black">ارتباط با ما</h2>
+                <h2 className="mb-3 text-xl font-black">{t("ارتباط با ما")}</h2>
                 <p className="mb-4 text-sm leading-8 text-muted md:text-base">
-                  برای سؤال، پیگیری سفارش یا اعلام انصراف با ما در تماس باشید:
+                  {t("برای سؤال، پیگیری سفارش یا اعلام انصراف با ما در تماس باشید:")}
                 </p>
                 <ul className="space-y-2 text-sm">
                   {[email, phone].map((c) => (

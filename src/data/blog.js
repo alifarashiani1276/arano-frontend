@@ -6,8 +6,11 @@
 // name / short / description را آزادانه ویرایش کنید؛ UI و سئو خودکار هماهنگ می‌شوند.
 //
 // ── مقاله‌ها ──
-// فعلاً BLOG_POSTS خالی است و وبلاگ «Empty State» نشان می‌دهد (و Noindex است).
-// برای افزودن مقاله، یک آبجکت به آرایه‌ی BLOG_POSTS اضافه کنید:
+// هر مقاله یک فایل جدا در src/data/blogArticles/ است (۱۰ مقاله‌ی بسته‌ی سئوکاری‌شده‌ی فارسی + English).
+// برای افزودن مقاله‌ی جدید: یک فایل مثل بقیه بسازید و پایین همین فایل به BLOG_POSTS اضافه‌اش کنید.
+// اگر BLOG_POSTS خالی شود، وبلاگ «Empty State» نشان می‌دهد (و Noindex است).
+// کاور مقاله‌ها: تصویر ۱۶۹۰×۹۰۰ (WebP) با عنوان روی تصویر؛ قاب کارت و صفحه با همین نسبت است تا هیچ‌جا برش نخورد.
+// ساختار هر مقاله:
 //
 //   {
 //     slug: "article-slug",                 // آدرس: /blog/article-slug  (فقط حروف کوچک انگلیسی، عدد و -)
@@ -28,8 +31,29 @@
 //       { type: "quote", text: "...", cite: "..." },
 //       { type: "image", src: "/images/blog/y.webp", alt: "...", caption: "..." },
 //       { type: "code", lang: "js", code: "..." },
-//     ],
+//       { type: "table", head: ["..", ".."], rows: [["..", ".."]] },
+//       { type: "checklist", items: ["..."] },   // ☐ چک‌لیست
+//     ],                                      // ol هم می‌تواند start: 5 داشته باشد
+//
+//     // ── فیلدهای سئو (اختیاری) ──
+//     seoTitle: "...| آرانو",                // Title صفحه (حداکثر ۶۰ کاراکتر)؛ اگر نباشد از title ساخته می‌شود
+//     faq: [{ q: "...", a: "..." }],         // بخش سوالات متداول + Schema نوع FAQPage
+//     links: ["/services/seo", "/blog/x"],   // لینک‌های داخلی؛ زیر مقاله نمایش داده می‌شوند
+//     en: { title, seoTitle, excerpt, tags, coverAlt, content, faq },   // نسخه‌ی انگلیسی: /en/blog/<slug> + hreflang
 //   }
+//
+// داخل متن بلوک‌ها: [متن لینک](/مسیر) برای لینک داخلی و **متن** برای پررنگ.
+
+import seoFriendly from "./blogArticles/seo-friendly-website-design.js";
+import seoForAi from "./blogArticles/seo-for-ai-overviews.js";
+import wpVsCustom from "./blogArticles/wordpress-vs-custom-website.js";
+import designCost from "./blogArticles/website-design-cost.js";
+import onlineStore from "./blogArticles/online-store-website-guide.js";
+import speedCwv from "./blogArticles/website-speed-core-web-vitals.js";
+import corporateSeo from "./blogArticles/corporate-website-seo.js";
+import designMistakes from "./blogArticles/web-design-mistakes.js";
+import multilingualSeo from "./blogArticles/multilingual-website-seo.js";
+import whatIsEeat from "./blogArticles/what-is-eeat.js";
 
 export const BLOG_CATEGORIES = [
   {
@@ -83,4 +107,31 @@ export const BLOG_CATEGORIES = [
   },
 ];
 
-export const BLOG_POSTS = [];
+export const BLOG_POSTS = [
+  seoFriendly,
+  seoForAi,
+  wpVsCustom,
+  designCost,
+  onlineStore,
+  speedCwv,
+  corporateSeo,
+  designMistakes,
+  multilingualSeo,
+  whatIsEeat,
+];
+
+// مقاله‌های بلاگ مرتبط با یک صفحه‌ی خدمت (برای بخش «مقاله‌های مرتبط» همان صفحه).
+// از فیلد links هر مقاله ساخته می‌شود؛ پس لینک‌دهی مقاله ← خدمت و خدمت ← مقاله خودکار دوطرفه است.
+export function blogLinksFor(path, now = Date.now()) {
+  return BLOG_POSTS.filter(
+    (p) =>
+      p.links?.includes(path) &&
+      (!p.status || p.status === "published") &&
+      new Date(p.publishedAt).getTime() <= now,
+  )
+    .slice(0, 3)
+    .map((p) => ({
+      title: (p.seoTitle ?? p.title).replace(/\s*\|\s*آرانو$/, ""),
+      href: `/blog/${p.slug}`,
+    }));
+}

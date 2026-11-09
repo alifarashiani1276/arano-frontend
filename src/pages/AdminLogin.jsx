@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
-import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import { ArrowBack, ArrowForward } from "../i18n/Arrow";
+import { Link } from "../i18n/Link";
+import { useLang } from "../i18n/LangContext";
+import useDocumentTitle from "../hooks/useDocumentTitle";
 import OtpInput from "react-otp-input";
 import {
-  FiArrowLeft,
-  FiArrowRight,
   FiCheck,
   FiEye,
   FiEyeOff,
@@ -17,6 +19,7 @@ import {
 } from "react-icons/fi";
 import Logo from "../ui/Logo";
 import BackHome from "../ui/BackHome";
+import LangSwitch from "../features/home/LangSwitch";
 import ThemeSwitcher from "../features/home/ThemeSwitcher";
 import { getSessionArea, session, useSession } from "../features/auth/session";
 import { tokenStore } from "../features/auth/token";
@@ -88,7 +91,7 @@ const nameMessage = (code) =>
       : "فقط از حروف فارسی یا انگلیسی استفاده کنید.";
 
 // اعتبارسنجی فرم تکمیل پروفایل مدیر جدید (قواعد رمز مطابق بک‌اند)
-function checkProfile(values) {
+function checkProfile(values, t) {
   const errors = {};
 
   const first = validateName(values.first_name, { min: 2, max: 100 });
@@ -101,21 +104,22 @@ function checkProfile(values) {
     required: false,
   });
 
-  if (first.error) errors.first_name = nameMessage(first.error);
-  if (last.error) errors.last_name = nameMessage(last.error);
+  if (first.error) errors.first_name = t(nameMessage(first.error));
+  if (last.error) errors.last_name = t(nameMessage(last.error));
   if (email.error) {
-    errors.email =
+    errors.email = t(
       email.error === "required"
         ? "ایمیل را وارد کنید."
-        : "ایمیل واردشده معتبر نیست.";
+        : "ایمیل واردشده معتبر نیست.",
+    );
   }
-  if (bio.error) errors.bio = "متن درباره‌ی من معتبر نیست.";
+  if (bio.error) errors.bio = t("متن درباره‌ی من معتبر نیست.");
 
   if (!PASSWORD_RULES.every((rule) => rule.test(values.password))) {
-    errors.password = "رمز عبور همه‌ی شرایط را ندارد.";
+    errors.password = t("رمز عبور همه‌ی شرایط را ندارد.");
   }
   if (values.password !== values.password_confirmation) {
-    errors.password_confirmation = "تکرار رمز عبور یکسان نیست.";
+    errors.password_confirmation = t("تکرار رمز عبور یکسان نیست.");
   }
 
   return {
@@ -139,6 +143,8 @@ export default function AdminLogin() {
   const navigate = useNavigate();
   const location = useLocation();
   const sessionUser = useSession();
+  const { t, n, isEn, lang, dir } = useLang();
+  useDocumentTitle(t("ورود مدیران"));
 
   const [step, setStep] = useState("phone"); // phone | otp | password | setup
   const [phone, setPhone] = useState("");
@@ -199,15 +205,21 @@ export default function AdminLogin() {
 
   useEffect(() => {
     if (challengeExpired) {
-      restart("مهلت وارد کردن رمز تمام شد. دوباره کد تأیید دریافت کنید.");
+      restart(t("مهلت وارد کردن رمز تمام شد. دوباره کد تأیید دریافت کنید."));
     }
-  }, [challengeExpired, restart]);
+  }, [challengeExpired, restart, t]);
 
   useEffect(() => {
     if (setupExpired) {
-      restart("مهلت تکمیل حساب تمام شد. دوباره کد تأیید دریافت کنید.");
+      restart(t("مهلت تکمیل حساب تمام شد. دوباره کد تأیید دریافت کنید."));
     }
-  }, [setupExpired, restart]);
+  }, [setupExpired, restart, t]);
+
+  // پیام‌های خطا به زبان قبلی نمانند
+  useEffect(() => {
+    setError("");
+    setProfileErrors({});
+  }, [lang]);
 
   // مدیری که از قبل وارد شده، مستقیم به پنل می‌رود
   if (
@@ -229,8 +241,11 @@ export default function AdminLogin() {
       setPassword("");
     } else {
       setFailures(next);
+      const left = MAX_FAILURES - next;
       setError(
-        `${message} ${(MAX_FAILURES - next).toLocaleString("fa-IR")} تلاش باقی مانده است.`,
+        isEn
+          ? `${message} ${left} ${left === 1 ? "attempt" : "attempts"} left.`
+          : `${message} ${n(left)} تلاش باقی مانده است.`,
       );
     }
   };
@@ -247,7 +262,7 @@ export default function AdminLogin() {
   // ورود موفق: Token واقعی + اطلاعات مدیر را ذخیره و وارد پنل می‌شویم
   const finish = ({ token, admin }) => {
     if (!token || !admin) {
-      setError("پاسخ احراز هویت از سرور ناقص است.");
+      setError(t("پاسخ احراز هویت از سرور ناقص است."));
       return;
     }
 
@@ -266,7 +281,9 @@ export default function AdminLogin() {
     const gate = sendLimiter.attempt();
     if (!gate.ok) {
       setError(
-        `تعداد درخواست‌ها زیاد است. ${formatWait(gate.retryAfter)} دیگر دوباره تلاش کنید.`,
+        isEn
+          ? `Too many requests. Try again in ${formatWait(gate.retryAfter, true)}.`
+          : `تعداد درخواست‌ها زیاد است. ${formatWait(gate.retryAfter)} دیگر دوباره تلاش کنید.`,
       );
       return false;
     }
@@ -277,7 +294,7 @@ export default function AdminLogin() {
       setNow(Date.now());
       return true;
     } catch (err) {
-      setError(apiMessage(err, "ارسال کد انجام نشد. دوباره تلاش کنید."));
+      setError(t(apiMessage(err, "ارسال کد انجام نشد. دوباره تلاش کنید.")));
       return false;
     }
   };
@@ -288,7 +305,7 @@ export default function AdminLogin() {
 
     const value = normalizePhone(phone);
     if (!MOBILE_REGEX.test(value)) {
-      setError("شماره موبایل را به‌صورت صحیح وارد کنید (مثلاً 09123456789).");
+      setError(t("شماره موبایل را به‌صورت صحیح وارد کنید (مثلاً 09123456789)."));
       return;
     }
 
@@ -340,11 +357,11 @@ export default function AdminLogin() {
       setOtp("");
 
       if (code === 422) {
-        registerFailure("کد واردشده صحیح نیست یا منقضی شده است.");
+        registerFailure(t("کد واردشده صحیح نیست یا منقضی شده است."));
       } else if (code === 429) {
         lockForTooMany();
       } else {
-        setError(apiMessage(err, "تأیید کد انجام نشد. دوباره تلاش کنید."));
+        setError(t(apiMessage(err, "تأیید کد انجام نشد. دوباره تلاش کنید.")));
       }
     } finally {
       setBusy(false);
@@ -371,7 +388,7 @@ export default function AdminLogin() {
     if (busy || locked) return;
 
     if (!password) {
-      setError("رمز عبور را وارد کنید.");
+      setError(t("رمز عبور را وارد کنید."));
       return;
     }
 
@@ -385,14 +402,14 @@ export default function AdminLogin() {
       const body = err.response?.data;
 
       if (code === 401) {
-        registerFailure("رمز عبور صحیح نیست.");
+        registerFailure(t("رمز عبور صحیح نیست."));
         setPassword("");
       } else if (code === 403 && body?.data?.otp_required) {
-        restart("مهلت تأیید کد تمام شده است. دوباره کد تأیید دریافت کنید.");
+        restart(t("مهلت تأیید کد تمام شده است. دوباره کد تأیید دریافت کنید."));
       } else if (code === 429) {
         lockForTooMany();
       } else {
-        setError(apiMessage(err, "ورود انجام نشد. دوباره تلاش کنید."));
+        setError(t(apiMessage(err, "ورود انجام نشد. دوباره تلاش کنید.")));
       }
     } finally {
       setBusy(false);
@@ -411,7 +428,7 @@ export default function AdminLogin() {
     event.preventDefault();
     if (busy) return;
 
-    const { errors, clean } = checkProfile(profile);
+    const { errors, clean } = checkProfile(profile, t);
     setProfileErrors(errors);
 
     const firstInvalid = Object.keys(errors)[0];
@@ -430,29 +447,33 @@ export default function AdminLogin() {
 
       if (code === 401 || code === 403) {
         restart(
-          err.response?.data?.message ??
-            "مهلت تکمیل حساب تمام شده است. دوباره وارد شوید.",
+          t(
+            err.response?.data?.message ??
+              "مهلت تکمیل حساب تمام شده است. دوباره وارد شوید.",
+          ),
         );
       } else if (code === 422 && err.response?.data?.errors) {
         const raw = err.response.data.errors;
         const next = {};
 
         if (raw.email?.[0])
-          next.email = "این ایمیل قبلاً ثبت شده یا معتبر نیست.";
-        if (raw.first_name?.[0]) next.first_name = "نام معتبر نیست.";
-        if (raw.last_name?.[0]) next.last_name = "نام خانوادگی معتبر نیست.";
-        if (raw.password?.[0]) next.password = "رمز عبور شرایط لازم را ندارد.";
-        if (raw.bio?.[0]) next.bio = "متن درباره‌ی من معتبر نیست.";
+          next.email = t("این ایمیل قبلاً ثبت شده یا معتبر نیست.");
+        if (raw.first_name?.[0]) next.first_name = t("نام معتبر نیست.");
+        if (raw.last_name?.[0])
+          next.last_name = t("نام خانوادگی معتبر نیست.");
+        if (raw.password?.[0])
+          next.password = t("رمز عبور شرایط لازم را ندارد.");
+        if (raw.bio?.[0]) next.bio = t("متن درباره‌ی من معتبر نیست.");
 
         if (Object.keys(next).length) {
           setProfileErrors(next);
         } else {
-          setError("اطلاعات واردشده معتبر نیست.");
+          setError(t("اطلاعات واردشده معتبر نیست."));
         }
       } else if (code === 429) {
-        setError("تعداد درخواست‌ها زیاد است. چند دقیقه دیگر تلاش کنید.");
+        setError(t("تعداد درخواست‌ها زیاد است. چند دقیقه دیگر تلاش کنید."));
       } else {
-        setError(apiMessage(err, "ثبت اطلاعات انجام نشد. دوباره تلاش کنید."));
+        setError(t(apiMessage(err, "ثبت اطلاعات انجام نشد. دوباره تلاش کنید.")));
       }
     } finally {
       setBusy(false);
@@ -463,19 +484,27 @@ export default function AdminLogin() {
   const isSetupFlow = step === "setup";
   const stepIndex = step === "phone" ? 0 : step === "otp" ? 1 : 2;
   const stepLabels = [
-    "شماره مدیر",
-    "کد تأیید",
-    isSetupFlow ? "تکمیل حساب" : "رمز عبور",
+    t("شماره مدیر"),
+    t("تأیید کد"),
+    isSetupFlow ? t("تکمیل حساب") : t("رمز عبور"),
   ];
 
   const titles = {
     phone: {
-      title: "ورود مدیران",
-      subtitle: "شماره‌ی ثبت‌شده‌ی مدیر را وارد کن تا کد تأیید ساخته شود.",
+      title: t("ورود مدیران"),
+      subtitle: t("شماره‌ی ثبت‌شده‌ی مدیر را وارد کن تا کد تأیید ساخته شود."),
     },
     otp: {
-      title: "تأیید شماره‌ی مدیر",
-      subtitle: (
+      title: t("تأیید شماره‌ی مدیر"),
+      subtitle: isEn ? (
+        <>
+          Enter the 6-digit code for{" "}
+          <bdi dir="ltr" className="font-bold text-foreground">
+            {maskPhone(phone)}
+          </bdi>
+          .
+        </>
+      ) : (
         <>
           کد ۶ رقمی مربوط به{" "}
           <bdi dir="ltr" className="font-bold text-foreground">
@@ -486,12 +515,16 @@ export default function AdminLogin() {
       ),
     },
     password: {
-      title: "رمز عبور مدیر",
-      subtitle: `کد تأیید شد. برای تکمیل ورود، رمز عبور را وارد کن. (${formatWait(challengeLeft || 1)} مهلت باقی مانده)`,
+      title: t("رمز عبور مدیر"),
+      subtitle: isEn
+        ? `Code verified. Enter your password to finish signing in. (${formatWait(challengeLeft || 1, true)} left)`
+        : `کد تأیید شد. برای تکمیل ورود، رمز عبور را وارد کن. (${formatWait(challengeLeft || 1)} مهلت باقی مانده)`,
     },
     setup: {
-      title: "تکمیل حساب مدیر",
-      subtitle: "این اولین ورود توست. اطلاعات شخصی و رمز عبور حساب را مشخص کن.",
+      title: t("تکمیل حساب مدیر"),
+      subtitle: t(
+        "این اولین ورود توست. اطلاعات شخصی و رمز عبور حساب را مشخص کن.",
+      ),
     },
   }[step];
 
@@ -500,8 +533,9 @@ export default function AdminLogin() {
       role="alert"
       className="rounded-2xl border border-error/40 bg-error/5 p-3 text-center text-xs font-bold leading-6 text-error"
     >
-      تلاش‌های ناموفق زیاد بود. برای امنیت، تا {formatWait(lockLeft)} دیگر امکان
-      تلاش نیست.
+      {isEn
+        ? `Too many failed attempts. For security, you can't try again for ${formatWait(lockLeft, true)}.`
+        : `تلاش‌های ناموفق زیاد بود. برای امنیت، تا ${formatWait(lockLeft)} دیگر امکان تلاش نیست.`}
     </p>
   );
 
@@ -522,7 +556,7 @@ export default function AdminLogin() {
   });
 
   return (
-    <main dir="rtl" className="min-h-screen bg-background text-foreground">
+    <main dir={dir} className="min-h-screen bg-background text-foreground">
       <div className="relative min-h-screen overflow-hidden">
         <div className="pointer-events-none absolute -right-32 -top-32 h-80 w-80 rounded-full bg-primary/10 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-40 -left-32 h-96 w-96 rounded-full bg-accent/10 blur-3xl" />
@@ -533,8 +567,9 @@ export default function AdminLogin() {
             <BackHome />
             <span className="hidden items-center gap-2 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-bold text-muted lg:inline-flex">
               <FiLock className="text-primary" aria-hidden="true" />
-              پنل مدیریت
+              {t("پنل مدیریت")}
             </span>
+            <LangSwitch />
             <ThemeSwitcher />
           </div>
         </header>
@@ -544,15 +579,18 @@ export default function AdminLogin() {
             <div className="max-w-md">
               <span className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-1.5 text-xs font-bold text-muted">
                 <FiShield className="text-primary" aria-hidden="true" />
-                فقط برای مدیران آرانو
+                {t("فقط برای مدیران آرانو")}
               </span>
               <h1 className="mt-6 text-4xl font-black leading-[1.2] tracking-tight xl:text-5xl">
-                ورود به پنل مدیریت
-                <span className="block text-primary">امن و دومرحله‌ای.</span>
+                {t("ورود به پنل مدیریت")}
+                <span className="block text-primary">
+                  {t("امن و دومرحله‌ای.")}
+                </span>
               </h1>
               <p className="mt-5 max-w-sm text-base leading-8 text-muted">
-                مدیریت کاربران، درخواست‌ها، پروژه‌ها و گفتگوها از همین‌جا شروع
-                می‌شود.
+                {t(
+                  "مدیریت کاربران، درخواست‌ها، پروژه‌ها و گفتگوها از همین‌جا شروع می‌شود.",
+                )}
               </p>
 
               <div className="mt-8 space-y-4">
@@ -568,7 +606,7 @@ export default function AdminLogin() {
                     <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
                       <IconComp aria-hidden="true" />
                     </span>
-                    {text}
+                    {t(text)}
                   </div>
                 ))}
               </div>
@@ -586,8 +624,8 @@ export default function AdminLogin() {
                     onClick={() => restart()}
                     className="mb-3 inline-flex items-center gap-1.5 text-xs font-bold text-muted transition hover:text-foreground"
                   >
-                    <FiArrowRight aria-hidden="true" />
-                    شروع دوباره
+                    <ArrowBack aria-hidden="true" />
+                    {t("شروع دوباره")}
                   </button>
                 )}
                 <h2 className="text-2xl font-black sm:text-3xl">
@@ -610,13 +648,13 @@ export default function AdminLogin() {
                       role="status"
                       className="rounded-2xl border border-primary/40 bg-primary/5 p-3 text-center text-xs font-bold leading-6 text-primary"
                     >
-                      {notice}
+                      {t(notice)}
                     </p>
                   )}
 
                   <Field
                     id="admin-phone"
-                    label="شماره موبایل مدیر"
+                    label={t("شماره موبایل مدیر")}
                     icon={FiPhone}
                     error={error}
                   >
@@ -645,20 +683,36 @@ export default function AdminLogin() {
                     />
                   </Field>
 
-                  <SubmitButton busy={busy} busyText="در حال ارسال...">
-                    دریافت کد تأیید
-                    <FiArrowLeft className="transition-transform group-hover:-translate-x-1" />
+                  <SubmitButton busy={busy} busyText={t("در حال ارسال...")}>
+                    {t("دریافت کد تأیید")}
+                    <ArrowForward className="transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
                   </SubmitButton>
 
                   <div className="rounded-2xl border border-border bg-surface-2 p-4 text-center text-xs leading-6 text-muted">
-                    این صفحه فقط برای مدیران است. اگر کاربر عادی هستی از{" "}
-                    <Link
-                      to="/auth/login"
-                      className="font-bold text-primary hover:opacity-80"
-                    >
-                      صفحه‌ی ورود کاربران
-                    </Link>{" "}
-                    وارد شو.
+                    {isEn ? (
+                      <>
+                        This page is for admins only. If you&apos;re a regular
+                        user, use the{" "}
+                        <Link
+                          to="/auth/login"
+                          className="font-bold text-primary hover:opacity-80"
+                        >
+                          user sign-in page
+                        </Link>
+                        .
+                      </>
+                    ) : (
+                      <>
+                        این صفحه فقط برای مدیران است. اگر کاربر عادی هستی از{" "}
+                        <Link
+                          to="/auth/login"
+                          className="font-bold text-primary hover:opacity-80"
+                        >
+                          صفحه‌ی ورود کاربران
+                        </Link>{" "}
+                        وارد شو.
+                      </>
+                    )}
                   </div>
                 </form>
               )}
@@ -701,17 +755,18 @@ export default function AdminLogin() {
 
                   <SubmitButton
                     busy={busy}
-                    busyText="در حال بررسی..."
+                    busyText={t("در حال بررسی...")}
                     disabled={otp.length !== OTP_LENGTH || locked}
                   >
-                    تأیید و ادامه
-                    <FiArrowLeft className="transition-transform group-hover:-translate-x-1" />
+                    {t("تأیید و ادامه")}
+                    <ArrowForward className="transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
                   </SubmitButton>
 
                   <div className="text-center">
                     {resendLeft > 0 ? (
                       <p className="text-sm text-muted">
-                        ارسال مجدد کد تا {Math.floor(resendLeft / 60)}:
+                        {isEn ? "Resend code in " : "ارسال مجدد کد تا "}
+                        {Math.floor(resendLeft / 60)}:
                         {String(resendLeft % 60).padStart(2, "0")}
                       </p>
                     ) : (
@@ -722,7 +777,7 @@ export default function AdminLogin() {
                         className="inline-flex items-center gap-2 text-sm font-black text-primary transition hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         <FiRefreshCw aria-hidden="true" />
-                        ارسال مجدد کد
+                        {t("ارسال مجدد کد")}
                       </button>
                     )}
                   </div>
@@ -738,14 +793,14 @@ export default function AdminLogin() {
                 >
                   <Field
                     id="admin-password"
-                    label="رمز عبور"
+                    label={t("رمز عبور")}
                     icon={FiLock}
                     trailing={
                       <button
                         type="button"
                         onClick={() => setShowPassword((value) => !value)}
                         aria-label={
-                          showPassword ? "پنهان کردن رمز" : "نمایش رمز"
+                          showPassword ? t("پنهان کردن رمز") : t("نمایش رمز")
                         }
                         className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-muted transition hover:bg-surface hover:text-foreground"
                       >
@@ -777,11 +832,11 @@ export default function AdminLogin() {
 
                   <SubmitButton
                     busy={busy}
-                    busyText="در حال ورود..."
+                    busyText={t("در حال ورود...")}
                     disabled={!password || locked}
                   >
-                    ورود به پنل مدیریت
-                    <FiArrowLeft className="transition-transform group-hover:-translate-x-1" />
+                    {t("ورود به پنل مدیریت")}
+                    <ArrowForward className="transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
                   </SubmitButton>
 
                   <div className="text-center">
@@ -790,7 +845,7 @@ export default function AdminLogin() {
                       state={{ phone }}
                       className="text-sm font-black text-primary transition hover:opacity-80"
                     >
-                      رمز عبور را فراموش کرده‌ام
+                      {t("رمز عبور را فراموش کرده‌ام")}
                     </Link>
                   </div>
                 </form>
@@ -804,7 +859,7 @@ export default function AdminLogin() {
                   className="space-y-5"
                 >
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <Field {...profileField("first_name", "نام")} icon={FiUser}>
+                    <Field {...profileField("first_name", t("نام"))} icon={FiUser}>
                       <input
                         {...profileInput("first_name")}
                         type="text"
@@ -814,7 +869,7 @@ export default function AdminLogin() {
                       />
                     </Field>
                     <Field
-                      {...profileField("last_name", "نام خانوادگی")}
+                      {...profileField("last_name", t("نام خانوادگی"))}
                       icon={FiUser}
                     >
                       <input
@@ -827,7 +882,7 @@ export default function AdminLogin() {
                     </Field>
                   </div>
 
-                  <Field {...profileField("email", "ایمیل")} icon={FiMail}>
+                  <Field {...profileField("email", t("ایمیل"))} icon={FiMail}>
                     <input
                       {...profileInput("email")}
                       dir="ltr"
@@ -843,14 +898,14 @@ export default function AdminLogin() {
                   </Field>
 
                   <Field
-                    {...profileField("password", "رمز عبور جدید")}
+                    {...profileField("password", t("رمز عبور جدید"))}
                     icon={FiLock}
                     trailing={
                       <button
                         type="button"
                         onClick={() => setShowPassword((value) => !value)}
                         aria-label={
-                          showPassword ? "پنهان کردن رمز" : "نمایش رمز"
+                          showPassword ? t("پنهان کردن رمز") : t("نمایش رمز")
                         }
                         className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-muted transition hover:bg-surface hover:text-foreground"
                       >
@@ -883,14 +938,14 @@ export default function AdminLogin() {
                             className={ok ? "opacity-100" : "opacity-30"}
                             aria-hidden="true"
                           />
-                          {rule.label}
+                          {t(rule.label)}
                         </li>
                       );
                     })}
                   </ul>
 
                   <Field
-                    {...profileField("password_confirmation", "تکرار رمز عبور")}
+                    {...profileField("password_confirmation", t("تکرار رمز عبور"))}
                     icon={FiLock}
                   >
                     <input
@@ -909,8 +964,10 @@ export default function AdminLogin() {
                       htmlFor="admin-bio"
                       className="mb-2 block text-sm font-bold"
                     >
-                      درباره من{" "}
-                      <span className="font-normal text-muted">(اختیاری)</span>
+                      {t("درباره من")}{" "}
+                      <span className="font-normal text-muted">
+                        {t("(اختیاری)")}
+                      </span>
                     </label>
                     <textarea
                       {...profileInput("bio")}
@@ -933,16 +990,16 @@ export default function AdminLogin() {
 
                   <FormMessage>{error}</FormMessage>
 
-                  <SubmitButton busy={busy} busyText="در حال ثبت اطلاعات...">
-                    تکمیل حساب و ورود
-                    <FiArrowLeft className="transition-transform group-hover:-translate-x-1" />
+                  <SubmitButton busy={busy} busyText={t("در حال ثبت اطلاعات...")}>
+                    {t("تکمیل حساب و ورود")}
+                    <ArrowForward className="transition-transform rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1" />
                   </SubmitButton>
                 </form>
               )}
             </div>
 
             <p className="mt-5 text-center text-xs leading-6 text-muted">
-              هر تلاش ورود به پنل مدیریت ثبت و محدود می‌شود.
+              {t("هر تلاش ورود به پنل مدیریت ثبت و محدود می‌شود.")}
             </p>
           </div>
         </section>

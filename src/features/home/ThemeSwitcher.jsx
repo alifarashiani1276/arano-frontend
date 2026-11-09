@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { FiDroplet, FiMoon, FiSun } from "react-icons/fi";
+import { useLang } from "../../i18n/LangContext";
 import { PALETTES } from "../../theme/palettes";
 import { themeStore, useTheme } from "../../theme/themeStore";
 
 export default function ThemeSwitcher() {
+  const { t } = useLang();
   const { theme, mode } = useTheme();
   const [open, setOpen] = useState(false);
   const rootRef = useRef(null);
@@ -33,7 +35,7 @@ export default function ThemeSwitcher() {
       <button
         ref={buttonRef}
         type="button"
-        aria-label="تغییر پالت رنگی و حالت نمایش"
+        aria-label={t("تغییر پالت رنگی و حالت نمایش")}
         aria-haspopup="dialog"
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
@@ -45,18 +47,18 @@ export default function ThemeSwitcher() {
       {open && (
         <div
           role="dialog"
-          aria-label="تنظیمات ظاهر سایت"
-          className="absolute left-0 top-full z-[9999] mt-3 w-72 max-w-[calc(100vw-2rem)] max-h-[calc(100vh-7rem)] origin-top animate-pop-in overflow-y-auto rounded-2xl border border-border bg-surface p-4 shadow-2xl shadow-primary/10 origin-top-left"
+          aria-label={t("تنظیمات ظاهر سایت")}
+          className="absolute end-0 top-full z-[9999] mt-3 w-72 max-w-[calc(100vw-2rem)] max-h-[calc(100vh-7rem)] animate-pop-in overflow-y-auto rounded-2xl border border-border bg-surface p-4 shadow-2xl shadow-primary/10 ltr:origin-top-right rtl:origin-top-left"
         >
-          <p className="pb-3 text-xs font-bold text-muted">پالت رنگی</p>
+          <p className="pb-3 text-xs font-bold text-muted">{t("پالت رنگی")}</p>
           <div className="grid grid-cols-3 gap-2">
             {PALETTES.map((p) => (
               <button
                 key={p.id}
                 type="button"
                 aria-pressed={theme === p.id}
-                aria-label={`پالت ${p.label}`}
-                title={p.label}
+                aria-label={`${t("پالت")} ${t(p.label)}`}
+                title={t(p.label)}
                 onClick={() => themeStore.setTheme(p.id)}
                 className={`grid h-11 place-items-center rounded-xl border transition-[border-color,background-color] duration-200 ${
                   theme === p.id
@@ -77,7 +79,7 @@ export default function ThemeSwitcher() {
             ))}
           </div>
 
-          <p className="pb-3 pt-5 text-xs font-bold text-muted">حالت نمایش</p>
+          <p className="pb-3 pt-5 text-xs font-bold text-muted">{t("حالت نمایش")}</p>
           <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
@@ -90,7 +92,7 @@ export default function ThemeSwitcher() {
               }`}
             >
               <FiSun size={16} aria-hidden="true" />
-              روشن
+              {t("روشن")}
             </button>
             <button
               type="button"
@@ -103,7 +105,7 @@ export default function ThemeSwitcher() {
               }`}
             >
               <FiMoon size={16} aria-hidden="true" />
-              تاریک
+              {t("تاریک")}
             </button>
           </div>
         </div>

@@ -1,14 +1,14 @@
 // منطق مشترک وبلاگ (بدون JSX؛ هم مرورگر و هم Build از آن استفاده می‌کنند):
 // آدرس‌ها، نرمال‌سازی مقاله، انتشار، مرتب‌سازی، جست‌وجو و فیلتر، تاریخ و زمان مطالعه.
 
-import { BLOG_CATEGORIES } from "../data/blog.js";
+import { getBlogCategories } from "../i18n/text.js";
 
 export const BLOG_PATH = "/blog";
 export const categoryPath = (slug) => `${BLOG_PATH}/category/${slug}`;
 export const articlePath = (slug) => `${BLOG_PATH}/${slug}`;
 
-export const getCategory = (slug) =>
-  BLOG_CATEGORIES.find((c) => c.slug === slug);
+export const getCategory = (slug, lang = "fa") =>
+  getBlogCategories(lang).find((c) => c.slug === slug);
 
 // ───────── متن و تاریخ ─────────
 
@@ -27,20 +27,20 @@ export function normalizeSearch(value) {
     .trim();
 }
 
-const dateFormatter = new Intl.DateTimeFormat("fa-IR", {
-  year: "numeric",
-  month: "long",
-  day: "numeric",
-  timeZone: "Asia/Tehran",
-});
+const DATE_OPTS = { year: "numeric", month: "long", day: "numeric", timeZone: "Asia/Tehran" };
+const dateFormatters = {
+  fa: new Intl.DateTimeFormat("fa-IR", DATE_OPTS),
+  en: new Intl.DateTimeFormat("en-US", DATE_OPTS),
+};
 
-// ISO → «۱۶ آبان ۱۴۰۵» (تاریخ شمسی)
-export function formatDate(iso) {
+// ISO → «۱۶ آبان ۱۴۰۵» (شمسی، فارسی) | "November 7, 2026" (میلادی، انگلیسی)
+export function formatDate(iso, lang = "fa") {
   const d = new Date(iso);
-  return Number.isNaN(d.getTime()) ? "" : dateFormatter.format(d);
+  return Number.isNaN(d.getTime()) ? "" : dateFormatters[lang === "en" ? "en" : "fa"].format(d);
 }
 
-export const formatNumber = (n) => Number(n).toLocaleString("fa-IR");
+export const formatNumber = (n, lang = "fa") =>
+  Number(n).toLocaleString(lang === "en" ? "en-US" : "fa-IR");
 
 function blockText(block) {
   if (!block) return "";
@@ -115,7 +115,7 @@ export function getPublishedPosts(rawList = []) {
 
 // ───────── جست‌وجو و فیلتر ─────────
 
-export function filterPosts(posts, { query = "", category = "all" } = {}) {
+export function filterPosts(posts, { query = "", category = "all", lang = "fa" } = {}) {
   const tokens = normalizeSearch(query).split(" ").filter(Boolean);
 
   return posts.filter((post) => {
@@ -128,7 +128,7 @@ export function filterPosts(posts, { query = "", category = "all" } = {}) {
         post.excerpt,
         post.tags.join(" "),
         post.author,
-        getCategory(post.category)?.name,
+        getCategory(post.category, lang)?.name,
       ].join(" "),
     );
     return tokens.every((t) => haystack.includes(t));

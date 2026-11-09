@@ -1,6 +1,5 @@
 import { useRef } from "react";
-import { site } from "../../config/site";
-import { SERVICE_GROUPS, SERVICE_PAGES } from "../../data/servicePages";
+import { useServiceGroups, useServicePages, useSite } from "../../i18n/useData";
 import useSpotlight from "../../hooks/useSpotlight";
 import Reveal from "../../ui/Reveal";
 import SectionHeading from "../../ui/SectionHeading";
@@ -15,6 +14,7 @@ const COLS = {
 function Group({ group }) {
   const listRef = useRef(null);
   useSpotlight(listRef, ".spot");
+  const SERVICE_PAGES = useServicePages();
   const pages = SERVICE_PAGES.filter((p) => p.group === group.id);
 
   return (
@@ -54,6 +54,8 @@ function Group({ group }) {
 // هاب خدمات: ۳ بخش کارتی (خدمات اصلی ← ۴ کارت، انواع طراحی سایت ← ۱۳ کارت، خدمات مکمل ← ۵ کارت).
 // هر کارت لینک واقعی به صفحه‌ی مستقل همان خدمت است. داده‌ها: src/data/servicePages.js
 export default function Services() {
+  const site = useSite();
+  const SERVICE_GROUPS = useServiceGroups();
   return (
     <>
       <section

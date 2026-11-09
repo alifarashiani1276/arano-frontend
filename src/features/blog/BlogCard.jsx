@@ -1,16 +1,19 @@
-import { FiArrowUpLeft } from "react-icons/fi";
-import { Link } from "react-router-dom";
+import { FiArrowUpLeft, FiArrowUpRight } from "react-icons/fi";
+import { Link } from "../../i18n/Link";
+import { useLang } from "../../i18n/LangContext";
 import MediaImage from "../../ui/MediaImage";
 import { articlePath, categoryPath, getCategory } from "../../lib/blog";
 import PostMeta from "./PostMeta";
 
 // کارت مقاله: تصویر، دسته، عنوان، خلاصه، تاریخ و زمان مطالعه.
 export default function BlogCard({ post, index = 0 }) {
-  const category = getCategory(post.category);
+  const { lang, isEn } = useLang();
+  const Corner = isEn ? FiArrowUpRight : FiArrowUpLeft;
+  const category = getCategory(post.category, lang);
 
   return (
     <article className="group relative flex h-full flex-col">
-      <div className="relative aspect-[16/10] overflow-hidden rounded-3xl border border-border bg-surface-2 transition-colors duration-300 group-focus-within:border-primary group-hover:border-primary/50">
+      <div className="relative aspect-[1690/900] overflow-hidden rounded-3xl border border-border bg-surface-2 transition-colors duration-300 group-focus-within:border-primary group-hover:border-primary/50">
         <MediaImage
           src={post.cover?.src}
           mobileSrc={post.cover?.mobileSrc}
@@ -22,9 +25,9 @@ export default function BlogCard({ post, index = 0 }) {
         />
         <span
           aria-hidden="true"
-          className="absolute bottom-4 left-4 grid h-11 w-11 translate-y-2 place-items-center rounded-full bg-primary text-primary-foreground opacity-0 transition-[opacity,transform] duration-300 group-focus-within:translate-y-0 group-focus-within:opacity-100 group-hover:translate-y-0 group-hover:opacity-100"
+          className="absolute bottom-4 start-4 grid h-11 w-11 translate-y-2 place-items-center rounded-full bg-primary text-primary-foreground opacity-0 transition-[opacity,transform] duration-300 group-focus-within:translate-y-0 group-focus-within:opacity-100 group-hover:translate-y-0 group-hover:opacity-100"
         >
-          <FiArrowUpLeft size={20} />
+          <Corner size={20} />
         </span>
       </div>
 

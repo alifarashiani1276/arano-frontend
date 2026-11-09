@@ -1,9 +1,10 @@
-import { BLOG_CATEGORIES } from "../../data/blog";
+import { useBlogCategories } from "../../i18n/useData";
 import Reveal from "../../ui/Reveal";
 import CategoryCard from "./CategoryCard";
 
 // شبکه‌ی ۷ دسته‌بندی وبلاگ (لینک به صفحه‌ی مستقل هر دسته).
 export default function CategoryGrid({ posts = [] }) {
+  const BLOG_CATEGORIES = useBlogCategories();
   const counts = posts.reduce((m, p) => m.set(p.category, (m.get(p.category) ?? 0) + 1), new Map());
 
   return (

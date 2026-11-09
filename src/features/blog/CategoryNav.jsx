@@ -1,11 +1,14 @@
-import { Link } from "react-router-dom";
-import { BLOG_CATEGORIES } from "../../data/blog";
+import { Link } from "../../i18n/Link";
+import { useLang } from "../../i18n/LangContext";
+import { useBlogCategories } from "../../i18n/useData";
 import { BLOG_PATH, categoryPath } from "../../lib/blog";
 
 // نوار لینک بین همه‌ی دسته‌ها (صفحه‌ی دسته)؛ active = slug دسته‌ی جاری.
 export default function CategoryNav({ active }) {
+  const BLOG_CATEGORIES = useBlogCategories();
+  const { t } = useLang();
   const items = [
-    { href: BLOG_PATH, label: "همه مقاله‌ها", on: !active },
+    { href: BLOG_PATH, label: t("همه مقاله‌ها"), on: !active },
     ...BLOG_CATEGORIES.map((c) => ({
       href: categoryPath(c.slug),
       label: c.name,
@@ -14,7 +17,7 @@ export default function CategoryNav({ active }) {
   ];
 
   return (
-    <nav aria-label="دسته‌بندی‌های وبلاگ">
+    <nav aria-label={t("دسته‌بندی‌های وبلاگ")}>
       <ul className="flex flex-wrap gap-2">
         {items.map((item) => (
           <li key={item.href}>
