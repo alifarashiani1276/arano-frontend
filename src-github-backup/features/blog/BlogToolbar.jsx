@@ -1,0 +1,83 @@
+import { FiSearch, FiX } from "react-icons/fi";
+import { BLOG_CATEGORIES } from "../../data/blog";
+import { formatNumber } from "../../lib/blog";
+
+// جست‌وجو + فیلتر دسته + مرتب‌سازی. showCategories=false در صفحه‌ی یک دسته.
+export default function BlogToolbar({
+  filters,
+  total,
+  showCategories = true,
+}) {
+  const { input, setInput, category, setCategory, sort, setSort, filtered, isFiltering } = filters;
+
+  return (
+    <div className="space-y-5">
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="relative min-w-0 flex-1 basis-64">
+          <FiSearch
+            size={18}
+            aria-hidden="true"
+            className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-muted"
+          />
+          <input
+            type="search"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="جست‌وجو در مقاله‌ها…"
+            aria-label="جست‌وجو در مقاله‌ها"
+            maxLength={80}
+            className="h-12 w-full rounded-full border border-border bg-surface pr-12 pl-12 text-sm text-foreground placeholder:text-muted focus:border-primary focus:ring-0 [&::-webkit-search-cancel-button]:hidden"
+          />
+          {input && (
+            <button
+              type="button"
+              onClick={() => setInput("")}
+              aria-label="پاک کردن جست‌وجو"
+              className="absolute left-3 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-full text-muted transition-colors hover:bg-surface-2 hover:text-foreground"
+            >
+              <FiX size={16} aria-hidden="true" />
+            </button>
+          )}
+        </div>
+
+        <label className="flex items-center gap-2 text-sm text-muted">
+          <span className="sr-only sm:not-sr-only">مرتب‌سازی</span>
+          <select
+            value={sort}
+            onChange={(e) => setSort(e.target.value)}
+            className="h-12 rounded-full border border-border bg-surface px-5 pl-9 text-sm font-bold text-foreground focus:border-primary focus:ring-0"
+          >
+            <option value="newest">جدیدترین</option>
+            <option value="oldest">قدیمی‌ترین</option>
+          </select>
+        </label>
+      </div>
+
+      {showCategories && (
+        <div role="group" aria-label="فیلتر دسته‌بندی مقاله‌ها" className="flex flex-wrap gap-2">
+          {[{ slug: "all", name: "همه" }, ...BLOG_CATEGORIES].map((c) => (
+            <button
+              key={c.slug}
+              type="button"
+              aria-pressed={category === c.slug}
+              onClick={() => setCategory(c.slug)}
+              className={`rounded-full border px-4 py-2 text-sm font-bold transition-[background-color,color,border-color] duration-200 ${
+                category === c.slug
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-border bg-surface text-muted hover:border-primary/50 hover:text-foreground"
+              }`}
+            >
+              {c.name}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <p aria-live="polite" className="text-sm text-muted">
+        {isFiltering
+          ? `${formatNumber(filtered.length)} نتیجه از ${formatNumber(total)} مقاله`
+          : `${formatNumber(total)} مقاله`}
+      </p>
+    </div>
+  );
+}
