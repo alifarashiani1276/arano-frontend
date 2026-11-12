@@ -4,7 +4,7 @@ import { formatDate, formatNumber } from "../../lib/blog";
 
 // تاریخ انتشار، زمان مطالعه و نویسنده؛ هر کدام فقط در صورت وجود نمایش داده می‌شود.
 export default function PostMeta({ post, className = "" }) {
-  const { lang, t, isEn } = useLang();
+  const { lang, isEn } = useLang();
   const { publishedAt, readingMinutes, author } = post;
 
   return (

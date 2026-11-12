@@ -55,6 +55,10 @@ const AdminConsultations = lazy(
   () => import("./pages/dashboard/admin/Consultations"),
 );
 const AdminComments = lazy(() => import("./pages/dashboard/admin/Comments"));
+const AdminBlogPosts = lazy(() => import("./pages/dashboard/admin/BlogPosts"));
+const AdminBlogPostForm = lazy(
+  () => import("./pages/dashboard/admin/BlogPostForm"),
+);
 const Admins = lazy(() => import("./pages/dashboard/admin/Admins"));
 const Roles = lazy(() => import("./pages/dashboard/admin/Roles"));
 const AdminProfile = lazy(() => import("./pages/dashboard/admin/Profile"));
@@ -184,6 +188,9 @@ function AppRoutes() {
               <Route path="history" element={<AdminHistory />} />
               <Route path="consultations" element={<AdminConsultations />} />
               <Route path="comments" element={<AdminComments />} />
+              <Route path="blog" element={<AdminBlogPosts />} />
+              <Route path="blog/new" element={<AdminBlogPostForm />} />
+              <Route path="blog/:id/edit" element={<AdminBlogPostForm />} />
               <Route path="profile" element={<AdminProfile />} />
 
               <Route element={<SuperOnlyRoute />}>

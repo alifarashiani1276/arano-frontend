@@ -3,16 +3,28 @@
   RewriteBase /
   RewriteRule ^index\.html$ - [L]
 
+  # تصویرهای آپلودشده‌ی ادمین: هرگز به index.html بازنویسی نشوند (فایل نبود = ۴۰۴ واقعی، نه صفحه‌ی HTML با کد ۲۰۰).
+  # تصویرهای وبلاگ کش بلند می‌گیرند؛ نام فایل هر آپلود یکتاست و فایل هیچ‌وقت جایگزین نمی‌شود.
+  RewriteRule ^uploads/blog/ - [E=LONG_CACHE:1,L]
+  RewriteRule ^uploads/ - [L]
+
   # آدرس با اسلش آخر (/services/seo/) → بدون اسلش (۳۰۱)؛ تا هر صفحه فقط یک آدرس داشته باشد
   RewriteCond %{REQUEST_URI} !^/$
   RewriteRule ^(.+)/$ /$1 [R=301,L]
 
   # صفحه‌هایی که موقع Build یک index.html مخصوص خودشان دارند (مثل dist/services/seo/index.html)
-  # با همان فایل (Title/Meta/Schema اختصاصی) سرو می‌شوند
+  # با همان فایل (Title/Meta/Schema اختصاصی) سرو می‌شوند.
+  # صفحه‌های ثابت وبلاگ هم که لاراول می‌نویسد (blog/<slug>/index.html، en/blog/<slug>/index.html،
+  # blog/category/<slug>/index.html و ...) با همین قانون سرو می‌شوند؛ مقاله‌ی حذف‌شده یا پیش‌نویس
+  # فایل ندارد و مثل بقیه به SPA می‌رسد (صفحه‌ی «پیدا نشد» + noindex).
   RewriteCond %{DOCUMENT_ROOT}/$1/index.html -f
   RewriteRule ^(.+)$ /$1/index.html [L]
 
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule . /index.html [L]
+</IfModule>
+
+<IfModule mod_headers.c>
+  Header set Cache-Control "public, max-age=31536000, immutable" env=LONG_CACHE
 </IfModule>

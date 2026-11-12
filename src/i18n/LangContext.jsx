@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components -- هوک‌ها عمداً کنار Provider هستند */
 import { createContext, useCallback, useContext, useEffect, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { LANG_META, langFromPath, localePath } from "./config";

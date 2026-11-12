@@ -10,7 +10,6 @@
 // blog = مقاله‌های بلاگ مرتبط [{ title, href }] — بلاگ که ساخته شد اینجا پر می‌شود.
 
 import { SERVICES } from "./services.js";
-import { blogLinksFor } from "./blog.js";
 
 const main = (id) => SERVICES.find((s) => s.id === id);
 
@@ -704,7 +703,7 @@ export const SERVICE_PAGES = PAGES.map((p) => {
     ...p,
     path,
     image: p.image ?? IMAGES[p.slug],
-    blog: p.blog ?? blogLinksFor(path),
+    blog: p.blog ?? [], // مقاله‌های مرتبط از API می‌آیند (hooks/useBlogLinks.js)
   };
 });
 

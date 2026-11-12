@@ -1,5 +1,6 @@
 import {
   FiClock,
+  FiFileText,
   FiFolder,
   FiGlobe,
   FiHome,
@@ -29,6 +30,7 @@ export const ADMIN_NAV = [
   { to: "/admin/history", label: "تاریخچه", icon: FiClock },
   { to: "/admin/consultations", label: "درخواست مشاوره", icon: FiGlobe },
   { to: "/admin/comments", label: "نظرات کاربران", icon: FiStar },
+  { to: "/admin/blog", label: "مقاله‌ها", icon: FiFileText },
   { to: "/admin/profile", label: "پروفایل", icon: FiUser },
   {
     to: "/admin/admins",

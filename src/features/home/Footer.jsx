@@ -65,6 +65,7 @@ export default function Footer() {
 
           {/* نماد اعتماد الکترونیکی (اینماد): کد را بدون تغییر نگه دارید */}
           <div className="rounded-lg bg-white p-1.5">
+            {/* eslint-disable-next-line react/jsx-no-target-blank -- کد اینماد بدون تغییر؛ referrerPolicy لازم است */}
             <a
               referrerPolicy="origin"
               target="_blank"

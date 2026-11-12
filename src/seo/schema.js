@@ -1,5 +1,6 @@
 // ساخت Schema (JSON-LD): Organization برای کل سایت،
-// BreadcrumbList + FAQPage + Service برای هر صفحه خدمت.
+// BreadcrumbList + FAQPage + Service برای هر صفحه خدمت،
+// BlogPosting (+ FAQPage اگر مقاله faq دارد) برای مقاله.
 
 import { site } from "../config/site.js";
 import { LANG_META } from "../i18n/config.js";
@@ -115,7 +116,10 @@ export function getJsonLd(page) {
     out.push(faqLd(page.service.faq));
   } else if (["blog", "blog-category", "article"].includes(page.kind)) {
     out.push(breadcrumbLd(getBreadcrumbs(page)));
-    if (page.kind === "article") out.push(articleLd(page));
+    if (page.kind === "article") {
+      out.push(articleLd(page));
+      if (page.article.faq?.length) out.push(faqLd(page.article.faq));
+    }
   }
   return out;
 }

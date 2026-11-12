@@ -1,0 +1,75 @@
+/* استایل محتوای ویرایشگر وبلاگ. فقط همراه چانک ویرایشگر (lazy) لود می‌شود. */
+.blog-editor {
+  @apply min-h-[22rem] space-y-4 px-4 py-4 text-base leading-[2.1] outline-none;
+}
+.blog-editor h2 {
+  @apply pt-3 text-2xl font-black leading-[1.6];
+}
+.blog-editor h3 {
+  @apply pt-2 text-xl font-black leading-[1.6];
+}
+.blog-editor strong {
+  @apply font-black;
+}
+.blog-editor a {
+  @apply text-primary underline underline-offset-4;
+}
+.blog-editor ul:not([data-type="taskList"]),
+.blog-editor ol {
+  @apply space-y-1 ps-6 marker:text-primary;
+}
+.blog-editor ul:not([data-type="taskList"]) {
+  @apply list-disc;
+}
+.blog-editor ol {
+  @apply list-decimal;
+}
+.blog-editor li > p {
+  @apply m-0;
+}
+.blog-editor blockquote {
+  @apply rounded-2xl border-s-4 border-primary bg-surface-2 px-6 py-3;
+}
+.blog-editor pre {
+  direction: ltr;
+  text-align: left;
+  @apply overflow-x-auto rounded-2xl border border-border bg-surface-2 p-4 text-sm leading-7;
+}
+.blog-editor img {
+  @apply mx-auto max-h-80 rounded-2xl border border-border;
+}
+.blog-editor img.ProseMirror-selectednode,
+.blog-editor .selectedCell {
+  @apply outline outline-2 outline-primary;
+}
+.blog-editor table {
+  @apply w-full border-collapse text-sm;
+}
+.blog-editor th,
+.blog-editor td {
+  @apply border border-border px-3 py-2 align-top;
+}
+.blog-editor th {
+  @apply bg-surface-2 font-bold;
+}
+.blog-editor td > p,
+.blog-editor th > p {
+  @apply m-0;
+}
+/* چک‌لیست: وضعیت تیک در بلوک‌ها ذخیره نمی‌شود، پس فقط یک کادر نمایشی است */
+.blog-editor ul[data-type="taskList"] {
+  @apply list-none space-y-1 p-0;
+}
+.blog-editor ul[data-type="taskList"] li {
+  @apply flex items-start gap-2;
+}
+.blog-editor ul[data-type="taskList"] label {
+  @apply pointer-events-none mt-3 opacity-60;
+}
+.blog-editor ul[data-type="taskList"] li > div {
+  @apply flex-1;
+}
+.blog-editor.is-ltr {
+  direction: ltr;
+  text-align: left;
+}

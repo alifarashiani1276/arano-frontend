@@ -153,6 +153,7 @@ function HeroBanner() {
           width={768}
           height={1376}
           decoding="async"
+          // eslint-disable-next-line react/no-unknown-property -- React 18.2 هنوز fetchPriority را نمی‌شناسد
           fetchpriority="high"
           className="absolute inset-0 -z-20 h-full w-full object-cover object-top md:object-center"
         />

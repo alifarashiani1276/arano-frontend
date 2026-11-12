@@ -1,24 +1,30 @@
+import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import {
   ALL_PAGES,
+  BLOG_PAGES,
   DEFAULT_DESCRIPTION,
+  LABELS,
   OG_IMAGE,
   SITE_URL,
   absUrl,
   siteName,
 } from "../src/seo/registry.js";
-import { LANG_META, localePath } from "../src/i18n/config.js";
-import { getJsonLd } from "../src/seo/schema.js";
+import { LANGS, LANG_META, localePath, stripLang } from "../src/i18n/config.js";
+import { getJsonLd, organizationLd } from "../src/seo/schema.js";
 import { getBlogCategories, getServicePages } from "../src/i18n/text.js";
-import { categoryPath } from "../src/lib/blog.js";
 
-// فقط در Build اجرا می‌شود و بعد از ساخت dist، سه کار می‌کند:
-// ۱) برای هر صفحه‌ی سایت یک index.html جدا (مثلاً dist/services/seo/index.html) می‌نویسد
+// فقط در Build اجرا می‌شود و بعد از ساخت dist، این کارها را می‌کند:
+// ۱) برای هر صفحه‌ی سایت (غیر وبلاگ) یک index.html جدا (مثلاً dist/services/seo/index.html) می‌نویسد
 //    که Title، Description، canonical، Open Graph و JSON-LD همان صفحه را مستقیم داخل HTML دارد
 //    (ربات‌هایی که جاوااسکریپت اجرا نمی‌کنند و پیش‌نمایش شبکه‌های اجتماعی هم آن‌ها را می‌بینند).
-// ۲) sitemap.xml شامل همه صفحه‌های ایندکس‌پذیر می‌سازد (صفحه‌های noindex مثل وبلاگ خالی نمی‌آیند).
-// ۳) هیچ‌چیز در dev تغییر نمی‌کند.
+// ۲) sitemap.xml (ایندکس) و sitemap-pages.xml (همه‌ی صفحه‌های غیر وبلاگ با hreflang) می‌سازد.
+//    sitemap-blog.xml را بک‌اند (لاراول) می‌نویسد.
+// ۳) برای صفحه‌های وبلاگ که لاراول به‌صورت HTML ثابت می‌نویسد، دو فایل قرارداد را می‌سازد:
+//    blog-template.html (قالب با جاینگهدارهای %%...%%) و blog-config.json (دسته‌ها، برند، Schema سازمان و...).
+//    خود صفحه‌های وبلاگ این‌جا ساخته نمی‌شوند.
+// ۴) هیچ‌چیز در dev تغییر نمی‌کند.
 // خود برنامه (React) مثل قبل همه چیز را رندر می‌کند؛ این فقط «HTML اولیه» را کامل‌تر می‌کند.
 
 const esc = (s) =>
@@ -45,14 +51,7 @@ function fallbackHtml(page) {
             name: s.name,
           })),
         )
-      : page.kind === "blog"
-        ? list(
-            getBlogCategories(lang).map((c) => ({
-              href: localePath(categoryPath(c.slug), lang),
-              name: c.name,
-            })),
-          )
-        : `<p><a href="${localePath("/services", lang)}">${lang === "en" ? "Arano Services" : "خدمات آرانو"}</a></p>`;
+      : `<p><a href="${localePath("/services", lang)}">${lang === "en" ? "Arano Services" : "خدمات آرانو"}</a></p>`;
   return `<noscript><main dir="${dir}" style="font-family:sans-serif;padding:24px"><h1>${esc(
     page.h1,
   )}</h1><p>${esc(page.description || DEFAULT_DESCRIPTION)}</p>${links}</main></noscript>`;
@@ -117,12 +116,58 @@ function renderPage(shellRaw, page) {
     .replace(/<body[^>]*>/i, (m) => `${m}\n    ${fallbackHtml(page)}`);
 }
 
-function buildSitemap() {
-  const today = new Date().toISOString().slice(0, 10);
+// ───────── lastmod واقعی ─────────
+// تاریخ آخرین commit فایل‌های منبع هر صفحه (git). اگر git یا تاریخچه نبود، lastmod نوشته نمی‌شود
+// (نبودنِ lastmod بهتر از تاریخ ساختگی «امروز» است).
+const EN_SRC = "src/i18n/en";
+const SOURCES = {
+  home: ["src/pages/Home.jsx", "src/features/home", "src/config/site.js", "src/data/services.js"],
+  hub: ["src/pages/ServicesPage.jsx", "src/data/servicePages.js", "src/data/services.js"],
+  service: ["src/data/servicePages.js"],
+  "/portfolio": ["src/pages/PortfolioPage.jsx", "src/data/projects.js"],
+  "/about": ["src/pages/AboutPage.jsx"],
+  "/team": ["src/pages/TeamPage.jsx", "src/data/team.js"],
+  "/contact": ["src/pages/ContactPage.jsx"],
+  "/terms": ["src/pages/TermsPage.jsx", "src/data/terms.js"],
+};
+
+function makeLastmod(root) {
+  const cache = new Map();
+  const gitDate = (files) => {
+    const key = files.join("|");
+    if (!cache.has(key)) {
+      let out = "";
+      try {
+        out = execFileSync("git", ["log", "-1", "--format=%cs", "--", ...files], {
+          cwd: root,
+          encoding: "utf8",
+          stdio: ["ignore", "pipe", "ignore"],
+        }).trim();
+      } catch {
+        out = "";
+      }
+      cache.set(key, /^\d{4}-\d{2}-\d{2}$/.test(out) ? out : "");
+    }
+    return cache.get(key);
+  };
+
+  return (page) => {
+    const key =
+      page.kind === "home" || page.kind === "hub" || page.kind === "service"
+        ? page.kind
+        : stripLang(page.path);
+    const files = SOURCES[key];
+    if (!files) return "";
+    return gitDate(page.lang === "en" ? [...files, EN_SRC] : files);
+  };
+}
+
+function buildPagesSitemap(lastmodOf) {
   const indexable = new Map(
     ALL_PAGES.filter((p) => !p.noindex).map((p) => [p.path, p]),
   );
-  // صفحه‌های noindex در سایت‌مپ نمی‌آیند؛ هر آدرس لینک‌های hreflang نسخه‌های ایندکس‌پذیرش را هم دارد.
+  // هر آدرس لینک‌های hreflang نسخه‌های ایندکس‌پذیرش را هم دارد.
+  const dates = [];
   const urls = [...indexable.values()]
     .map((p) => {
       const alts = (p.alternates ?? [])
@@ -132,19 +177,94 @@ function buildSitemap() {
             `\n    <xhtml:link rel="alternate" hreflang="${LANG_META[a.lang].htmlLang}" href="${absUrl(a.path)}" />`,
         )
         .join("");
-      return `  <url>\n    <loc>${absUrl(p.path)}</loc>${alts}\n    <lastmod>${today}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>${p.priority.toFixed(1)}</priority>\n  </url>`;
+      const date = lastmodOf(p);
+      if (date) dates.push(date);
+      const lastmod = date ? `\n    <lastmod>${date}</lastmod>` : "";
+      return `  <url>\n    <loc>${absUrl(p.path)}</loc>${alts}${lastmod}\n    <changefreq>monthly</changefreq>\n    <priority>${p.priority.toFixed(1)}</priority>\n  </url>`;
     })
     .join("\n");
-  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${urls}\n</urlset>\n`;
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${urls}\n</urlset>\n`;
+  return { xml, lastmod: dates.sort().at(-1) ?? "" };
+}
+
+// ایندکس ثابت: sitemap-pages.xml را همین Build و sitemap-blog.xml را بک‌اند می‌نویسد.
+function buildSitemapIndex(pagesLastmod) {
+  const entry = (file, lastmod) =>
+    `  <sitemap>\n    <loc>${SITE_URL}/${file}</loc>${lastmod ? `\n    <lastmod>${lastmod}</lastmod>` : ""}\n  </sitemap>`;
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entry("sitemap-pages.xml", pagesLastmod)}\n${entry("sitemap-blog.xml", "")}\n</sitemapindex>\n`;
+}
+
+// ───────── قرارداد با بک‌اند (صفحه‌های ثابت وبلاگ) ─────────
+
+const HIDE_STYLE = "<style>#root > .seo-static { visibility: hidden; }</style>";
+const SHOW_NOSCRIPT =
+  "<noscript><style>#root > .seo-static { visibility: visible; }</style></noscript>";
+
+// index.html خام (بدون canonical و og و twitter و ld+json) با جاینگهدار؛ لاراول جاینگهدارها را پر می‌کند.
+function buildBlogTemplate(shellRaw) {
+  return stripShellSeo(shellRaw)
+    .replace(/<html[^>]*>/i, (m) =>
+      m
+        .replace(/lang="[^"]*"/, 'lang="%%HTML_LANG%%"')
+        .replace(/dir="[^"]*"/, 'dir="%%HTML_DIR%%"'),
+    )
+    .replace(/<title>[\s\S]*?<\/title>/i, "<title>%%TITLE%%</title>")
+    .replace(
+      /<meta\s+name="description"[\s\S]*?\/>/i,
+      '<meta name="description" content="%%DESCRIPTION%%" />',
+    )
+    .replace(
+      "</head>",
+      `    ${HIDE_STYLE}\n    ${SHOW_NOSCRIPT}\n    <!--%%HEAD_EXTRA%%-->\n  </head>`,
+    )
+    .replace(
+      /<div id="root">[\s\S]*?<\/div>/i,
+      '<div id="root"><!--%%ROOT_HTML%%--></div><!--%%BOOT_JSON%%-->',
+    );
+}
+
+function buildBlogConfig() {
+  const perLang = (fn) => Object.fromEntries(LANGS.map((l) => [l, fn(l)]));
+  const pick = ({ name, short, description }) => ({ name, short, description });
+  const hubOf = (lang) =>
+    BLOG_PAGES.find((p) => p.kind === "blog" && p.lang === lang);
+
+  return {
+    siteUrl: SITE_URL,
+    siteName: perLang((l) => siteName(l)),
+    blogBrand: perLang((l) => LABELS[l].blogBrand),
+    breadcrumbs: perLang((l) => ({ home: LABELS[l].home, blog: LABELS[l].blog })),
+    // عنوان صفحه‌ی دسته = «{name} | {blogBrand}»؛ عنوان لیست و دسته‌ها از hub و categories
+    hub: perLang((l) => {
+      const { h1, title, description } = hubOf(l);
+      return { h1, title, description };
+    }),
+    categories: getBlogCategories("fa").map((fa) => ({
+      slug: fa.slug,
+      fa: pick(fa),
+      en: pick(getBlogCategories("en").find((c) => c.slug === fa.slug)),
+    })),
+    defaultDescription: DEFAULT_DESCRIPTION,
+    organization: organizationLd(),
+    ogImage: { url: `${SITE_URL}${OG_IMAGE}`, width: 1200, height: 630 },
+    langs: perLang((l) => ({
+      htmlLang: LANG_META[l].htmlLang,
+      dir: LANG_META[l].dir,
+      ogLocale: LANG_META[l].locale,
+      ldLang: LANG_META[l].ldLang,
+    })),
+  };
 }
 
 export default function seoPlugin() {
   let outDir = "dist";
+  let root = ".";
 
   return {
     name: "arano-seo",
     apply: "build",
     configResolved(config) {
+      root = config.root;
       outDir = path.resolve(config.root, config.build.outDir);
     },
     closeBundle() {
@@ -162,7 +282,15 @@ export default function seoPlugin() {
         fs.writeFileSync(target, html);
       }
 
-      fs.writeFileSync(path.join(outDir, "sitemap.xml"), buildSitemap());
+      const pages = buildPagesSitemap(makeLastmod(root));
+      fs.writeFileSync(path.join(outDir, "sitemap-pages.xml"), pages.xml);
+      fs.writeFileSync(path.join(outDir, "sitemap.xml"), buildSitemapIndex(pages.lastmod));
+
+      fs.writeFileSync(path.join(outDir, "blog-template.html"), buildBlogTemplate(shell));
+      fs.writeFileSync(
+        path.join(outDir, "blog-config.json"),
+        `${JSON.stringify(buildBlogConfig(), null, 2)}\n`,
+      );
     },
   };
 }

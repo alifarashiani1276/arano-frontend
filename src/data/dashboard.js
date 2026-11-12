@@ -39,6 +39,10 @@ export const STATUS_META = {
     UNANSWERED: { label: "پاسخ‌داده‌نشده", tone: "warning" },
     ANSWERED: { label: "پاسخ‌داده‌شده", tone: "success" },
   },
+  blog: {
+    draft: { label: "پیش‌نویس", tone: "warning" },
+    published: { label: "منتشرشده", tone: "success" },
+  },
   role: {
     USER: { label: "کاربر", tone: "neutral" },
     ADMIN: { label: "مدیر", tone: "info" },

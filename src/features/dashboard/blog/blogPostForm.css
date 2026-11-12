@@ -1,0 +1,52 @@
+/* استایل فرم مقاله‌ی ادمین. فقط همراه چانک lazy فرم لود می‌شود. */
+.blog-required {
+  color: rgb(var(--bad));
+}
+.blog-counter {
+  @apply text-xs text-muted;
+}
+.blog-counter--warn {
+  color: rgb(var(--warn));
+  @apply font-bold;
+}
+.blog-tab-dot {
+  @apply ms-1.5 inline-block h-2 w-2 rounded-full align-middle;
+  background: rgb(var(--bad));
+}
+.blog-general-error {
+  @apply rounded-xl border px-4 py-3 text-sm leading-7;
+  color: rgb(var(--bad));
+  border-color: rgb(var(--bad) / 0.3);
+  background: rgb(var(--bad) / 0.08);
+}
+.blog-cover-frame {
+  @apply overflow-hidden rounded-2xl border border-border bg-surface-2;
+  aspect-ratio: 1690 / 900;
+}
+.blog-cover-frame img {
+  @apply h-full w-full object-cover;
+}
+.blog-repeat-item {
+  @apply grid gap-3 rounded-2xl border border-border bg-surface-2 p-3;
+}
+
+/* react-tag-input-component با رنگ‌های تم */
+.blog-tags .rti--container {
+  --rti-bg: rgb(var(--surface2));
+  --rti-border: rgb(var(--border));
+  --rti-main: rgb(var(--primary));
+  --rti-radius: 0.75rem;
+  --rti-s: 0.5rem;
+  --rti-tag: rgb(var(--primary) / 0.12);
+  --rti-tag-remove: rgb(var(--bad));
+  color: rgb(var(--foreground));
+}
+.blog-tags .rti--tag {
+  color: rgb(var(--foreground));
+}
+.blog-tags .rti--input {
+  background: transparent;
+  color: inherit;
+  border: 0;
+  box-shadow: none;
+}

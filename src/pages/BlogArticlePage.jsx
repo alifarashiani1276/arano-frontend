@@ -2,6 +2,7 @@ import { useParams } from "react-router-dom";
 import PageShell from "./PageShell";
 import ArticleView from "../features/blog/ArticleView";
 import BlogEmptyState from "../features/blog/BlogEmptyState";
+import useBlogPost from "../hooks/useBlogPost";
 import useBlogPosts from "../hooks/useBlogPosts";
 import { useLang } from "../i18n/LangContext";
 import { BLOG_PATH, articlePath } from "../lib/blog";
@@ -13,8 +14,8 @@ import { FiFileText } from "react-icons/fi";
 export default function BlogArticlePage() {
   const { slug } = useParams();
   const { t, lang } = useLang();
-  const { data: posts = [], isLoading } = useBlogPosts();
-  const post = posts.find((p) => p.slug === slug);
+  const { data: post, isLoading } = useBlogPost(slug);
+  const { data: posts = [] } = useBlogPosts(); // برای «مقاله‌های مرتبط»
 
   if (post) {
     return (

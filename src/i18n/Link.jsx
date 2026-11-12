@@ -13,6 +13,7 @@ export function Navigate({ to, ...rest }) {
   return <RouterNavigate to={typeof to === "string" ? localize(to) : to} {...rest} />;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useNavigate() {
   const navigate = useRouterNavigate();
   const { to: localize } = useLang();

@@ -28,3 +28,5 @@ Thumbs.db
 *.njsproj
 *.sln
 *.sw?
+blog-posts.export.json
+vite.config.js.timestamp-*.mjs

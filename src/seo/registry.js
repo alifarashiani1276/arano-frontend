@@ -2,16 +2,10 @@
 // هم در مرورگر (کامپوننت Seo) و هم هنگام Build (vite/seoPlugin.js: سایت‌مپ و Meta ثابت HTML) استفاده می‌شود؛
 // پس فقط JS ساده است (بدون JSX).
 
-import { BLOG_POSTS } from "../data/blog.js";
-import { LANGS, LANG_META, localePath, stripLang } from "../i18n/config.js";
+import { LANGS, localePath, stripLang } from "../i18n/config.js";
 import { EN_BLOG_SEO, EN_SEO } from "../i18n/en/seo.js";
 import { getBlogCategories, getServicePages } from "../i18n/text.js";
-import {
-  BLOG_PATH,
-  articlePath,
-  categoryPath,
-  getPublishedPosts,
-} from "../lib/blog.js";
+import { BLOG_PATH, articlePath, categoryPath } from "../lib/blog.js";
 
 export const SITE_URL = "https://aranogroup.ir";
 export const SITE_NAME = "آرانو";
@@ -124,10 +118,10 @@ const SERVICE_ENTRIES = LANGS.flatMap((lang) =>
 );
 
 // ───────── وبلاگ ─────────
-// صفحه‌ی بدون مقاله (Empty State) یا دسته‌ی خالی => noindex و حذف از سایت‌مپ.
-// به‌محض اضافه شدن مقاله به src/data/blog.js، همان صفحه خودکار ایندکس‌پذیر و وارد سایت‌مپ می‌شود.
-const PUBLISHED_POSTS = getPublishedPosts(BLOG_POSTS);
-
+// مقاله‌ها در دیتابیس لاراول‌اند و HTML ثابت صفحه‌های وبلاگ را لاراول می‌نویسد (نه این Build).
+// پس صفحه‌های وبلاگ در ALL_PAGES (سایت‌مپ و HTML ثابت Build) نیستند؛ فقط برای مرورگر
+// (Seo، Breadcrumb) و blog-config.json (BLOG_PAGES) لازم‌اند. noindex را صفحه خودش می‌دهد
+// (BlogPage: وقتی مقاله‌ای نیست).
 const blogCrumbs = (lang) => [
   { name: T[lang].home, path: localePath("/", lang) },
   { name: T[lang].blog, path: localePath(BLOG_PATH, lang) },
@@ -145,7 +139,9 @@ export function getBlogBreadcrumbs(post, lang = "fa") {
   ];
 }
 
-// Meta یک مقاله (هم برای رجیستری Build و هم برای صفحه‌ی مقاله در مرورگر)
+// Meta یک مقاله (در مرورگر). قاعده‌ی عنوان قرارداد با بک‌اند: seoTitle اگر بود، وگرنه «{title} | {برند وبلاگ}».
+// hreflang فقط وقتی نسخه‌ی انگلیسی دارد؛ بدون en هیچ hreflang ساخته نمی‌شود.
+// article فقط فیلدهای لازم JSON-LD و OG را دارد (متن مقاله داخل meta نمی‌آید).
 export function articleMeta(post, lang = "fa") {
   const base = articlePath(post.slug);
   return {
@@ -153,13 +149,25 @@ export function articleMeta(post, lang = "fa") {
     lang,
     kind: "article",
     h1: post.title,
-    title: `${post.title} | ${T[lang].blogBrand}`,
+    title: post.seoTitle?.trim() || `${post.title} | ${T[lang].blogBrand}`,
     description: post.excerpt || DEFAULT_DESCRIPTION,
-    article: post,
+    article: {
+      slug: post.slug,
+      title: post.title,
+      publishedAt: post.publishedAt,
+      updatedAt: post.updatedAt,
+      author: post.author,
+      cover: post.cover,
+      faq: post.faq ?? [],
+    },
     breadcrumbs: getBlogBreadcrumbs(post, lang),
-    alternates: LANGS.map((l) => ({ lang: l, path: localePath(base, l) })),
+    alternates: post.hasEn
+      ? LANGS.map((l) => ({ lang: l, path: localePath(base, l) }))
+      : [],
   };
 }
+
+export const LABELS = T;
 
 const BLOG_ENTRIES = LANGS.flatMap((lang) => [
   {
@@ -176,7 +184,6 @@ const BLOG_ENTRIES = LANGS.flatMap((lang) => [
         ? EN_BLOG_SEO.hubDescription
         : "مقاله‌های تخصصی آرانو درباره‌ی فرانت‌اند، بک‌اند، طراحی UI/UX، طراحی سایت، سئو و اجرای پروژه‌های نرم‌افزاری.",
     priority: 0.7,
-    noindex: PUBLISHED_POSTS.length === 0,
     breadcrumbs: blogCrumbs(lang),
   },
   ...getBlogCategories(lang).map((c) => ({
@@ -187,32 +194,29 @@ const BLOG_ENTRIES = LANGS.flatMap((lang) => [
     title: `${c.name} | ${T[lang].blogBrand}`,
     description: c.description,
     priority: 0.6,
-    noindex: !PUBLISHED_POSTS.some((p) => p.category === c.slug),
     breadcrumbs: [
       ...blogCrumbs(lang),
       { name: c.name, path: localePath(categoryPath(c.slug), lang) },
     ],
   })),
-  ...PUBLISHED_POSTS.map((post) => ({
-    ...articleMeta(post, lang),
-    priority: 0.6,
-    noindex: false,
-  })),
 ]);
 
 // هر صفحه‌ی فارسی یک نسخه‌ی انگلیسی (/en/...) هم دارد؛ alternates برای hreflang است.
-export const ALL_PAGES = [...STATIC_BY_LANG, ...SERVICE_ENTRIES, ...BLOG_ENTRIES].map(
-  (p) => ({
-    ...p,
-    alternates:
-      p.alternates ??
-      LANGS.map((l) => ({ lang: l, path: localePath(stripLang(p.path), l) })),
-  }),
-);
+const withAlternates = (p) => ({
+  ...p,
+  alternates:
+    p.alternates ??
+    LANGS.map((l) => ({ lang: l, path: localePath(stripLang(p.path), l) })),
+});
+
+export const ALL_PAGES = [...STATIC_BY_LANG, ...SERVICE_ENTRIES].map(withAlternates);
+
+// فقط برای مرورگر و blog-config.json؛ در سایت‌مپ و HTML ثابت Build نیست.
+export const BLOG_PAGES = BLOG_ENTRIES.map(withAlternates);
 
 export const getPage = (path, lang = "fa") => {
   const key = localePath(path, lang);
-  return ALL_PAGES.find((p) => p.path === key);
+  return ALL_PAGES.find((p) => p.path === key) ?? BLOG_PAGES.find((p) => p.path === key);
 };
 
 export const absUrl = (path) =>

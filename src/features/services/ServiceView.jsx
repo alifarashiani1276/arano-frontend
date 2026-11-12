@@ -2,6 +2,7 @@ import { Link } from "../../i18n/Link";
 import { ArrowForward } from "../../i18n/Arrow";
 import { useLang } from "../../i18n/LangContext";
 import { useServiceGroups } from "../../i18n/useData";
+import useBlogLinks from "../../hooks/useBlogLinks";
 import useProjects from "../../hooks/useProjects";
 import { getBreadcrumbs, getPage } from "../../seo/registry";
 import MediaImage from "../../ui/MediaImage";
@@ -81,6 +82,8 @@ export default function ServiceView({ path }) {
   const service = entry.service;
   const group = SERVICE_GROUPS.find((g) => g.id === service.group);
   const related = service.related.map((p) => getPage(p, lang)).filter(Boolean);
+  const apiBlog = useBlogLinks(path);
+  const blog = service.blog.length > 0 ? service.blog : apiBlog;
 
   return (
     <>
@@ -270,13 +273,13 @@ export default function ServiceView({ path }) {
             ))}
           </ul>
 
-          {service.blog.length > 0 && (
+          {blog.length > 0 && (
             <>
               <h2 className="mt-10 text-xl font-black md:text-2xl">
                 {t("مقاله‌های مرتبط")}
               </h2>
               <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {service.blog.map((post) => (
+                {blog.map((post) => (
                   <li key={post.href}>
                     <Link to={post.href} className={LINK_CARD}>
                       {post.title}

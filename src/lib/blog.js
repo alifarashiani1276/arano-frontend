@@ -18,7 +18,7 @@ export function normalizeSearch(value) {
     .normalize("NFC")
     .replace(/[يى]/g, "ی")
     .replace(/ك/g, "ک")
-    .replace(/[‌​‍ـ]/g, "")
+    .replace(/\u200b|\u200c|\u200d|\u0640/g, "")
     .replace(/[ً-ٰٟ]/g, "")
     .replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 0x06f0))
     .replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x0660))
@@ -60,12 +60,35 @@ export function estimateReadingMinutes(content = []) {
 
 // ───────── مقاله ─────────
 
-// نگاشت داده‌ی خام (فایل data/blog.js یا پاسخ API با snake_case) به شکل موردنیاز UI.
-// اگر نام فیلدهای API فرق کرد، فقط همین تابع را تغییر دهید.
-export function normalizePost(raw) {
-  const content = (Array.isArray(raw.content) ? raw.content : []).map((b, i) =>
+const headingIds = (content) =>
+  (Array.isArray(content) ? content : []).map((b, i) =>
     b.type === "h2" || b.type === "h3" ? { ...b, id: b.id ?? `h-${i}` } : b,
   );
+
+const normalizeFaq = (faq) =>
+  (Array.isArray(faq) ? faq : [])
+    .map((item) => ({ q: item?.q ?? "", a: item?.a ?? "" }))
+    .filter((item) => item.q && item.a);
+
+// نسخه‌ی انگلیسی: در «خلاصه»‌های لیست content و faq نیست؛ همان خالی می‌ماند.
+function normalizeEn(en) {
+  if (!en || typeof en !== "object") return null;
+  return {
+    title: en.title ?? "",
+    seoTitle: en.seoTitle ?? en.seo_title ?? "",
+    excerpt: en.excerpt ?? "",
+    tags: Array.isArray(en.tags) ? en.tags : [],
+    coverAlt: en.coverAlt ?? en.cover_alt ?? "",
+    content: headingIds(en.content),
+    faq: normalizeFaq(en.faq),
+  };
+}
+
+// نگاشت داده‌ی خام (پاسخ API لاراول، یا فایل‌های data/blogArticles) به شکل موردنیاز UI.
+// «خلاصه»‌ی لیست (بدون content و faq) هم پذیرفته می‌شود؛ readingMinutes از API می‌آید.
+// اگر نام فیلدهای API فرق کرد، فقط همین تابع را تغییر دهید.
+export function normalizePost(raw) {
+  const content = headingIds(raw.content);
   const cover =
     raw.cover ??
     (raw.image || raw.image_url
@@ -76,11 +99,13 @@ export function normalizePost(raw) {
         }
       : null);
   const author = raw.author?.name ?? raw.author ?? "";
+  const en = normalizeEn(raw.en);
 
   return {
     id: raw.id ?? raw.slug,
     slug: raw.slug,
     title: raw.title ?? "",
+    seoTitle: raw.seoTitle ?? raw.seo_title ?? "",
     excerpt: raw.excerpt ?? raw.summary ?? "",
     category: raw.category ?? raw.category_slug ?? "",
     tags: raw.tags ?? [],
@@ -95,8 +120,39 @@ export function normalizePost(raw) {
     featured: Boolean(raw.featured),
     status: raw.status ?? "published",
     content,
+    faq: normalizeFaq(raw.faq),
+    links: Array.isArray(raw.links) ? raw.links : [],
+    hasEn: Boolean(raw.hasEn ?? raw.has_en ?? en),
+    en,
   };
 }
+
+// مقاله‌ی نرمال‌شده ← نسخه‌ی همان زبان.
+// fa: همان مقاله. en: اگر نسخه‌ی انگلیسی ندارد null (صفحه‌ی /en/blog/<slug> وجود ندارد).
+export function localizePost(post, lang = "fa") {
+  if (!post || lang !== "en") return post ?? null;
+  if (!post.hasEn) return null;
+
+  const en = post.en;
+  if (!en) return post;
+
+  return {
+    ...post,
+    title: en.title || post.title,
+    seoTitle: en.seoTitle,
+    excerpt: en.excerpt || post.excerpt,
+    tags: en.tags,
+    cover: post.cover ? { ...post.cover, alt: en.coverAlt || post.cover.alt } : null,
+    content: en.content,
+    faq: en.faq,
+    readingMinutes:
+      en.content.length > 0 ? estimateReadingMinutes(en.content) : post.readingMinutes,
+  };
+}
+
+// فهرست: در /en فقط مقاله‌هایی که نسخه‌ی انگلیسی دارند
+export const localizePosts = (posts = [], lang = "fa") =>
+  lang === "en" ? posts.map((p) => localizePost(p, "en")).filter(Boolean) : posts;
 
 export function isPublished(post, now = Date.now()) {
   if (!post?.slug || !post.title) return false;
@@ -134,3 +190,16 @@ export function filterPosts(posts, { query = "", category = "all", lang = "fa" }
     return tokens.every((t) => haystack.includes(t));
   });
 }
+
+// ───────── مقاله‌های مرتبط با یک صفحه‌ی خدمت ─────────
+// از فیلد links هر مقاله؛ posts باید نرمال‌شده (و برای زبان صفحه localize شده) باشد.
+const BRAND_SUFFIX = /\s*\|\s*(?:آرانو|Arano(?: Blog| Web Studio)?)$/;
+
+export const blogLinksFor = (posts = [], path, limit = 3) =>
+  posts
+    .filter((p) => p.links?.includes(path))
+    .slice(0, limit)
+    .map((p) => ({
+      title: (p.seoTitle || p.title).replace(BRAND_SUFFIX, ""),
+      href: articlePath(p.slug),
+    }));
