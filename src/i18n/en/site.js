@@ -9,6 +9,25 @@ export const EN_SITE = {
 
   nav: [
     { label: "Services", href: "/services" },
+    {
+      label: "Web Design",
+      href: "/web-design",
+      items: [
+        { label: "Online Store Websites", href: "/web-design/store" },
+        { label: "Corporate Websites", href: "/web-design/corporate" },
+        { label: "Personal Websites", href: "/web-design/personal" },
+        { label: "WordPress Websites", href: "/web-design/wordpress" },
+        { label: "Custom Websites", href: "/web-design/custom" },
+        { label: "Landing Pages", href: "/web-design/landing" },
+        { label: "Medical Websites", href: "/web-design/clinic" },
+        { label: "Real Estate Websites", href: "/web-design/real-estate" },
+        { label: "Educational Websites", href: "/web-design/education" },
+        { label: "Restaurant Websites", href: "/web-design/restaurant" },
+        { label: "Industrial Websites", href: "/web-design/industrial" },
+        { label: "Portal & Automation", href: "/web-design/portal-automation" },
+        { label: "Multilingual Websites", href: "/web-design/multilingual" },
+      ],
+    },
     { label: "Portfolio", href: "/portfolio" },
     { label: "Blog", href: "/blog" },
     { label: "About", href: "/about" },

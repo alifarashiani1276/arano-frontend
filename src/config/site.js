@@ -15,6 +15,25 @@ export const site = {
 
   nav: [
     { label: "خدمات", href: "/services" },
+    {
+      label: "طراحی سایت",
+      href: "/web-design",
+      items: [
+        { label: "طراحی سایت فروشگاهی", href: "/web-design/store" },
+        { label: "طراحی سایت شرکتی", href: "/web-design/corporate" },
+        { label: "طراحی سایت شخصی", href: "/web-design/personal" },
+        { label: "طراحی سایت وردپرسی", href: "/web-design/wordpress" },
+        { label: "طراحی سایت اختصاصی", href: "/web-design/custom" },
+        { label: "طراحی لندینگ پیج", href: "/web-design/landing" },
+        { label: "طراحی سایت پزشکی", href: "/web-design/clinic" },
+        { label: "طراحی سایت املاک", href: "/web-design/real-estate" },
+        { label: "طراحی سایت آموزشی", href: "/web-design/education" },
+        { label: "طراحی سایت رستوران", href: "/web-design/restaurant" },
+        { label: "طراحی سایت صنعتی", href: "/web-design/industrial" },
+        { label: "طراحی پرتال و اتوماسیون", href: "/web-design/portal-automation" },
+        { label: "طراحی سایت چندزبانه", href: "/web-design/multilingual" },
+      ],
+    },
     { label: "نمونه‌کارها", href: "/portfolio" },
     { label: "وبلاگ‌ها", href: "/blog" },
     { label: "درباره ما", href: "/about" },

@@ -6,6 +6,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Toaster } from "react-hot-toast";
 
 import Home from "./pages/Home";
+import WebDesignPage from "./pages/WebDesignPage";
 import ServicesPage from "./pages/ServicesPage";
 import PortfolioPage from "./pages/PortfolioPage";
 import AboutPage from "./pages/AboutPage";
@@ -97,14 +98,7 @@ function AppRoutes() {
                   element={<ServicePage path={page.path} />}
                 />
               ))}
-              <Route
-                path={`${prefix}/web-design`}
-                element={<Navigate to="/services#web-design" replace />}
-              />
-              <Route
-                path={`${prefix}/web-design/*`}
-                element={<Navigate to="/services" replace />}
-              />
+              <Route path={`${prefix}/web-design`} element={<WebDesignPage />} />
               <Route
                 path={`${prefix}/services/*`}
                 element={<Navigate to="/services" replace />}

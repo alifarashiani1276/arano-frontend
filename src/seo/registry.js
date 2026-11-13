@@ -37,6 +37,15 @@ const STATIC_PAGES = [
     priority: 0.9,
   },
   {
+    path: "/web-design",
+    kind: "hub",
+    h1: "طراحی سایت",
+    title: "طراحی سایت | طراحی حرفه‌ای وب‌سایت و استراتژی رشد | آرانو",
+    description:
+      "طراحی حرفه‌ای سایت برای فروشگاه‌های آنلاین، سایت‌های شرکتی، لندینگ پیج، سایت‌های آموزشی، چندزبانه و پلتفرم‌های کسب‌وکار.",
+    priority: 0.9,
+  },
+  {
     path: "/portfolio",
     kind: "page",
     h1: "نمونه‌کارهای آرانو",
@@ -83,8 +92,22 @@ const STATIC_PAGES = [
 ];
 
 const T = {
-  fa: { home: "خانه", services: "خدمات", blog: "وبلاگ‌ها", brand: "آرانو | Arano Web Studio", blogBrand: "وبلاگ آرانو" },
-  en: { home: "Home", services: "Services", blog: "Blog", brand: "Arano Web Studio", blogBrand: "Arano Blog" },
+  fa: {
+    home: "خانه",
+    services: "خدمات",
+    webDesign: "طراحی سایت",
+    blog: "وبلاگ‌ها",
+    brand: "آرانو | Arano Web Studio",
+    blogBrand: "وبلاگ آرانو",
+  },
+  en: {
+    home: "Home",
+    services: "Services",
+    webDesign: "Web Design",
+    blog: "Blog",
+    brand: "Arano Web Studio",
+    blogBrand: "Arano Blog",
+  },
 };
 
 const STATIC_BY_LANG = LANGS.flatMap((lang) =>
@@ -93,6 +116,13 @@ const STATIC_BY_LANG = LANGS.flatMap((lang) =>
     ...(lang === "en" ? EN_SEO[p.path] : {}),
     path: localePath(p.path, lang),
     lang,
+    breadcrumbs:
+      p.path === "/web-design"
+        ? [
+            { name: T[lang].home, path: localePath("/", lang) },
+            { name: T[lang].webDesign, path: localePath("/web-design", lang) },
+          ]
+        : p.breadcrumbs,
   })),
 );
 

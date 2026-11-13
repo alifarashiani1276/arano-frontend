@@ -10,21 +10,35 @@ import Reveal from "../../ui/Reveal";
 const LINKS_SRC = [
   {
     to: "/portfolio",
-    title: "نمونه‌کارها",
-    text: "پروژه‌هایی که تا امروز ساخته‌ایم؛ وب‌اپلیکیشن، داشبورد و طراحی.",
+    titleFa: "نمونه‌کارها",
+    titleEn: "Portfolio",
+    textFa: "پروژه‌هایی که تا امروز ساخته‌ایم؛ وب‌اپلیکیشن، داشبورد و طراحی.",
+    textEn: "Projects we have built so far: web apps, dashboards and digital design work.",
     Icon: FiBriefcase,
     featured: true,
   },
   {
     to: "/services",
-    title: "خدمات",
-    text: "از طراحی رابط و فرانت‌اند تا بک‌اند، دیتابیس و استقرار.",
+    titleFa: "خدمات",
+    titleEn: "Services",
+    textFa: "از طراحی رابط و فرانت‌اند تا بک‌اند، دیتابیس و استقرار.",
+    textEn: "From UI design and frontend to backend, database and deployment.",
+    Icon: FiLayers,
+  },
+  {
+    to: "/web-design",
+    titleFa: "طراحی سایت",
+    titleEn: "Web Design",
+    textFa: "از فروشگاه و سایت شرکتی تا لندینگ پیج، پرتال و سایت‌های چندزبانه.",
+    textEn: "From online stores and corporate sites to landing pages, portals and multilingual websites.",
     Icon: FiLayers,
   },
   {
     to: "/about",
-    title: "درباره ما",
-    text: "کوچک، متمرکز و حرفه‌ای؛ با اصولی که روی آن‌ها کار می‌کنیم.",
+    titleFa: "درباره ما",
+    titleEn: "About",
+    textFa: "کوچک، متمرکز و حرفه‌ای؛ با اصولی که روی آن‌ها کار می‌کنیم.",
+    textEn: "Small, focused and professional; guided by the principles we build on.",
     Icon: FiInfo,
   },
 ];
@@ -64,8 +78,12 @@ function ArrowLogo({ featured }) {
 }
 
 export default function ExploreLinks() {
-  const { t, n } = useLang();
-  const LINKS = LINKS_SRC.map((l) => ({ ...l, title: t(l.title), text: t(l.text) }));
+  const { t, n, isEn } = useLang();
+  const LINKS = LINKS_SRC.map((l) => ({
+    ...l,
+    title: isEn ? l.titleEn : l.titleFa,
+    text: isEn ? l.textEn : l.textFa,
+  }));
   const listRef = useRef(null);
   useSpotlight(listRef, ".spot");
 

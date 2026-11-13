@@ -2,8 +2,18 @@
 <html lang="fa" dir="rtl" class="is-loading">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
     <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#0A0A0A" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#F5F5F5" media="(prefers-color-scheme: light)" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Arano" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="msapplication-TileColor" content="#0A0A0A" />
     <meta
       name="description"
       content="آرانو، تیم حرفه‌ای توسعه نرم‌افزار؛ طراحی و ساخت وب‌اپلیکیشن، API و محصولات دیجیتال."
@@ -14,6 +24,7 @@
       sizes="32x32"
       href="/images/arano-favicon-32.webp"
     />
+    <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="apple-touch-icon" href="/images/arano-apple-touch-icon.png" />
     <title>آرانو | طراحی سایت و برندینگ | Arano Web Studio</title>
     <link rel="canonical" href="https://aranogroup.ir/" />
@@ -96,6 +107,11 @@
           r.dataset.mode = m;
           r.style.colorScheme = m;
           r.dataset.theme = /^[a-z]+$/.test(s.theme || "") ? s.theme : "arano";
+
+          var themeMetas = document.querySelectorAll('meta[name="theme-color"]');
+          themeMetas.forEach(function (meta) {
+            meta.setAttribute("content", m === "dark" ? "#0A0A0A" : "#F5F5F5");
+          });
         } catch (e) {}
       })();
     </script>

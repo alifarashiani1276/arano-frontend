@@ -31,6 +31,7 @@ export default function Navbar() {
   const isActive = (href) =>
     href === pathname ||
     (href === "/services" && inServices(pathname)) ||
+    (href === "/web-design" && pathname.startsWith("/web-design")) ||
     (href === "/blog" && inBlog(pathname));
 
   useEffect(() => {
@@ -84,20 +85,56 @@ export default function Navbar() {
             aria-label={t("منوی اصلی")}
             className="hidden items-center gap-1 md:flex"
           >
-            {site.nav.map((item) => (
-              <SmartLink
-                key={item.href}
-                href={item.href}
-                aria-current={isActive(item.href) ? "page" : undefined}
-                className={`relative rounded-full px-2 py-2 text-sm font-bold transition-colors duration-200 after:absolute after:inset-x-2 lg:px-3 lg:after:inset-x-3 after:bottom-1 after:h-px after:origin-right after:bg-primary after:transition-transform after:duration-300 hover:text-foreground hover:after:scale-x-100 ${
-                  isActive(item.href)
-                    ? "text-foreground after:scale-x-100"
-                    : "text-muted after:scale-x-0"
-                }`}
-              >
-                {item.label}
-              </SmartLink>
-            ))}
+            {site.nav.map((item) => {
+              if (item.items) {
+                return (
+                  <div key={item.href} className="group relative">
+                    <SmartLink
+                      href={item.href}
+                      aria-current={isActive(item.href) ? "page" : undefined}
+                      className={`relative inline-flex items-center gap-1 rounded-full px-2 py-2 text-sm font-bold transition-colors duration-200 after:absolute after:inset-x-2 lg:px-3 lg:after:inset-x-3 after:bottom-1 after:h-px after:origin-right after:bg-primary after:transition-transform after:duration-300 hover:text-foreground hover:after:scale-x-100 ${
+                        isActive(item.href)
+                          ? "text-foreground after:scale-x-100"
+                          : "text-muted after:scale-x-0"
+                      }`}
+                    >
+                      {item.label}
+                      <span aria-hidden="true" className="text-[10px]">▾</span>
+                    </SmartLink>
+
+                    <div className="pointer-events-none absolute left-0 top-full z-30 w-72 translate-y-2 opacity-0 transition-all duration-200 group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:translate-y-0 group-focus-within:opacity-100">
+                      <ul className="mt-2 overflow-hidden rounded-2xl border border-border bg-surface/95 p-2 shadow-xl backdrop-blur-sm">
+                        {item.items.map((subItem) => (
+                          <li key={subItem.href}>
+                            <SmartLink
+                              href={subItem.href}
+                              className="block rounded-xl px-3 py-2 text-sm font-medium text-muted transition-colors duration-200 hover:bg-surface-2 hover:text-foreground"
+                            >
+                              {subItem.label}
+                            </SmartLink>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                );
+              }
+
+              return (
+                <SmartLink
+                  key={item.href}
+                  href={item.href}
+                  aria-current={isActive(item.href) ? "page" : undefined}
+                  className={`relative rounded-full px-2 py-2 text-sm font-bold transition-colors duration-200 after:absolute after:inset-x-2 lg:px-3 lg:after:inset-x-3 after:bottom-1 after:h-px after:origin-right after:bg-primary after:transition-transform after:duration-300 hover:text-foreground hover:after:scale-x-100 ${
+                    isActive(item.href)
+                      ? "text-foreground after:scale-x-100"
+                      : "text-muted after:scale-x-0"
+                  }`}
+                >
+                  {item.label}
+                </SmartLink>
+              );
+            })}
           </nav>
 
           <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
@@ -149,19 +186,38 @@ export default function Navbar() {
             className="mx-auto mt-2 max-w-6xl animate-pop-in rounded-3xl border border-border bg-surface p-3 shadow-lg md:hidden"
           >
             <nav aria-label={t("منوی موبایل")} className="flex flex-col">
-              {site.nav.map((item) => (
-                <SmartLink
-                  key={item.href}
-                  href={item.href}
-                  onClick={closeMenu}
-                  aria-current={isActive(item.href) ? "page" : undefined}
-                  className={`rounded-2xl px-4 py-3 text-base font-bold transition-colors duration-200 hover:bg-surface-2 ${
-                    isActive(item.href) ? "bg-surface-2" : ""
-                  }`}
-                >
-                  {item.label}
-                </SmartLink>
-              ))}
+              {site.nav.map((item) => {
+                if (item.items) {
+                  return (
+                    <div key={item.href} className="rounded-2xl border border-border/70 bg-surface-2/70 p-2">
+                      <SmartLink
+                        href={item.href}
+                        onClick={closeMenu}
+                        aria-current={isActive(item.href) ? "page" : undefined}
+                        className={`block rounded-xl px-4 py-3 text-base font-bold transition-colors duration-200 hover:bg-surface ${
+                          isActive(item.href) ? "bg-surface" : ""
+                        }`}
+                      >
+                        {item.label}
+                      </SmartLink>
+                    </div>
+                  );
+                }
+
+                return (
+                  <SmartLink
+                    key={item.href}
+                    href={item.href}
+                    onClick={closeMenu}
+                    aria-current={isActive(item.href) ? "page" : undefined}
+                    className={`rounded-2xl px-4 py-3 text-base font-bold transition-colors duration-200 hover:bg-surface-2 ${
+                      isActive(item.href) ? "bg-surface-2" : ""
+                    }`}
+                  >
+                    {item.label}
+                  </SmartLink>
+                );
+              })}
 
               <SmartLink
                 href={site.cta.href}

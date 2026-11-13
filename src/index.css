@@ -316,9 +316,24 @@ body {
   padding: 0;
   margin: 0;
   font-family: "Vazir";
-  min-height: 100vh;
+  min-height: 100%;
+  min-height: 100dvh;
   user-select: none;
-  background-color: rgb(var(--surface-2));
+  background-color: rgb(var(--surface-app));
+}
+
+html {
+  background: rgb(var(--surface-app));
+}
+
+body {
+  background-color: rgb(var(--surface-app));
+  padding-bottom: max(0px, env(safe-area-inset-bottom));
+}
+
+#root {
+  min-height: 100dvh;
+  background: rgb(var(--surface-app));
 }
 
 @layer components {

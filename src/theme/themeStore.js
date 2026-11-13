@@ -32,6 +32,21 @@ function applyToDom({ theme, mode }) {
   root.dataset.theme = theme;
   root.dataset.mode = mode;
   root.style.colorScheme = mode;
+
+  const systemColor = mode === "dark" ? "#0A0A0A" : "#F5F5F5";
+  document.querySelectorAll('meta[name="theme-color"]').forEach((meta) => {
+    meta.setAttribute("content", systemColor);
+  });
+
+  const appleStatusBar = document.querySelector(
+    'meta[name="apple-mobile-web-app-status-bar-style"]',
+  );
+  if (appleStatusBar) {
+    appleStatusBar.setAttribute(
+      "content",
+      mode === "dark" ? "black-translucent" : "default",
+    );
+  }
 }
 
 let state =

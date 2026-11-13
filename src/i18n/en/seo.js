@@ -12,6 +12,12 @@ export const EN_SEO = {
     description:
       "All Arano services at a glance: frontend, backend and API, UI/UX design, full project delivery, all kinds of website design and complementary services such as SEO and support.",
   },
+  "/web-design": {
+    h1: "Web Design",
+    title: "Web Design | Website Design & Growth Strategy | Arano Web Studio",
+    description:
+      "Professional website design for online stores, corporate sites, landing pages, educational portals, multilingual websites and business platforms.",
+  },
   "/portfolio": {
     h1: "Arano Portfolio",
     title: "Portfolio | Arano Web Studio",
