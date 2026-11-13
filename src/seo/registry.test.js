@@ -1,9 +1,9 @@
 // اجرا:  npm test
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { ALL_PAGES, BLOG_PAGES, articleMeta, getPage } from "./registry.js";
+import { ALL_PAGES, BLOG_PAGES, articleMeta, getPage, resolveInternalLink } from "./registry.js";
 import { getJsonLd } from "./schema.js";
-import { blogLinksFor, localizePost, normalizePost } from "../lib/blog.js";
+import { blogLinksFor, localizePost, localizePosts, normalizePost } from "../lib/blog.js";
 
 const post = normalizePost({
   id: 1,
@@ -52,4 +52,37 @@ test("blogLinksFor: برند از عنوان حذف می‌شود و سقف ۳ �
   assert.deepEqual(blogLinksFor(posts, "/other"), []);
   const en = localizePost({ ...post, en: { ...post.en, seoTitle: "Custom | Arano" } }, "en");
   assert.equal(blogLinksFor([en], "/services/seo")[0].title, "Custom");
+});
+
+const faOnly = normalizePost({ id: 2, slug: "fa-only", title: "فقط فارسی", publishedAt: "2026-01-01" });
+const posts = [post, faOnly];
+
+test("resolveInternalLink: خدمت و صفحه‌ی ثابت به زبان درخواستی", () => {
+  const fa = resolveInternalLink("/services/seo", "fa");
+  assert.equal(fa.path, "/services/seo");
+  assert.equal(fa.label, getPage("/services/seo", "fa").h1);
+  const en = resolveInternalLink("/services/seo", "en");
+  assert.equal(en.path, "/en/services/seo");
+  assert.equal(en.label, getPage("/services/seo", "en").h1);
+  assert.equal(resolveInternalLink("/services", "en").path, "/en/services");
+  assert.ok(resolveInternalLink("/services", "fa").label);
+});
+
+test("resolveInternalLink: hub وبلاگ و مقاله‌ی fa/en", () => {
+  assert.equal(resolveInternalLink("/blog", "fa").label, "وبلاگ آرانو");
+  assert.deepEqual(resolveInternalLink("/blog", "en"), { path: "/en/blog", label: "Arano Blog" });
+  assert.deepEqual(resolveInternalLink("/blog/x", "fa", posts), { path: "/blog/x", label: "عنوان" });
+  assert.deepEqual(resolveInternalLink("/blog/x", "en", localizePosts(posts, "en")), {
+    path: "/en/blog/x",
+    label: "Title",
+  });
+});
+
+test("resolveInternalLink: مسیر ناشناخته، admin/dashboard و مقاله‌ی بدون en", () => {
+  for (const p of ["/nope", "/admin", "/admin/blog", "/dashboard", "/blog/missing", "/blog/category/seo"]) {
+    assert.equal(resolveInternalLink(p, "fa", posts), null, p);
+  }
+  assert.equal(resolveInternalLink("/blog/fa-only", "fa", posts).label, "فقط فارسی");
+  assert.equal(resolveInternalLink("/blog/fa-only", "en", posts), null);
+  assert.equal(resolveInternalLink("/blog/fa-only", "en", localizePosts(posts, "en")), null);
 });

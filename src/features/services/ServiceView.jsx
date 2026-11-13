@@ -11,6 +11,7 @@ import ProjectCard from "../home/ProjectCard";
 import Breadcrumb from "./Breadcrumb";
 import { EN_STEPS } from "../../i18n/en/ui";
 import Faq from "./Faq";
+import ServiceBody, { Inline } from "./ServiceBody";
 
 // مراحل کار: بخش مشترک همه صفحه‌های خدمت (متن نهایی بعداً می‌آید). متن انگلیسی: src/i18n/en/ui.js
 const STEPS = [
@@ -107,7 +108,7 @@ export default function ServiceView({ path }) {
                 id="service-title"
                 className="text-3xl font-black leading-[1.4] md:text-5xl"
               >
-                {service.name}
+                {service.heading ?? service.name}
               </h1>
               <p className="mt-5 text-base leading-8 text-muted md:text-lg">
                 {service.description}
@@ -138,7 +139,7 @@ export default function ServiceView({ path }) {
             {service.image && (
               <MediaImage
                 src={service.image}
-                alt={`${t("تصویر خدمت")} ${service.name}`}
+                alt={service.imageAlt ?? `${t("تصویر خدمت")} ${service.name}`}
                 priority
                 imgClassName="absolute inset-0"
                 className="order-first aspect-[16/10] w-full rounded-2xl border border-border bg-background lg:order-none"
@@ -149,7 +150,28 @@ export default function ServiceView({ path }) {
         </div>
       </section>
 
-      {/* بدنه: محتوای یونیک هر صفحه */}
+      {/* بدنه: اگر متن سئوشده‌ی کامل (service.body) موجود باشد همان، وگرنه توضیح کوتاه «درباره» */}
+      {service.body ? (
+        <section aria-label={service.name} className="py-12 md:py-16">
+          <div className="mx-auto max-w-4xl px-5">
+            <ServiceBody blocks={service.body} />
+            <div className="mt-12 rounded-3xl border border-border bg-surface p-6 md:p-8">
+              <h2 className="text-lg font-black">{t("تکنولوژی‌ها")}</h2>
+              <ul dir="ltr" className="mt-5 flex flex-wrap gap-2">
+                {service.tech.map((tech) => (
+                  <li
+                    key={tech}
+                    className="rounded-full border border-border px-3 py-1.5 text-xs text-muted"
+                  >
+                    {tech}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </section>
+      ) : (
+        <>
       <section aria-labelledby="about-service-title" className="py-12 md:py-16">
         <div className="mx-auto grid max-w-6xl gap-8 px-5 lg:grid-cols-[1fr_1.4fr]">
           <Reveal>
@@ -165,6 +187,11 @@ export default function ServiceView({ path }) {
         </div>
       </section>
 
+        </>
+      )}
+
+      {!service.body && (
+        <>
       {/* مراحل کار و تکنولوژی‌ها */}
       <section
         aria-labelledby="process-title"
@@ -220,6 +247,8 @@ export default function ServiceView({ path }) {
           </div>
         </div>
       </section>
+        </>
+      )}
 
       {/* نمونه‌کار مرتبط با همین خدمت */}
       <RelatedProjects service={service} />
@@ -239,6 +268,33 @@ export default function ServiceView({ path }) {
           </Reveal>
         </div>
       </section>
+
+      {/* دعوت به اقدام انتهای صفحه (از متن سئوکار) */}
+      {service.cta && (
+        <section aria-labelledby="service-cta-title" className="pb-16 md:pb-24">
+          <div className="mx-auto max-w-6xl px-5">
+            <div className="rounded-3xl border border-border bg-surface-2 p-8 text-center md:p-12">
+              <h2 id="service-cta-title" className={H2}>
+                {service.cta.title}
+              </h2>
+              <p className="mx-auto mt-4 max-w-2xl text-base leading-8 text-muted md:text-lg">
+                <Inline text={service.cta.text} />
+              </p>
+              <Link
+                to="/contact"
+                className="group mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-7 py-4 text-sm font-bold text-primary-foreground transition-[opacity,transform] duration-200 hover:opacity-90 active:scale-[0.97]"
+              >
+                {t("مشاوره رایگان")}
+                <ArrowForward
+                  size={18}
+                  aria-hidden="true"
+                  className="transition-transform duration-200 rtl:group-hover:-translate-x-1 ltr:group-hover:translate-x-1"
+                />
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* لینک‌دهی داخلی: هاب خدمات + صفحه‌های مرتبط (+ مقاله‌های بلاگ وقتی آماده شد) */}
       <section aria-labelledby="links-title" className="pb-8 md:pb-12">

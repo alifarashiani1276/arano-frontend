@@ -3,7 +3,9 @@
 // English text lives in src/i18n/en/* and is merged over them.
 
 import { site as FA_SITE } from "../config/site.js";
-import { SERVICE_PAGES, SERVICE_GROUPS } from "../data/servicePages.js";
+import { SERVICE_PAGES as BASE_SERVICE_PAGES, SERVICE_GROUPS } from "../data/servicePages.js";
+import { WEB_DESIGN_CONTENT } from "../data/webDesignContent.js";
+import { SERVICES_CONTENT_VOL2 } from "../data/servicesContentVol2.js";
 import { TEAM } from "../data/team.js";
 import { PROJECTS } from "../data/projects.js";
 import { SERVICES } from "../data/services.js";
@@ -12,6 +14,8 @@ import { BLOG_CATEGORIES } from "../data/blog.js";
 
 import { EN_SITE } from "./en/site.js";
 import { EN_SERVICE_PAGES } from "./en/servicePages.js";
+import { EN_WEB_DESIGN_CONTENT } from "./en/webDesignContent.js";
+import { EN_SERVICES_CONTENT_VOL2 } from "./en/servicesContentVol2.js";
 import { EN_SERVICES, EN_TEAM, EN_PROJECTS, EN_BLOG_CATEGORIES, EN_GROUPS } from "./en/data.js";
 import { termsMeta as EN_TERMS_META, termsSections as EN_TERMS } from "./en/terms.js";
 
@@ -28,11 +32,21 @@ export function deepMerge(fa, en) {
 const SITE_EN = deepMerge(FA_SITE, EN_SITE);
 export const getSite = (lang) => (lang === "en" ? SITE_EN : FA_SITE);
 
-const SERVICE_PAGES_EN = SERVICE_PAGES.map((p) => {
+// Persian: the SEO specialist's full text (src/data/webDesignContent.js) is merged over the 8 /web-design/* pages.
+// Full SEO text per page: Vol.1 (8 /web-design/* pages) + Vol.2 (4 main services + 5 site types).
+const FA_CONTENT = { ...WEB_DESIGN_CONTENT, ...SERVICES_CONTENT_VOL2 };
+const EN_CONTENT = { ...EN_WEB_DESIGN_CONTENT, ...EN_SERVICES_CONTENT_VOL2 };
+
+const SERVICE_PAGES = BASE_SERVICE_PAGES.map((p) =>
+  FA_CONTENT[p.slug] ? { ...p, ...FA_CONTENT[p.slug] } : p,
+);
+
+const SERVICE_PAGES_EN = BASE_SERVICE_PAGES.map((p) => {
   const en = EN_SERVICE_PAGES[p.slug];
   if (!en) return p;
   // `short` of the four main services mirrors src/data/services.js
-  return { ...p, ...en, tags: p.tags };
+  // EN_WEB_DESIGN_CONTENT (full SEO text of the 8 /web-design/* pages) is merged last.
+  return { ...p, ...en, tags: p.tags, ...(EN_CONTENT[p.slug] ?? {}) };
 });
 export const getServicePages = (lang) =>
   lang === "en" ? SERVICE_PAGES_EN : SERVICE_PAGES;

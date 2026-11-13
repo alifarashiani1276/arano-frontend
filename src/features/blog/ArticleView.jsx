@@ -6,12 +6,14 @@ import Breadcrumb from "../services/Breadcrumb";
 import { BLOG_PATH, categoryPath, formatDate, getCategory } from "../../lib/blog";
 import { getBlogBreadcrumbs } from "../../seo/registry";
 import ArticleBody from "./ArticleBody";
+import ArticleFaq from "./ArticleFaq";
+import ArticleLinks from "./ArticleLinks";
 import PostMeta from "./PostMeta";
 import RelatedPosts from "./RelatedPosts";
 
 // قالب صفحه‌ی مقاله: مسیر صفحه، عنوان، اطلاعات، تصویر شاخص، فهرست مطالب، متن و مقاله‌های مرتبط.
 export default function ArticleView({ post, posts }) {
-  const { t, lang } = useLang();
+  const { t, lang, isEn } = useLang();
   const category = getCategory(post.category, lang);
   const headings = post.content.filter((b) => b.type === "h2");
   const showUpdated =
@@ -67,6 +69,9 @@ export default function ArticleView({ post, posts }) {
               ))}
             </ul>
           )}
+
+          <ArticleFaq items={post.faq} title={isEn ? "Frequently asked questions" : "سوالات متداول"} dir={isEn ? "ltr" : "rtl"} />
+          <ArticleLinks links={post.links} lang={lang} posts={posts} />
         </div>
 
         {headings.length > 1 && (

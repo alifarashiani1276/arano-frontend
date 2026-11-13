@@ -5,7 +5,7 @@
 import { LANGS, localePath, stripLang } from "../i18n/config.js";
 import { EN_BLOG_SEO, EN_SEO } from "../i18n/en/seo.js";
 import { getBlogCategories, getServicePages } from "../i18n/text.js";
-import { BLOG_PATH, articlePath, categoryPath } from "../lib/blog.js";
+import { BLOG_PATH, articlePath, categoryPath, localizePost } from "../lib/blog.js";
 
 export const SITE_URL = "https://aranogroup.ir";
 export const SITE_NAME = "آرانو";
@@ -104,7 +104,8 @@ const SERVICE_ENTRIES = LANGS.flatMap((lang) =>
       lang,
       kind: "service",
       h1: p.name,
-      title: `${p.name} | ${T[lang].brand}`,
+      // Title سئوکار (اگر در webDesignContent باشد) وگرنه «نام | برند»
+      title: p.seoTitle || `${p.name} | ${T[lang].brand}`,
       description: p.description,
       priority: p.group === "web-design" ? 0.7 : 0.8,
       service: p,
@@ -218,6 +219,29 @@ export const getPage = (path, lang = "fa") => {
   const key = localePath(path, lang);
   return ALL_PAGES.find((p) => p.path === key) ?? BLOG_PAGES.find((p) => p.path === key);
 };
+
+// لینک داخلی مقاله (فیلد links) ← { path محلی‌شده, label نام صفحه } یا null.
+// posts: خلاصه‌های مقاله (ترجیحاً localizeشده)؛ برای /blog/<slug> لازم است.
+export function resolveInternalLink(path, lang = "fa", posts = []) {
+  if (typeof path !== "string" || !path.startsWith("/")) return null;
+  const base = stripLang(path.split(/[?#]/)[0]).replace(/(.)\/+$/, "$1");
+  if (/^\/(admin|dashboard)(\/|$)/.test(base)) return null;
+
+  const localized = localePath(base, lang);
+  if (base === BLOG_PATH) {
+    const hub = BLOG_PAGES.find((p) => p.kind === "blog" && p.lang === lang);
+    return hub ? { path: localized, label: hub.h1 } : null;
+  }
+  const [, root, slug, extra] = base.split("/");
+  if (root === BLOG_PATH.slice(1)) {
+    if (!slug || extra !== undefined || slug === "category") return null;
+    const post = localizePost(posts.find((p) => p.slug === slug), lang);
+    return post?.title ? { path: localized, label: post.title } : null;
+  }
+  const page = ALL_PAGES.find((p) => p.path === localized);
+  const label = page && (page.h1 || page.service?.name || page.name);
+  return label ? { path: localized, label } : null;
+}
 
 export const absUrl = (path) =>
   path === "/" ? `${SITE_URL}/` : `${SITE_URL}${path}`;

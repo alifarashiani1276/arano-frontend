@@ -229,6 +229,14 @@ function buildBlogConfig() {
   const hubOf = (lang) =>
     BLOG_PAGES.find((p) => p.kind === "blog" && p.lang === lang);
 
+  // نام صفحه‌های غیر وبلاگ (ثابت، hub خدمات و خدمت‌ها) برای متن لینک‌های مرتبط در HTML ثابت لاراول
+  const pages = {};
+  for (const p of ALL_PAGES) {
+    const key = stripLang(p.path);
+    pages[key] ??= {};
+    pages[key][p.lang] = p.h1 || p.service?.name || p.name;
+  }
+
   return {
     siteUrl: SITE_URL,
     siteName: perLang((l) => siteName(l)),
@@ -244,6 +252,7 @@ function buildBlogConfig() {
       fa: pick(fa),
       en: pick(getBlogCategories("en").find((c) => c.slug === fa.slug)),
     })),
+    pages,
     defaultDescription: DEFAULT_DESCRIPTION,
     organization: organizationLd(),
     ogImage: { url: `${SITE_URL}${OG_IMAGE}`, width: 1200, height: 630 },
@@ -291,6 +300,25 @@ export default function seoPlugin() {
         path.join(outDir, "blog-config.json"),
         `${JSON.stringify(buildBlogConfig(), null, 2)}\n`,
       );
+
+      // صفحه‌های ثابت وبلاگ که لاراول قبلاً ساخته به فایل‌های index-<hash> بیلد قبلی اشاره می‌کنند.
+      // این قاعده‌ها (برای public_html/.htaccess) فایل گم‌شده را به بیلد فعلی می‌فرستند تا صفحه سفید نشود.
+      const entry = (ext) => shell.match(new RegExp(`/assets/(index-[\\w-]+\\.${ext})`))?.[1];
+      const [js, css] = [entry("js"), entry("css")];
+      if (js) {
+        const rules = [
+          "# بالای قاعده‌های SPA در public_html/.htaccess بگذار",
+          "<IfModule mod_rewrite.c>",
+          "RewriteEngine On",
+          "RewriteCond %{REQUEST_FILENAME} !-f",
+          `RewriteRule ^assets/index-[^/]+\\.js$ /assets/${js} [L]`,
+          ...(css
+            ? ["RewriteCond %{REQUEST_FILENAME} !-f", `RewriteRule ^assets/index-[^/]+\\.css$ /assets/${css} [L]`]
+            : []),
+          "</IfModule>",
+        ];
+        fs.writeFileSync(path.join(outDir, "htaccess-assets-fallback.txt"), `${rules.join("\n")}\n`);
+      }
     },
   };
 }

@@ -3,8 +3,8 @@ import { Link } from "react-router-dom";
 import { resolveInternalLink } from "../../seo/registry";
 
 // «صفحه‌های مرتبط»: لینک‌های داخلی مقاله (فیلد links) با متن لینک = نام صفحه‌ی مقصد.
-export default function ArticleLinks({ links = [], lang = "fa" }) {
-  const items = links.map((path) => resolveInternalLink(path, lang)).filter(Boolean);
+export default function ArticleLinks({ links = [], lang = "fa", posts = [] }) {
+  const items = links.map((path) => resolveInternalLink(path, lang, posts)).filter(Boolean);
   if (items.length === 0) return null;
   const en = lang === "en";
   const Arrow = en ? FiArrowRight : FiArrowLeft;

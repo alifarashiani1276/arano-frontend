@@ -1,5 +1,4 @@
 import { FiPlus } from "react-icons/fi";
-import { Inline } from "./ArticleBody";
 
 // سوالات متداول مقاله (آکاردئون با <details>؛ متن جواب همیشه داخل HTML است و Schema آن هم ساخته می‌شود).
 export default function ArticleFaq({ items, title, dir = "rtl" }) {
@@ -23,7 +22,7 @@ export default function ArticleFaq({ items, title, dir = "rtl" }) {
                 </span>
               </summary>
               <p className="mt-3 text-sm leading-8 text-muted md:text-base">
-                <Inline text={a} />
+                {a}
               </p>
             </details>
           </li>
