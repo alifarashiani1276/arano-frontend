@@ -8,6 +8,7 @@ import { getBlogBreadcrumbs } from "../../seo/registry";
 import ArticleBody from "./ArticleBody";
 import ArticleFaq from "./ArticleFaq";
 import ArticleLinks from "./ArticleLinks";
+import { stripInline } from "../../lib/inlineMarkup";
 import PostMeta from "./PostMeta";
 import RelatedPosts from "./RelatedPosts";
 
@@ -56,8 +57,8 @@ export default function ArticleView({ post, posts }) {
         />
       )}
 
-      <div className="mt-12 grid gap-12 lg:grid-cols-[minmax(0,1fr)_16rem]">
-        <div className="max-w-3xl">
+      <div className="mt-12 grid grid-cols-[minmax(0,1fr)] gap-12 lg:grid-cols-[minmax(0,1fr)_16rem]">
+        <div className="min-w-0 max-w-3xl">
           <ArticleBody content={post.content} />
 
           {post.tags.length > 0 && (
@@ -82,7 +83,7 @@ export default function ArticleView({ post, posts }) {
                 {headings.map((h) => (
                   <li key={h.id}>
                     <a href={`#${h.id}`} className="text-muted transition-colors hover:text-foreground">
-                      {h.text}
+                      {stripInline(h.text)}
                     </a>
                   </li>
                 ))}

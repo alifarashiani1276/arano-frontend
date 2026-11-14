@@ -42,12 +42,19 @@
 .blog-editor .selectedCell {
   @apply outline outline-2 outline-primary;
 }
+/* جدول: داخل Wrapper خودش اسکرول افقی می‌خورد تا در موبایل و تبلت صفحه را عریض نکند */
+.blog-editor {
+  @apply min-w-0 max-w-full;
+}
+.blog-editor .tableWrapper {
+  @apply max-w-full overflow-x-auto overscroll-x-contain;
+}
 .blog-editor table {
-  @apply w-full border-collapse text-sm;
+  @apply w-full min-w-[32rem] border-collapse text-sm;
 }
 .blog-editor th,
 .blog-editor td {
-  @apply border border-border px-3 py-2 align-top;
+  @apply border border-border px-3 py-2 min-w-[7rem] align-top;
 }
 .blog-editor th {
   @apply bg-surface-2 font-bold;

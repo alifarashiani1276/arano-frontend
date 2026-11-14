@@ -14,9 +14,9 @@ export const EN_SEO = {
   },
   "/web-design": {
     h1: "Web Design",
-    title: "Web Design | Website Design & Growth Strategy | Arano Web Studio",
+    title: "Professional SEO-Driven Web Design | Arano",
     description:
-      "Professional website design for online stores, corporate sites, landing pages, educational portals, multilingual websites and business platforms.",
+      "Professional, fast, SEO-driven web design: corporate, store, industrial, multilingual and custom sites. From idea to ranking with Arano. Free consultation.",
   },
   "/portfolio": {
     h1: "Arano Portfolio",

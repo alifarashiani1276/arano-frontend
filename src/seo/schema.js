@@ -3,8 +3,14 @@
 // BlogPosting (+ FAQPage اگر مقاله faq دارد) برای مقاله.
 
 import { site } from "../config/site.js";
-import { LANG_META } from "../i18n/config.js";
-import { SITE_NAME, SITE_NAME_EN, SITE_URL, absUrl, getBreadcrumbs } from "./registry.js";
+import { LANG_META, stripLang } from "../i18n/config.js";
+import {
+  SITE_NAME,
+  SITE_NAME_EN,
+  SITE_URL,
+  absUrl,
+  getBreadcrumbs,
+} from "./registry.js";
 
 const CTX = "https://schema.org";
 
@@ -21,7 +27,7 @@ export const organizationLd = () => ({
   name: SITE_NAME,
   alternateName: SITE_NAME_EN,
   url: `${SITE_URL}/`,
-  logo: `${SITE_URL}/images/icon-512.png`,
+  logo: `${SITE_URL}/images/arano-pwa-512.png`,
   description: site.slogan,
   email: emailItem?.value,
   contactPoint: {
@@ -78,7 +84,11 @@ export const serviceLd = (page) => ({
   description: page.description,
   url: absUrl(page.path),
   areaServed: { "@type": "Country", name: "ایران" },
-  provider: { "@type": "Organization", "@id": `${SITE_URL}/#organization`, name: SITE_NAME },
+  provider: {
+    "@type": "Organization",
+    "@id": `${SITE_URL}/#organization`,
+    name: SITE_NAME,
+  },
 });
 
 const absAsset = (src) =>
@@ -101,16 +111,50 @@ export const articleLd = (page) => {
       : {}),
     author: post.author
       ? { "@type": "Person", name: post.author }
-      : { "@type": "Organization", "@id": `${SITE_URL}/#organization`, name: SITE_NAME },
-    publisher: { "@type": "Organization", "@id": `${SITE_URL}/#organization`, name: SITE_NAME },
+      : {
+          "@type": "Organization",
+          "@id": `${SITE_URL}/#organization`,
+          name: SITE_NAME,
+        },
+    publisher: {
+      "@type": "Organization",
+      "@id": `${SITE_URL}/#organization`,
+      name: SITE_NAME,
+    },
   };
 };
+
+// صفحه ستون /web-design: Service + FAQPage (دقیقاً همان سوال‌های قابل‌مشاهده‌ی صفحه) + BreadcrumbList.
+// ProfessionalService جدا ساخته نمی‌شود؛ Organization سایت (organizationLd) همیشه در صفحه هست و Service به آن لینک می‌دهد.
+const stripMarkup = (text) => text.replace(/\{\{(.+?)\|\/[^}]*\}\}/g, "$1");
+
+export const pillarServiceLd = (page) => ({
+  "@context": CTX,
+  "@type": "Service",
+  name: page.pillar.heading,
+  serviceType: page.h1,
+  description: page.description,
+  url: absUrl(page.path),
+  inLanguage: LANG_META[page.lang ?? "fa"].ldLang,
+  areaServed: { "@type": "Country", name: page.lang === "en" ? "Iran" : "ایران" },
+  provider: {
+    "@type": "Organization",
+    "@id": `${SITE_URL}/#organization`,
+    name: SITE_NAME,
+  },
+});
 
 // همه‌ی JSON-LD هر صفحه (آرایه‌ای از آبجکت‌ها)
 export function getJsonLd(page) {
   const out = [organizationLd()];
   if (page.kind === "home") out.push(websiteLd(page.lang ?? "fa"));
-  if (page.kind === "service") {
+  if (page.pillar && stripLang(page.path) === "/web-design") {
+    out.push(breadcrumbLd(getBreadcrumbs(page)));
+    out.push(pillarServiceLd(page));
+    out.push(
+      faqLd(page.pillar.faq.items.map(({ q, a }) => ({ q, a: stripMarkup(a) }))),
+    );
+  } else if (page.kind === "service") {
     out.push(breadcrumbLd(getBreadcrumbs(page)));
     out.push(serviceLd(page));
     out.push(faqLd(page.service.faq));

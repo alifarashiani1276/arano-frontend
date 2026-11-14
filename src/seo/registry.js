@@ -4,7 +4,7 @@
 
 import { LANGS, localePath, stripLang } from "../i18n/config.js";
 import { EN_BLOG_SEO, EN_SEO } from "../i18n/en/seo.js";
-import { getBlogCategories, getServicePages } from "../i18n/text.js";
+import { getBlogCategories, getServicePages, getWebDesignPillar } from "../i18n/text.js";
 import { BLOG_PATH, articlePath, categoryPath, localizePost } from "../lib/blog.js";
 
 export const SITE_URL = "https://aranogroup.ir";
@@ -40,9 +40,10 @@ const STATIC_PAGES = [
     path: "/web-design",
     kind: "hub",
     h1: "طراحی سایت",
-    title: "طراحی سایت | طراحی حرفه‌ای وب‌سایت و استراتژی رشد | آرانو",
+    // صفحه ستون (Pillar Page): متن کامل در src/data/webDesignPillar.js (+ نسخه انگلیسی در src/i18n/en/)
+    title: "طراحی سایت حرفه\u200cای و سئو\u200cمحور | آرانو",
     description:
-      "طراحی حرفه‌ای سایت برای فروشگاه‌های آنلاین، سایت‌های شرکتی، لندینگ پیج، سایت‌های آموزشی، چندزبانه و پلتفرم‌های کسب‌وکار.",
+      "طراحی سایت حرفه\u200cای، سریع و سئو\u200cمحور؛ شرکتی، فروشگاهی، صنعتی، چندزبانه و اختصاصی. از ایده تا رتبه با آرانو. مشاوره رایگان.",
     priority: 0.9,
   },
   {
@@ -114,6 +115,8 @@ const STATIC_BY_LANG = LANGS.flatMap((lang) =>
   STATIC_PAGES.map((p) => ({
     ...p,
     ...(lang === "en" ? EN_SEO[p.path] : {}),
+    // متن کامل صفحه ستون «طراحی سایت»؛ FAQPage و Service از روی همین ساخته می‌شود (schema.js)
+    ...(p.path === "/web-design" ? { pillar: getWebDesignPillar(lang) } : {}),
     path: localePath(p.path, lang),
     lang,
     breadcrumbs:

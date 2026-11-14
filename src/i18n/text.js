@@ -6,6 +6,7 @@ import { site as FA_SITE } from "../config/site.js";
 import { SERVICE_PAGES as BASE_SERVICE_PAGES, SERVICE_GROUPS } from "../data/servicePages.js";
 import { WEB_DESIGN_CONTENT } from "../data/webDesignContent.js";
 import { SERVICES_CONTENT_VOL2 } from "../data/servicesContentVol2.js";
+import { WEB_DESIGN_PILLAR } from "../data/webDesignPillar.js";
 import { TEAM } from "../data/team.js";
 import { PROJECTS } from "../data/projects.js";
 import { SERVICES } from "../data/services.js";
@@ -16,6 +17,7 @@ import { EN_SITE } from "./en/site.js";
 import { EN_SERVICE_PAGES } from "./en/servicePages.js";
 import { EN_WEB_DESIGN_CONTENT } from "./en/webDesignContent.js";
 import { EN_SERVICES_CONTENT_VOL2 } from "./en/servicesContentVol2.js";
+import { EN_WEB_DESIGN_PILLAR } from "./en/webDesignPillar.js";
 import { EN_SERVICES, EN_TEAM, EN_PROJECTS, EN_BLOG_CATEGORIES, EN_GROUPS } from "./en/data.js";
 import { termsMeta as EN_TERMS_META, termsSections as EN_TERMS } from "./en/terms.js";
 
@@ -50,6 +52,10 @@ const SERVICE_PAGES_EN = BASE_SERVICE_PAGES.map((p) => {
 });
 export const getServicePages = (lang) =>
   lang === "en" ? SERVICE_PAGES_EN : SERVICE_PAGES;
+
+// Full text of the /web-design pillar page (SEO specialist's "Step 2" file), Persian and English.
+export const getWebDesignPillar = (lang) =>
+  lang === "en" ? EN_WEB_DESIGN_PILLAR : WEB_DESIGN_PILLAR;
 
 const GROUPS_EN = SERVICE_GROUPS.map((g) => ({ ...g, ...EN_GROUPS[g.id] }));
 export const getServiceGroups = (lang) => (lang === "en" ? GROUPS_EN : SERVICE_GROUPS);

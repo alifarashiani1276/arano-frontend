@@ -7,10 +7,21 @@
       content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     />
     <meta name="color-scheme" content="light dark" />
-    <meta name="theme-color" content="#0A0A0A" media="(prefers-color-scheme: dark)" />
-    <meta name="theme-color" content="#F5F5F5" media="(prefers-color-scheme: light)" />
+    <meta
+      name="theme-color"
+      content="#0A0A0A"
+      media="(prefers-color-scheme: dark)"
+    />
+    <meta
+      name="theme-color"
+      content="#F5F5F5"
+      media="(prefers-color-scheme: light)"
+    />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
     <meta name="apple-mobile-web-app-title" content="Arano" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="msapplication-TileColor" content="#0A0A0A" />
@@ -26,17 +37,36 @@
     />
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="apple-touch-icon" href="/images/arano-apple-touch-icon.png" />
+    <link
+      rel="apple-touch-icon-precomposed"
+      href="/images/arano-apple-touch-icon.png"
+    />
     <title>آرانو | طراحی سایت و برندینگ | Arano Web Studio</title>
     <link rel="canonical" href="https://aranogroup.ir/" />
 
     <!-- فونت‌ها از ابتدا دانلود شوند (به‌جای کشف دیر از زنجیره‌ی CSS) → FCP/LCP سریع‌تر -->
-    <link rel="preload" href="/fonts/Vazirmatn-Regular.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="/fonts/Vazirmatn-Black.woff2" as="font" type="font/woff2" crossorigin />
+    <link
+      rel="preload"
+      href="/fonts/Vazirmatn-Regular.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/Vazirmatn-Black.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
 
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="fa_IR" />
     <meta property="og:site_name" content="آرانو | Arano Web Studio" />
-    <meta property="og:title" content="آرانو | طراحی سایت و برندینگ | Arano Web Studio" />
+    <meta
+      property="og:title"
+      content="آرانو | طراحی سایت و برندینگ | Arano Web Studio"
+    />
     <meta
       property="og:description"
       content="آرانو، تیم حرفه‌ای توسعه نرم‌افزار؛ طراحی و ساخت وب‌اپلیکیشن، API و محصولات دیجیتال."
@@ -50,7 +80,10 @@
     <meta property="og:image:height" content="630" />
 
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="آرانو | طراحی سایت و برندینگ | Arano Web Studio" />
+    <meta
+      name="twitter:title"
+      content="آرانو | طراحی سایت و برندینگ | Arano Web Studio"
+    />
     <meta
       name="twitter:description"
       content="آرانو، تیم حرفه‌ای توسعه نرم‌افزار؛ طراحی و ساخت وب‌اپلیکیشن، API و محصولات دیجیتال."
@@ -108,7 +141,9 @@
           r.style.colorScheme = m;
           r.dataset.theme = /^[a-z]+$/.test(s.theme || "") ? s.theme : "arano";
 
-          var themeMetas = document.querySelectorAll('meta[name="theme-color"]');
+          var themeMetas = document.querySelectorAll(
+            'meta[name="theme-color"]',
+          );
           themeMetas.forEach(function (meta) {
             meta.setAttribute("content", m === "dark" ? "#0A0A0A" : "#F5F5F5");
           });
