@@ -295,6 +295,26 @@ export const EN_UI = {
   "در حال ثبت رمز...": "Saving password...",
   "ثبت رمز جدید": "Set new password",
   "هر تلاش بازیابی رمز مدیر ثبت و محدود می‌شود.": "Every admin password recovery attempt is logged and rate-limited.",
+  // Install-app button and install guide (Navbar)
+  "نصب اپلیکیشن ARANO": "Install the ARANO app",
+  "بستن راهنمای نصب": "Close install guide",
+  "برای افزودن سایت ARANO به Dock مک، در Safari از منوی File گزینه Add to Dock… را انتخاب کنید.": "To add ARANO to your Mac Dock, open the File menu in Safari and choose Add to Dock…",
+  "برای نصب ARANO روی آیفون و آیپد، از Safari استفاده کنید و مراحل زیر را انجام دهید:": "To install ARANO on iPhone or iPad, use Safari and follow these steps:",
+  "در Safari این صفحه را باز نگه دارید.": "Keep this page open in Safari.",
+  "از منوی بالا روی **File** کلیک کنید.": "Click **File** in the top menu.",
+  "گزینه **Add to Dock…** را انتخاب کنید.": "Choose **Add to Dock…**",
+  "بعد از اضافه شدن، سایت در Dock به صورت اپ مستقل باز می‌شود.": "Once added, the site opens from the Dock as a standalone app.",
+  "در Safari روی دکمه **Share** (مربع با فلش) ضربه بزنید.": "In Safari, tap the **Share** button (the square with an arrow).",
+  "گزینه **Add to Home Screen** را انتخاب کنید.": "Choose **Add to Home Screen**.",
+  "در صورت نمایش، گزینه **Open as Web App** را فعال کنید.": "If shown, turn on **Open as Web App**.",
+  "دکمه **Add** را بزنید تا اپ نصب شود.": "Tap **Add** to install the app.",
+  "نکته:": "Note:",
+  "اگر با مرورگر Chrome یا سایر مرورگرها وارد شده‌اید، ابتدا Safari را باز کرده و همین صفحه را مجدداً در آن مرورگر اجرا کنید.": "If you opened this page in Chrome or another browser, open Safari first and load this same page there.",
+  "متوجه شدم": "Got it",
+  "اپلیکیشن ARANO نصب شد.": "The ARANO app has been installed.",
+  "اپلیکیشن ARANO قبلاً نصب شده است.": "The ARANO app is already installed.",
+  "در این مرورگر نصب مستقیم در دسترس نیست. لطفاً از راهنمای نصب استفاده کنید.": "Direct install isn't available in this browser. Please use the install guide.",
+  "نصب در این مرورگر در دسترس نیست. لطفاً از منوی مرورگر گزینه Install یا Add to Home Screen را انتخاب کنید.": "Install isn't available in this browser. Please choose Install or Add to Home Screen from the browser menu.",
 };
 
 // Process steps shared by all service pages (English of STEPS in ServiceView.jsx)

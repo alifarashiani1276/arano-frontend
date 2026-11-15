@@ -29,7 +29,12 @@ const inServices = (pathname) =>
 // «وبلاگ‌ها» در صفحه‌ی اصلی وبلاگ، دسته‌ها و مقاله‌ها (/blog/...) فعال است.
 const inBlog = (pathname) => pathname.startsWith("/blog/");
 
+// **متن** داخل رشته‌ی ترجمه‌شده را پررنگ می‌کند (برای نام دکمه‌های Safari)
+const rich = (text) =>
+  text.split("**").map((part, i) => (i % 2 ? <strong key={i}>{part}</strong> : part));
+
 function PwaInstallGuideModal({ open, onClose, mode = "ios" }) {
+  const { t } = useLang();
   if (!open) return null;
 
   const isMac = mode === "macos";
@@ -43,7 +48,7 @@ function PwaInstallGuideModal({ open, onClose, mode = "ios" }) {
               <FiSmartphone size={18} aria-hidden="true" />
             </div>
             <div>
-              <p className="text-sm font-bold text-foreground">نصب اپلیکیشن ARANO</p>
+              <p className="text-sm font-bold text-foreground">{t("نصب اپلیکیشن ARANO")}</p>
               <p className="text-[11px] text-muted">
                 {isMac ? "Safari macOS" : "iPhone / iPad"}
               </p>
@@ -54,7 +59,7 @@ function PwaInstallGuideModal({ open, onClose, mode = "ios" }) {
             type="button"
             onClick={onClose}
             className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-surface text-muted transition-colors hover:text-foreground"
-            aria-label="بستن راهنمای نصب"
+            aria-label={t("بستن راهنمای نصب")}
           >
             <FiX size={16} aria-hidden="true" />
           </button>
@@ -63,8 +68,8 @@ function PwaInstallGuideModal({ open, onClose, mode = "ios" }) {
         <div className="space-y-4 p-4">
           <p className="text-sm leading-7 text-muted">
             {isMac
-              ? "برای افزودن سایت ARANO به Dock مک، در Safari از منوی File گزینه Add to Dock… را انتخاب کنید."
-              : "برای نصب ARANO روی آیفون و آیپد، از Safari استفاده کنید و مراحل زیر را انجام دهید:"}
+              ? t("برای افزودن سایت ARANO به Dock مک، در Safari از منوی File گزینه Add to Dock… را انتخاب کنید.")
+              : t("برای نصب ARANO روی آیفون و آیپد، از Safari استفاده کنید و مراحل زیر را انجام دهید:")}
           </p>
 
           {isMac ? (
@@ -73,25 +78,25 @@ function PwaInstallGuideModal({ open, onClose, mode = "ios" }) {
                 <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
                   1
                 </span>
-                <span>در Safari این صفحه را باز نگه دارید.</span>
+                <span>{t("در Safari این صفحه را باز نگه دارید.")}</span>
               </li>
               <li className="flex gap-3">
                 <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
                   2
                 </span>
-                <span>از منوی بالا روی <strong>File</strong> کلیک کنید.</span>
+                <span>{rich(t("از منوی بالا روی **File** کلیک کنید."))}</span>
               </li>
               <li className="flex gap-3">
                 <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
                   3
                 </span>
-                <span>گزینه <strong>Add to Dock…</strong> را انتخاب کنید.</span>
+                <span>{rich(t("گزینه **Add to Dock…** را انتخاب کنید."))}</span>
               </li>
               <li className="flex gap-3">
                 <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
                   4
                 </span>
-                <span>بعد از اضافه شدن، سایت در Dock به صورت اپ مستقل باز می‌شود.</span>
+                <span>{t("بعد از اضافه شدن، سایت در Dock به صورت اپ مستقل باز می‌شود.")}</span>
               </li>
             </ol>
           ) : (
@@ -100,25 +105,25 @@ function PwaInstallGuideModal({ open, onClose, mode = "ios" }) {
                 <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
                   1
                 </span>
-                <span>در Safari روی دکمه <strong>Share</strong> (مربع با فلش) ضربه بزنید.</span>
+                <span>{rich(t("در Safari روی دکمه **Share** (مربع با فلش) ضربه بزنید."))}</span>
               </li>
               <li className="flex gap-3">
                 <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
                   2
                 </span>
-                <span>گزینه <strong>Add to Home Screen</strong> را انتخاب کنید.</span>
+                <span>{rich(t("گزینه **Add to Home Screen** را انتخاب کنید."))}</span>
               </li>
               <li className="flex gap-3">
                 <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
                   3
                 </span>
-                <span>در صورت نمایش، گزینه <strong>Open as Web App</strong> را فعال کنید.</span>
+                <span>{rich(t("در صورت نمایش، گزینه **Open as Web App** را فعال کنید."))}</span>
               </li>
               <li className="flex gap-3">
                 <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
                   4
                 </span>
-                <span>دکمه <strong>Add</strong> را بزنید تا اپ نصب شود.</span>
+                <span>{rich(t("دکمه **Add** را بزنید تا اپ نصب شود."))}</span>
               </li>
             </ol>
           )}
@@ -127,9 +132,9 @@ function PwaInstallGuideModal({ open, onClose, mode = "ios" }) {
             <div className="rounded-2xl border border-border bg-surface-2 p-3 text-xs leading-6 text-muted">
               <div className="mb-2 flex items-center gap-2 font-bold text-foreground">
                 <FiShare2 size={14} aria-hidden="true" />
-                نکته:
+                {t("نکته:")}
               </div>
-              اگر با مرورگر Chrome یا سایر مرورگرها وارد شده‌اید، ابتدا Safari را باز کرده و همین صفحه را مجدداً در آن مرورگر اجرا کنید.
+              {t("اگر با مرورگر Chrome یا سایر مرورگرها وارد شده‌اید، ابتدا Safari را باز کرده و همین صفحه را مجدداً در آن مرورگر اجرا کنید.")}
             </div>
           )}
 
@@ -139,7 +144,7 @@ function PwaInstallGuideModal({ open, onClose, mode = "ios" }) {
             className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/20 transition-opacity hover:opacity-90"
           >
             <FiCheck size={16} aria-hidden="true" />
-            متوجه شدم
+            {t("متوجه شدم")}
           </button>
         </div>
       </div>
@@ -376,10 +381,10 @@ export default function Navbar() {
                 type="button"
                 onClick={handleInstallClick}
                 className={`${installButtonClasses} hidden min-[900px]:inline-flex`}
-                aria-label="نصب اپلیکیشن ARANO"
+                aria-label={t("نصب اپلیکیشن ARANO")}
               >
                 <FiDownload size={15} aria-hidden="true" />
-                <span className="hidden sm:inline">نصب اپلیکیشن ARANO</span>
+                <span className="hidden sm:inline">{t("نصب اپلیکیشن ARANO")}</span>
               </button>
             )}
 
@@ -474,13 +479,13 @@ export default function Navbar() {
                   className="mt-2 inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 text-base font-bold text-primary-foreground shadow-lg shadow-primary/20 transition-[opacity,transform] duration-200 hover:opacity-90 active:scale-[0.98] min-[900px]:hidden"
                 >
                   <FiDownload size={17} aria-hidden="true" />
-                  <span>نصب اپلیکیشن ARANO</span>
+                  <span>{t("نصب اپلیکیشن ARANO")}</span>
                 </button>
               )}
 
               {installMessage && (
                 <p className="mt-2 rounded-xl border border-border bg-surface-2 px-3 py-2 text-xs leading-6 text-muted">
-                  {installMessage}
+                  {t(installMessage)}
                 </p>
               )}
 

@@ -18,7 +18,7 @@ export default function BlogCategoryPage({ slug }) {
   const posts = all.filter((p) => p.category === slug);
 
   return (
-    <PageShell path={path} seo={{ noindex: posts.length === 0 }}>
+    <PageShell path={path} seo={{ noindex: !isLoading && !isError && posts.length === 0 }}>
       <section aria-labelledby="blog-category-title" className="pb-24 md:pb-32">
         <div className="mx-auto max-w-6xl px-5">
           <Breadcrumb items={getPage(path, lang).breadcrumbs} />

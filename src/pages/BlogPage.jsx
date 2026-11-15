@@ -14,7 +14,7 @@ export default function BlogPage() {
   const { t } = useLang();
 
   return (
-    <PageShell path="/blog" seo={{ noindex: posts.length === 0 }}>
+    <PageShell path="/blog" seo={{ noindex: !isLoading && !isError && posts.length === 0 }}>
       <section aria-labelledby="blog-title" className="pb-24 md:pb-32">
         <div className="mx-auto max-w-6xl px-5">
           <SectionHeading
