@@ -6,6 +6,7 @@ import { useSite } from "../../i18n/useData";
 import { apiMessage, statusOf } from "../../lib/api";
 import { MOBILE_REGEX, normalizePhone, sanitizeText } from "../../lib/security";
 import { sendConsultation } from "../../services/consultationService";
+import { trackEvent } from "../../lib/analytics";
 import Icon from "../../ui/Icon";
 import MoreLink from "../../ui/MoreLink";
 import Reveal from "../../ui/Reveal";
@@ -131,6 +132,7 @@ export default function Contact({ compact = false, asH1 = false }) {
     setSubmitting(true);
     try {
       await sendConsultation(clean);
+      trackEvent("generate_lead", { method: "consultation_form" });
       toast.success(contact.successMessage);
       resetForm(formEl);
     } catch (err) {

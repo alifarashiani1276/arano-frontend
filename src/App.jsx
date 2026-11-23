@@ -24,6 +24,8 @@ import VerifyOtp from "./pages/VerifyOtp";
 import CompleteProfile from "./pages/CompleteProfile";
 import AuthPending from "./pages/AuthPending";
 import ScrollToTop from "./ui/ScrollToTop";
+import AnalyticsTracker from "./features/analytics/AnalyticsTracker";
+import CookieBanner from "./features/analytics/CookieBanner";
 import { LangProvider } from "./i18n/LangContext";
 
 import RequireStep from "./features/auth/RequireStep";
@@ -78,6 +80,8 @@ function AppRoutes() {
     <>
       <LegacyHashRedirect />
       <ScrollToTop />
+      <AnalyticsTracker />
+      <CookieBanner />
       <Suspense fallback={null}>
         <Routes>
           {/* صفحه‌های عمومی دو زبانه‌اند: بدون پیشوند = فارسی، /en/... = انگلیسی */}
