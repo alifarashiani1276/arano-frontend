@@ -318,12 +318,18 @@ body {
   font-family: "Vazir";
   min-height: 100%;
   min-height: 100dvh;
-  user-select: none;
+  user-select: auto; /* متن همه‌جا قابل انتخاب و کپی باشد */
   background-color: rgb(var(--surface-app));
 }
 
 html {
   background: rgb(var(--surface-app));
+}
+
+button,
+[role="button"],
+summary {
+  user-select: none;
 }
 
 body {
